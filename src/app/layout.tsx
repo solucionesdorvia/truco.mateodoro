@@ -5,6 +5,9 @@ import { SessionProvider } from '@/components/providers/SessionProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { Toaster } from 'sonner'
 
+// Force all pages to be dynamic (server-rendered) to avoid build-time issues
+export const dynamic = 'force-dynamic'
+
 const crimsonPro = Crimson_Pro({
   subsets: ['latin'],
   variable: '--font-serif',
