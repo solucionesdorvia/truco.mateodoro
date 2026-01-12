@@ -17,17 +17,28 @@ async function main() {
   })
   console.log('✅ Settings created/updated:', settings)
 
-  // Create admin user if doesn't exist
-  const existingAdmin = await prisma.user.findUnique({
-    where: { email: 'admin@truco.com' },
+  // Admin email to create/update
+  const adminEmail = 'admin@mateodoro.com'
+  
+  // Check if user exists
+  const existingUser = await prisma.user.findUnique({
+    where: { email: adminEmail },
   })
 
-  if (!existingAdmin) {
+  if (existingUser) {
+    // Update existing user to admin
+    const admin = await prisma.user.update({
+      where: { email: adminEmail },
+      data: { role: 'ADMIN' },
+    })
+    console.log('✅ User updated to ADMIN:', admin.email)
+  } else {
+    // Create new admin user
     const passwordHash = await bcrypt.hash('Admin1234!', 12)
     
     const admin = await prisma.user.create({
       data: {
-        email: 'admin@truco.com',
+        email: adminEmail,
         username: 'admin',
         passwordHash,
         role: 'ADMIN',
@@ -39,12 +50,8 @@ async function main() {
       email: admin.email,
       username: admin.username,
       role: admin.role,
-      mustChangePassword: admin.mustChangePassword,
     })
-    console.log('⚠️  IMPORTANT: Admin must change password on first login!')
-    console.log('   Default credentials: admin@truco.com / Admin1234!')
-  } else {
-    console.log('ℹ️  Admin user already exists:', existingAdmin.email)
+    console.log('⚠️  Default password: Admin1234!')
   }
 
   console.log('🎉 Seed completed!')
@@ -58,4 +65,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect()
   })
-
