@@ -1,101 +1,179 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import { useSession } from 'next-auth/react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { TrucoCard } from '@/components/game/TrucoCard'
+import { Badge } from '@/components/ui/badge'
+
+export default function HomePage() {
+  const { data: session, status } = useSession()
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="min-h-screen bg-gradient-to-br from-green-950 via-emerald-900 to-green-950">
+      {/* Header */}
+      <header className="border-b border-green-800/50 bg-black/20 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="text-3xl">🎴</div>
+            <h1 className="text-2xl font-bold text-white font-serif">Truco Argentino</h1>
+          </div>
+          <nav className="flex items-center gap-4">
+            {status === 'loading' ? (
+              <div className="h-10 w-24 bg-green-800/50 animate-pulse rounded-md" />
+            ) : session ? (
+              <>
+                <div className="flex items-center gap-2 text-green-200">
+                  <span className="text-sm">Hola,</span>
+                  <span className="font-semibold">{session.user?.username}</span>
+                  <Badge variant="secondary" className="bg-amber-500/20 text-amber-300">
+                    ${session.user?.creditsBalance ?? 0}
+                  </Badge>
+                </div>
+                {session.user?.role === 'ADMIN' && (
+                  <Link href="/admin">
+                    <Button variant="outline" size="sm" className="border-amber-500/50 text-amber-300 hover:bg-amber-500/20">
+                      Admin
+                    </Button>
+                  </Link>
+                )}
+                <Link href="/api/auth/signout">
+                  <Button variant="ghost" size="sm" className="text-green-300 hover:text-white">
+                    Salir
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="ghost" className="text-green-200 hover:text-white">
+                    Ingresar
+                  </Button>
+                </Link>
+                <Link href="/register">
+                  <Button className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
+                    Registrarse
+                  </Button>
+                </Link>
+              </>
+            )}
+          </nav>
+        </div>
+      </header>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Hero */}
+      <main className="container mx-auto px-4 py-12">
+        <div className="text-center mb-12">
+          <h2 className="text-5xl font-bold text-white mb-4 font-serif">
+            ¡Jugá al Truco Online!
+          </h2>
+          <p className="text-xl text-green-200 max-w-2xl mx-auto">
+            Desafiá a tus amigos en partidas de Truco Argentino en tiempo real. 
+            Envido, Truco, Flor y mucho más.
+          </p>
+        </div>
+
+        {/* Decorative cards */}
+        <div className="flex justify-center gap-4 mb-12">
+          <div className="transform -rotate-12 hover:rotate-0 transition-transform duration-300">
+            <TrucoCard number={1} suit="espada" size="lg" />
+          </div>
+          <div className="transform rotate-0 hover:scale-110 transition-transform duration-300">
+            <TrucoCard number={7} suit="oro" size="lg" />
+          </div>
+          <div className="transform rotate-12 hover:rotate-0 transition-transform duration-300">
+            <TrucoCard number={1} suit="basto" size="lg" />
+          </div>
+        </div>
+
+        {/* Action cards */}
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <Card className="bg-gradient-to-br from-green-800/80 to-green-900/80 border-green-700 backdrop-blur">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <span className="text-2xl">🎮</span>
+                Crear Partida
+              </CardTitle>
+              <CardDescription className="text-green-200">
+                Configurá tu sala y compartí los códigos con tus amigos
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link href={session ? '/create' : '/login'}>
+                <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-6 text-lg">
+                  Crear Nueva Partida
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-amber-800/80 to-amber-900/80 border-amber-700 backdrop-blur">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <span className="text-2xl">🎯</span>
+                Unirse a Partida
+              </CardTitle>
+              <CardDescription className="text-amber-200">
+                Ingresá el código que te compartieron
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link href={session ? '/join' : '/login'}>
+                <Button className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold py-6 text-lg">
+                  Unirse con Código
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Features */}
+        <div className="mt-16 grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="text-center p-6">
+            <div className="text-4xl mb-4">🃏</div>
+            <h3 className="text-xl font-semibold text-white mb-2">Truco Completo</h3>
+            <p className="text-green-200 text-sm">
+              Envido, Truco, Retruco, Vale 4, Flor y todas las reglas argentinas
+            </p>
+          </div>
+          <div className="text-center p-6">
+            <div className="text-4xl mb-4">💰</div>
+            <h3 className="text-xl font-semibold text-white mb-2">Sistema de Créditos</h3>
+            <p className="text-green-200 text-sm">
+              Jugá gratis o apostá créditos con el sistema de pozo por equipo
+            </p>
+          </div>
+          <div className="text-center p-6">
+            <div className="text-4xl mb-4">⚡</div>
+            <h3 className="text-xl font-semibold text-white mb-2">Tiempo Real</h3>
+            <p className="text-green-200 text-sm">
+              Partidas instantáneas con reconexión automática
+            </p>
+          </div>
+        </div>
+
+        {/* Game modes */}
+        <div className="mt-16 text-center">
+          <h3 className="text-2xl font-bold text-white mb-6">Modos de Juego</h3>
+          <div className="flex justify-center gap-4 flex-wrap">
+            <Badge className="bg-green-600/50 text-green-100 text-lg px-6 py-2">
+              1 vs 1
+            </Badge>
+            <Badge className="bg-green-600/50 text-green-100 text-lg px-6 py-2">
+              2 vs 2
+            </Badge>
+            <Badge className="bg-green-600/50 text-green-100 text-lg px-6 py-2">
+              3 vs 3
+            </Badge>
+          </div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* Footer */}
+      <footer className="border-t border-green-800/50 mt-16 py-8 text-center text-green-400 text-sm">
+        <p>Truco Argentino Online - Hecho con 🧉</p>
       </footer>
     </div>
-  );
+  )
 }

@@ -1,0 +1,202 @@
+// Prisma schema for Truco Argentino
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Enums
+enum Role {
+  USER
+  ADMIN
+}
+
+enum GameMode {
+  ONE_VS_ONE   // 1v1 - 2 players
+  TWO_VS_TWO   // 2v2 - 4 players
+  THREE_VS_THREE // 3v3 - 6 players
+}
+
+enum RoomStatus {
+  WAITING
+  PLAYING
+  FINISHED
+  CANCELLED
+}
+
+enum StakeMode {
+  NONE
+  ENTRY_FEE
+  TEAM_POOL
+}
+
+enum PayoutMode {
+  PROPORTIONAL
+  SINGLE_RECEIVER
+}
+
+enum Team {
+  A
+  B
+}
+
+enum CreditTransactionType {
+  ADMIN_LOAD
+  ADMIN_ADJUST
+  GAME_ENTRY_FEE
+  STAKE_LOCK
+  STAKE_REFUND
+  STAKE_PAYOUT
+  REFUND
+}
+
+// Models
+model User {
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  username           String   @unique
+  passwordHash       String
+  role               Role     @default(USER)
+  creditsBalance     Int      @default(0)
+  mustChangePassword Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Relations
+  createdRooms        GameRoom[]           @relation("CreatedRooms")
+  roomPlayers         GameRoomPlayer[]
+  stakeContributions  StakeContribution[]
+  creditTransactions  CreditTransaction[]
+  chatMessages        ChatMessage[]
+  payoutReceiverRooms GameRoom[]           @relation("PayoutReceiver")
+
+  @@index([email])
+  @@index([username])
+}
+
+model GameRoom {
+  id                  String      @id @default(cuid())
+  mode                GameMode
+  targetScore         Int         @default(15) // 15 or 30
+  florEnabled         Boolean     @default(false)
+  chatEnabled         Boolean     @default(true)
+  timerEnabled        Boolean     @default(false)
+  timerSeconds        Int         @default(25)
+  status              RoomStatus  @default(WAITING)
+  
+  // Unique codes for each team
+  codeTeamA           String      @unique
+  codeTeamB           String      @unique
+  
+  // Creator
+  createdById         String
+  createdBy           User        @relation("CreatedRooms", fields: [createdById], references: [id])
+  
+  // Economy settings
+  stakeMode           StakeMode   @default(NONE)
+  entryFeeCredits     Int?
+  stakeTotalCredits   Int?        // Total credits required per team in TEAM_POOL mode
+  
+  // Payout configuration
+  payoutMode          PayoutMode  @default(PROPORTIONAL)
+  payoutReceiverUserId String?
+  payoutReceiver      User?       @relation("PayoutReceiver", fields: [payoutReceiverUserId], references: [id])
+  platformFeePercent  Int         @default(0)
+  
+  // Game state (stored as JSON for flexibility)
+  gameState           Json?
+  
+  // Winner
+  winnerTeam          Team?
+  
+  // Timestamps
+  createdAt           DateTime    @default(now())
+  startedAt           DateTime?
+  finishedAt          DateTime?
+  updatedAt           DateTime    @updatedAt
+
+  // Relations
+  players             GameRoomPlayer[]
+  stakeContributions  StakeContribution[]
+  creditTransactions  CreditTransaction[]
+  chatMessages        ChatMessage[]
+
+  @@index([codeTeamA])
+  @@index([codeTeamB])
+  @@index([status])
+  @@index([createdById])
+}
+
+model GameRoomPlayer {
+  id             String    @id @default(cuid())
+  roomId         String
+  room           GameRoom  @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User      @relation(fields: [userId], references: [id])
+  team           Team
+  seatIndex      Int       // Position in team (0, 1, 2)
+  joinedAt       DateTime  @default(now())
+  disconnectedAt DateTime?
+  isConnected    Boolean   @default(true)
+
+  @@unique([roomId, userId])
+  @@unique([roomId, team, seatIndex])
+  @@index([roomId])
+  @@index([userId])
+}
+
+model StakeContribution {
+  id            String   @id @default(cuid())
+  roomId        String
+  room          GameRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  team          Team
+  amountCredits Int      @default(0)
+  isLocked      Boolean  @default(false) // Locked when game starts
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([roomId, userId])
+  @@index([roomId])
+  @@index([userId])
+}
+
+model CreditTransaction {
+  id        String                @id @default(cuid())
+  userId    String
+  user      User                  @relation(fields: [userId], references: [id])
+  amount    Int                   // Positive or negative
+  type      CreditTransactionType
+  roomId    String?
+  room      GameRoom?             @relation(fields: [roomId], references: [id])
+  note      String?
+  createdAt DateTime              @default(now())
+
+  @@index([userId])
+  @@index([roomId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  roomId    String
+  room      GameRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([roomId])
+  @@index([createdAt])
+}
+
+model Settings {
+  id                 String @id @default("global")
+  platformFeePercent Int    @default(0)
+  updatedAt          DateTime @updatedAt
+}
