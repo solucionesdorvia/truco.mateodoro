@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import prisma from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { changePasswordSchema } from '@/lib/validations/auth'
