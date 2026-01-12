@@ -172,7 +172,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="border-t border-green-800/50 mt-16 py-8 text-center text-green-400 text-sm">
-        <p>Truco Argentino Online - Hecho con 🧉</p>
+        <p>Truco Argentino Online - Hecho x doro</p>
       </footer>
     </div>
   )
