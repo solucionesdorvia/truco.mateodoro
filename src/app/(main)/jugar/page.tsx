@@ -49,6 +49,7 @@ interface CreateGameConfig {
   mode: GameMode
   targetScore: 15 | 30
   florEnabled: boolean
+  isPublic: boolean
   stakeMode: StakeMode
   entryFeeCredits: number
   stakeTotalCredits: number
@@ -89,6 +90,7 @@ export default function JugarPage() {
   
   const [activeTab, setActiveTab] = useState<TabType>('buscar')
   const [modeFilter, setModeFilter] = useState<string>(initialMode)
+  const [stakeFilter, setStakeFilter] = useState<string>('ALL') // ALL, FREE, PAID
   const [activeRooms, setActiveRooms] = useState<ActiveRoom[]>([])
   const [isLoadingRooms, setIsLoadingRooms] = useState(true)
   
@@ -106,29 +108,39 @@ export default function JugarPage() {
     mode: 'TWO_VS_TWO',
     targetScore: 15,
     florEnabled: false,
+    isPublic: true,
     stakeMode: 'NONE',
     entryFeeCredits: 10,
     stakeTotalCredits: 100,
   })
 
-  // Fetch active rooms
+  // Fetch active rooms (solo públicas)
   const fetchRooms = useCallback(async () => {
     setIsLoadingRooms(true)
     try {
-      const url = modeFilter === 'ALL' 
-        ? '/api/rooms/active' 
-        : `/api/rooms/active?mode=${modeFilter}`
+      const params = new URLSearchParams()
+      if (modeFilter !== 'ALL') params.set('mode', modeFilter)
+      params.set('public', 'true') // Solo mesas públicas en el listado
+      
+      const url = `/api/rooms/active?${params.toString()}`
       const res = await fetch(url)
       const data = await res.json()
       if (res.ok) {
-        setActiveRooms(data.rooms)
+        // Filtrar por economía localmente
+        let rooms = data.rooms as ActiveRoom[]
+        if (stakeFilter === 'FREE') {
+          rooms = rooms.filter(r => r.stakeMode === 'NONE')
+        } else if (stakeFilter === 'PAID') {
+          rooms = rooms.filter(r => r.stakeMode !== 'NONE')
+        }
+        setActiveRooms(rooms)
       }
     } catch (error) {
       console.error('Error fetching rooms:', error)
     } finally {
       setIsLoadingRooms(false)
     }
-  }, [modeFilter])
+  }, [modeFilter, stakeFilter])
 
   useEffect(() => {
     fetchRooms()
@@ -240,6 +252,7 @@ export default function JugarPage() {
       mode: 'TWO_VS_TWO',
       targetScore: 15,
       florEnabled: false,
+      isPublic: true,
       stakeMode: 'NONE',
       entryFeeCredits: 10,
       stakeTotalCredits: 100,
@@ -342,19 +355,31 @@ export default function JugarPage() {
       {/* Lista de mesas activas */}
       {activeTab === 'buscar' && (
         <>
-          {/* Filtro por modo */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <Label className="text-naipe-400 text-sm hidden sm:block">Filtrar:</Label>
+          {/* Filtros */}
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Filtro modo */}
               <Select value={modeFilter} onValueChange={setModeFilter}>
-                <SelectTrigger className="w-32 bg-noche-200 border-paño/20 text-naipe rounded-club">
+                <SelectTrigger className="w-24 sm:w-28 bg-noche-200 border-paño/20 text-naipe rounded-club text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-noche-200 border-paño/20">
+                  <SelectItem value="ALL">Todos</SelectItem>
+                  <SelectItem value="ONE_VS_ONE">1v1</SelectItem>
+                  <SelectItem value="TWO_VS_TWO">2v2</SelectItem>
+                  <SelectItem value="THREE_VS_THREE">3v3</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {/* Filtro economía */}
+              <Select value={stakeFilter} onValueChange={setStakeFilter}>
+                <SelectTrigger className="w-24 sm:w-28 bg-noche-200 border-paño/20 text-naipe rounded-club text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-noche-200 border-paño/20">
                   <SelectItem value="ALL">Todas</SelectItem>
-                  <SelectItem value="ONE_VS_ONE">1v1</SelectItem>
-                  <SelectItem value="TWO_VS_TWO">2v2</SelectItem>
-                  <SelectItem value="THREE_VS_THREE">3v3</SelectItem>
+                  <SelectItem value="FREE">Gratis</SelectItem>
+                  <SelectItem value="PAID">🪙 Fichas</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -367,7 +392,7 @@ export default function JugarPage() {
               className="text-naipe-600 hover:text-naipe"
             >
               <RefreshCw className={`w-4 h-4 mr-1 ${isLoadingRooms ? 'animate-spin' : ''}`} />
-              Actualizar
+              <span className="hidden sm:inline">Actualizar</span>
             </Button>
           </div>
 
@@ -661,35 +686,110 @@ export default function JugarPage() {
                 />
               </div>
 
-              {/* Economía */}
+              {/* Visibilidad: Pública / Privada */}
               <div className="space-y-3 pt-4 border-t border-paño/20">
+                <Label className="text-naipe-300 text-sm">Visibilidad</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    className={`p-3 rounded-club border-2 transition-all ${
+                      config.isPublic 
+                        ? 'bg-paño/20 border-paño text-naipe' 
+                        : 'bg-noche-200 border-paño/20 text-naipe-600 hover:border-paño/40'
+                    }`}
+                    onClick={() => setConfig({ ...config, isPublic: true, stakeMode: config.stakeMode === 'TEAM_POOL' ? 'NONE' : config.stakeMode })}
+                  >
+                    <div className="text-lg mb-1">🌐</div>
+                    <div className="font-bold text-sm">Pública</div>
+                    <div className="text-[10px] opacity-70">Aparece en el listado</div>
+                  </button>
+                  <button
+                    type="button"
+                    className={`p-3 rounded-club border-2 transition-all ${
+                      !config.isPublic 
+                        ? 'bg-celeste/20 border-celeste text-naipe' 
+                        : 'bg-noche-200 border-paño/20 text-naipe-600 hover:border-paño/40'
+                    }`}
+                    onClick={() => setConfig({ ...config, isPublic: false })}
+                  >
+                    <div className="text-lg mb-1">🔒</div>
+                    <div className="font-bold text-sm">Privada</div>
+                    <div className="text-[10px] opacity-70">Solo con código</div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Economía - opciones condicionadas según visibilidad */}
+              <div className="space-y-3">
                 <Label className="text-naipe-300 text-sm">Economía</Label>
                 <div className="space-y-2">
-                  {[
-                    { value: 'NONE', label: 'Gratis', desc: 'Sin fichas', icon: '🎮' },
-                    { value: 'ENTRY_FEE', label: 'Entrada fija', desc: 'Cada jugador paga igual', icon: '🎟️' },
-                    { value: 'TEAM_POOL', label: 'Pozo por equipo', desc: 'Cada equipo arma su pozo', icon: '💰' },
-                  ].map((option) => (
+                  {/* Gratis - siempre disponible */}
+                  <button
+                    type="button"
+                    className={`w-full p-3 rounded-club border-2 text-left transition-all ${
+                      config.stakeMode === 'NONE' 
+                        ? 'bg-paño/20 border-paño' 
+                        : 'bg-noche-200 border-paño/20 hover:border-paño/40'
+                    }`}
+                    onClick={() => setConfig({ ...config, stakeMode: 'NONE' })}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">🎮</span>
+                      <div>
+                        <div className="font-semibold text-naipe text-sm">Gratis</div>
+                        <div className="text-xs text-naipe-700">Sin fichas en juego</div>
+                      </div>
+                    </div>
+                  </button>
+                  
+                  {/* Entrada fija - siempre disponible */}
+                  <button
+                    type="button"
+                    className={`w-full p-3 rounded-club border-2 text-left transition-all ${
+                      config.stakeMode === 'ENTRY_FEE' 
+                        ? 'bg-paño/20 border-paño' 
+                        : 'bg-noche-200 border-paño/20 hover:border-paño/40'
+                    }`}
+                    onClick={() => setConfig({ ...config, stakeMode: 'ENTRY_FEE' })}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">🪙</span>
+                      <div>
+                        <div className="font-semibold text-naipe text-sm">Entrada fija</div>
+                        <div className="text-xs text-naipe-700">Cada jugador paga igual</div>
+                      </div>
+                    </div>
+                  </button>
+                  
+                  {/* Pozo por equipo - solo en privada */}
+                  {!config.isPublic && (
                     <button
-                      key={option.value}
                       type="button"
                       className={`w-full p-3 rounded-club border-2 text-left transition-all ${
-                        config.stakeMode === option.value 
-                          ? 'bg-paño/20 border-paño' 
+                        config.stakeMode === 'TEAM_POOL' 
+                          ? 'bg-oro/20 border-oro' 
                           : 'bg-noche-200 border-paño/20 hover:border-paño/40'
                       }`}
-                      onClick={() => setConfig({ ...config, stakeMode: option.value as StakeMode })}
+                      onClick={() => setConfig({ ...config, stakeMode: 'TEAM_POOL' })}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-xl">{option.icon}</span>
+                        <span className="text-xl">💰</span>
                         <div>
-                          <div className="font-semibold text-naipe text-sm">{option.label}</div>
-                          <div className="text-xs text-naipe-700">{option.desc}</div>
+                          <div className="font-semibold text-naipe text-sm">Pozo por equipo</div>
+                          <div className="text-xs text-naipe-700">Cada equipo arma su pozo</div>
                         </div>
                       </div>
                     </button>
-                  ))}
+                  )}
                 </div>
+                
+                {/* Info: por qué no hay pozo en pública */}
+                {config.isPublic && (
+                  <p className="text-[10px] text-naipe-700 flex items-center gap-1 mt-2">
+                    <span>ℹ️</span>
+                    Pozo por equipo solo disponible en mesas privadas
+                  </p>
+                )}
               </div>
               
               {config.stakeMode === 'ENTRY_FEE' && (

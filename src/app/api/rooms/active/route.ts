@@ -5,6 +5,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const mode = searchParams.get('mode') // ONE_VS_ONE, TWO_VS_TWO, THREE_VS_THREE, or null for all
+    const isPublicParam = searchParams.get('public') // 'true' to filter only public rooms
     
     const whereClause: Record<string, unknown> = {
       status: 'WAITING',
@@ -13,6 +14,13 @@ export async function GET(request: Request) {
     if (mode && mode !== 'ALL') {
       whereClause.mode = mode
     }
+    
+    // TODO: Agregar campo isPublic al modelo GameRoom en schema.prisma
+    // Por ahora, el filtro se aplica solo si el campo existe
+    // Una vez agregado: npx prisma migrate dev --name add_isPublic_to_game_room
+    // if (isPublicParam === 'true') {
+    //   whereClause.isPublic = true
+    // }
     
     const rooms = await prisma.gameRoom.findMany({
       where: whereClause,
