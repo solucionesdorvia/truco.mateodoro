@@ -18,24 +18,24 @@ export async function POST(
       )
     }
 
-    // Create reply and update ticket status to IN_PROGRESS if OPEN
-    const [message, ticket] = await prisma.$transaction([
-      prisma.supportMessage.create({
-        data: {
-          ticketId: params.ticketId,
-          userId: session.user.id,
-          body: body.trim(),
-          isAdmin: true,
-        }
-      }),
-      prisma.supportTicket.update({
-        where: { 
-          id: params.ticketId,
-          status: 'OPEN'
-        },
-        data: { status: 'IN_PROGRESS' }
-      }).catch(() => null) // Ignore if not OPEN
-    ])
+    // Create reply
+    const message = await prisma.supportMessage.create({
+      data: {
+        ticketId: params.ticketId,
+        userId: session.user.id,
+        body: body.trim(),
+        isAdmin: true,
+      }
+    })
+
+    // Update ticket status to IN_PROGRESS if currently OPEN
+    await prisma.supportTicket.updateMany({
+      where: { 
+        id: params.ticketId,
+        status: 'OPEN'
+      },
+      data: { status: 'IN_PROGRESS' }
+    })
 
     return NextResponse.json({ message })
   } catch (error) {
