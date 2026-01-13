@@ -1,6 +1,6 @@
 # 🎴 Truco Argentino Online
 
-Aplicación web completa de Truco Argentino multiplayer en tiempo real, con sistema de usuarios, créditos, partidas pagas y sistema avanzado de pozo por equipo.
+Plataforma completa de Truco Argentino multiplayer competitivo con sistema de rankings, comunidad, stake por equipos y panel de administración.
 
 ## 🚀 Stack Tecnológico
 
@@ -12,7 +12,6 @@ Aplicación web completa de Truco Argentino multiplayer en tiempo real, con sist
 - **ORM**: Prisma
 - **Auth**: NextAuth v5 (Credentials Provider)
 - **Validaciones**: Zod
-- **Passwords**: bcrypt
 
 ## 📋 Características
 
@@ -33,17 +32,47 @@ Aplicación web completa de Truco Argentino multiplayer en tiempo real, con sist
 ### Sistema Económico
 - **Gratis**: Sin apuestas
 - **Entry Fee**: Pago fijo por jugador
-- **Team Pool**: Pozo colaborativo por equipo (feature principal)
+- **Team Pool**: Pozo colaborativo por equipo
   - Aportes editables en lobby
   - Distribución proporcional o receptor único
   - Comisión de plataforma configurable
 
-### Funcionalidades
-- Autenticación (registro/login)
-- Reconexión automática
-- Chat en tiempo real
-- Timer por turno (opcional)
-- Panel de administración completo
+### Nuevas Funcionalidades
+- 🏆 Rankings semanal y global
+- 👥 Comunidad con posts y categorías
+- 🎮 Centro de juego unificado
+- 💰 Wallet con historial completo
+- 📞 Sistema de soporte con tickets
+- 👤 Perfil con estadísticas
+- 📊 Historial de partidas
+
+## 🗺️ Rutas de la Aplicación
+
+### Públicas
+| Ruta | Descripción |
+|------|-------------|
+| `/` | Home / Landing page |
+| `/comunidad` | Posts de la comunidad |
+| `/rankings` | Rankings semanal y global |
+| `/soporte` | FAQ y tickets de soporte |
+| `/login` | Inicio de sesión |
+| `/register` | Registro |
+
+### Protegidas (requieren login)
+| Ruta | Descripción |
+|------|-------------|
+| `/jugar` | Centro de juego - crear/unirse |
+| `/fichas` | Wallet - saldo y transacciones |
+| `/perfil` | Perfil del usuario |
+| `/mis-partidas` | Historial de partidas |
+| `/lobby/[roomId]` | Sala de espera |
+| `/table/[roomId]` | Mesa de juego |
+
+### Admin (requieren rol ADMIN)
+| Ruta | Descripción |
+|------|-------------|
+| `/admin` | Panel de administración |
+| `/admin/support` | Gestión de tickets |
 
 ## 🛠️ Instalación
 
@@ -105,17 +134,29 @@ Al ejecutar el seed se crea un usuario administrador:
 ```
 src/
 ├── app/                    # Next.js App Router
-│   ├── (admin)/           # Rutas admin
+│   ├── (admin)/           # Panel admin
+│   │   └── admin/
+│   │       ├── page.tsx   # Dashboard
+│   │       └── support/   # Tickets
 │   ├── (auth)/            # Login/Register
-│   ├── (game)/            # Create/Join/Lobby/Table
+│   ├── (game)/            # Lobby/Table
+│   ├── (main)/            # Páginas principales
+│   │   ├── jugar/         # Centro de juego
+│   │   ├── fichas/        # Wallet
+│   │   ├── rankings/      # Rankings
+│   │   ├── comunidad/     # Comunidad
+│   │   ├── soporte/       # Soporte
+│   │   ├── perfil/        # Perfil
+│   │   └── mis-partidas/  # Historial
 │   └── api/               # API Routes
 ├── components/
 │   ├── game/              # Componentes del juego
+│   ├── layout/            # Navbar, BottomNav
 │   ├── providers/         # Context providers
 │   └── ui/                # Componentes shadcn
 └── lib/
     ├── services/          # Lógica de negocio
-    ├── socket/            # Cliente y servidor Socket.IO
+    ├── socket/            # Socket.IO
     ├── truco/             # Motor del juego
     └── validations/       # Schemas Zod
 
@@ -124,30 +165,20 @@ prisma/
 └── seed.ts                # Seed inicial
 ```
 
-## 🎮 Cómo Funciona
+## 📊 Modelos de Base de Datos
 
-### Crear Partida
-1. Usuario crea partida configurando modo, puntos objetivo, flor, timer y economía
-2. Se generan 2 códigos únicos (uno por equipo)
-3. El creador entra automáticamente al Equipo A
+### Principales
+- **User** - Usuarios con balance y rol
+- **GameRoom** - Salas de juego
+- **GameRoomPlayer** - Jugadores en sala
+- **StakeContribution** - Aportes de stake
+- **CreditTransaction** - Ledger de movimientos
 
-### Unirse a Partida
-1. Usuario ingresa código de equipo
-2. Se asigna automáticamente al equipo correspondiente
-3. En lobby puede ver otros jugadores y configurar su aporte (si es TEAM_POOL)
-
-### Sistema de Pozo (TEAM_POOL)
-1. Cada equipo debe reunir el monto total configurado
-2. Jugadores aportan de su saldo (editable en lobby)
-3. Al iniciar, los aportes se bloquean y descuentan del saldo
-4. El equipo ganador recibe el premio según modo de pago:
-   - **Proporcional**: Según % aportado
-   - **Receptor único**: Todo a un jugador designado
-
-### Durante el Juego
-- El motor valida todas las jugadas server-side
-- Socket.IO sincroniza estado en tiempo real
-- Reconexión automática (90s ventana)
+### Nuevos
+- **PlayerStats** - Estadísticas para rankings
+- **CommunityPost** - Posts de la comunidad
+- **SupportTicket** - Tickets de soporte
+- **SupportMessage** - Mensajes de tickets
 
 ## 🔧 API Endpoints
 
@@ -162,12 +193,34 @@ prisma/
 - `POST /api/rooms/[roomId]/start` - Iniciar partida
 - `POST /api/rooms/[roomId]/stake` - Actualizar aporte
 
+### Profile
+- `GET /api/profile/stats` - Estadísticas del usuario
+- `GET /api/profile/games` - Historial de partidas
+
+### Credits
+- `GET /api/credits/transactions` - Historial de transacciones
+
+### Rankings
+- `GET /api/rankings` - Rankings semanal y global
+
+### Community
+- `GET /api/community/posts` - Listar posts
+- `POST /api/community/posts` - Crear post
+- `POST /api/community/posts/[postId]/like` - Like
+
+### Support
+- `POST /api/support/tickets` - Crear ticket
+- `GET /api/support/tickets` - Mis tickets
+
 ### Admin
 - `GET /api/admin/stats` - Estadísticas
 - `GET /api/admin/users` - Listar usuarios
 - `POST /api/admin/credits/load` - Cargar créditos
 - `POST /api/admin/credits/adjust` - Ajustar créditos
 - `GET/PATCH /api/admin/settings` - Configuración
+- `GET /api/admin/support/tickets` - Todos los tickets
+- `PATCH /api/admin/support/tickets/[ticketId]` - Actualizar ticket
+- `POST /api/admin/support/tickets/[ticketId]/reply` - Responder ticket
 
 ## 🔌 Eventos Socket.IO
 
@@ -186,34 +239,13 @@ prisma/
 
 ### Servidor → Cliente
 - `room:state` - Estado de sala actualizado
-- `game:state` - Estado del juego (vista del jugador)
+- `game:state` - Estado del juego
 - `game:started` - Partida iniciada
 - `game:finished` - Partida terminada
 - `chat:message` - Nuevo mensaje
 - `player:joined` - Jugador se unió
 - `player:disconnected` - Jugador desconectado
 - `error` - Error
-
-## 📊 Modelos de Base de Datos
-
-### User
-- Autenticación y perfil
-- Balance de créditos
-- Rol (USER/ADMIN)
-
-### GameRoom
-- Configuración de partida
-- Códigos de equipo
-- Estado del juego (JSON)
-- Configuración de apuesta
-
-### CreditTransaction
-- Ledger completo de movimientos
-- Tipos: ADMIN_LOAD, ADMIN_ADJUST, STAKE_LOCK, STAKE_REFUND, STAKE_PAYOUT
-
-### StakeContribution
-- Aportes por jugador/equipo
-- Bloqueo al iniciar partida
 
 ## 🚀 Deployment
 
@@ -236,13 +268,15 @@ npm start
 
 ## 📝 Notas
 
-- El servidor usa Socket.IO integrado con Next.js a través de un servidor HTTP custom
-- Los estados de juego se persisten en PostgreSQL para recuperación ante caídas
-- Las validaciones son server-authoritative (anti-cheat)
-- El sistema de créditos mantiene auditoría completa vía ledger
-
-## 🧉 Hecho con amor en Argentina
+- Servidor Socket.IO integrado con Next.js via servidor HTTP custom
+- Estados de juego persistidos en PostgreSQL
+- Validaciones server-authoritative (anti-cheat)
+- Sistema de créditos con auditoría completa
+- Rankings con reset semanal automático
+- Navegación responsive (navbar desktop + bottomnav mobile)
 
 ---
+
+Hecho x doro 🧉
 
 MIT License

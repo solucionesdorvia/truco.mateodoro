@@ -10,17 +10,47 @@ export function middleware(request: NextRequest) {
   
   const isLoggedIn = !!sessionToken
   
-  // Public routes
-  const publicRoutes = ['/', '/login', '/register']
-  const isPublicRoute = publicRoutes.includes(pathname)
+  // Public routes (accessible without login)
+  const publicRoutes = [
+    '/',
+    '/login',
+    '/register',
+    '/comunidad',
+    '/rankings',
+    '/soporte',
+  ]
   
-  // Auth routes
+  // Check if current path matches a public route
+  const isPublicRoute = publicRoutes.some(route => 
+    pathname === route || pathname.startsWith(route + '/')
+  )
+  
+  // Auth routes (only for non-logged users)
   const authRoutes = ['/login', '/register']
   const isAuthRoute = authRoutes.includes(pathname)
   
+  // Protected routes (require login)
+  const protectedRoutes = [
+    '/jugar',
+    '/fichas',
+    '/perfil',
+    '/mis-partidas',
+    '/admin',
+    '/lobby',
+    '/table',
+    '/create',
+    '/join',
+  ]
+  
+  const isProtectedRoute = protectedRoutes.some(route =>
+    pathname === route || pathname.startsWith(route + '/')
+  )
+  
   // If not logged in and trying to access protected routes
-  if (!isLoggedIn && !isPublicRoute) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  if (!isLoggedIn && isProtectedRoute) {
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('callbackUrl', pathname)
+    return NextResponse.redirect(loginUrl)
   }
   
   // If logged in and trying to access auth routes
