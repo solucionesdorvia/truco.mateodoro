@@ -4,9 +4,9 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { 
   Users, 
-  Gamepad2, 
+  Swords, 
   Coins, 
-  HelpCircle, 
+  LifeBuoy, 
   Trophy 
 } from 'lucide-react'
 
@@ -14,10 +14,10 @@ import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/comunidad', label: 'Comunidad', icon: Users },
-  { href: '/jugar', label: 'Jugar', icon: Gamepad2, primary: true },
   { href: '/fichas', label: 'Fichas', icon: Coins },
+  { href: '/jugar', label: 'Jugar', icon: Swords, primary: true },
   { href: '/rankings', label: 'Rankings', icon: Trophy },
-  { href: '/soporte', label: 'Soporte', icon: HelpCircle },
+  { href: '/soporte', label: 'Soporte', icon: LifeBuoy },
 ]
 
 export function BottomNav() {
@@ -30,8 +30,8 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
-      <div className="bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/50">
-        <div className="flex items-center justify-around px-2 py-1">
+      <div className="bg-noche/95 backdrop-blur-xl border-t border-paño/20">
+        <div className="flex items-center justify-around px-1 py-1.5">
           {navItems.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
@@ -41,17 +41,22 @@ export function BottomNav() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="relative -mt-6"
+                  className="relative -mt-7"
                 >
                   <div className={cn(
-                    'flex flex-col items-center justify-center w-16 h-16 rounded-2xl shadow-lg transition-all',
+                    'flex flex-col items-center justify-center w-16 h-16 rounded-2xl shadow-lg transition-all duration-300',
                     isActive 
-                      ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-500/40' 
-                      : 'bg-gradient-to-br from-amber-500/80 to-orange-600/80 shadow-amber-500/20 hover:from-amber-500 hover:to-orange-600'
+                      ? 'bg-gradient-to-br from-paño to-paño-600 shadow-paño/50 scale-105' 
+                      : 'bg-gradient-to-br from-paño/80 to-paño-600/80 shadow-paño/30 hover:scale-105'
                   )}>
-                    <Icon className="w-6 h-6 text-white" />
-                    <span className="text-[10px] font-semibold text-white mt-0.5">{item.label}</span>
+                    <Icon className="w-6 h-6 text-naipe" />
+                    <span className="text-[9px] font-bold text-naipe mt-0.5 uppercase tracking-wide">
+                      {item.label}
+                    </span>
                   </div>
+                  {isActive && (
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-oro shadow-glow-oro" />
+                  )}
                 </Link>
               )
             }
@@ -61,20 +66,32 @@ export function BottomNav() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'flex flex-col items-center justify-center w-16 py-2 transition-colors',
-                  isActive ? 'text-amber-400' : 'text-slate-500 hover:text-slate-300'
+                  'flex flex-col items-center justify-center w-14 py-2 transition-all duration-200',
+                  isActive ? 'text-naipe' : 'text-naipe-700 active:text-naipe'
                 )}
               >
-                <Icon className={cn('w-5 h-5', isActive && 'drop-shadow-glow')} />
-                <span className="text-[10px] font-medium mt-1">{item.label}</span>
+                <div className="relative">
+                  <Icon className={cn(
+                    'w-5 h-5 transition-colors duration-200',
+                    isActive && 'text-oro'
+                  )} />
+                  {isActive && (
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-oro" />
+                  )}
+                </div>
+                <span className={cn(
+                  'text-[10px] font-medium mt-1.5 transition-colors duration-200',
+                  isActive && 'text-naipe font-semibold'
+                )}>
+                  {item.label}
+                </span>
               </Link>
             )
           })}
         </div>
         {/* Safe area for iOS */}
-        <div className="h-safe-area-inset-bottom bg-slate-950" />
+        <div className="pb-safe bg-noche" />
       </div>
     </nav>
   )
 }
-

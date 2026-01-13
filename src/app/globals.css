@@ -4,48 +4,49 @@
 
 @layer base {
   :root {
-    --background: 25 25% 97%;
-    --foreground: 25 10% 10%;
-    --card: 25 20% 95%;
-    --card-foreground: 25 10% 10%;
-    --popover: 25 20% 95%;
-    --popover-foreground: 25 10% 10%;
-    --primary: 142 71% 35%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 25 15% 88%;
-    --secondary-foreground: 25 10% 15%;
-    --muted: 25 10% 92%;
-    --muted-foreground: 25 5% 45%;
-    --accent: 35 90% 55%;
-    --accent-foreground: 25 10% 10%;
-    --destructive: 0 84% 60%;
+    /* Truco Design System - Light (not used but defined) */
+    --background: 220 20% 7%;
+    --foreground: 40 20% 95%;
+    --card: 220 20% 10%;
+    --card-foreground: 40 20% 95%;
+    --popover: 220 20% 10%;
+    --popover-foreground: 40 20% 95%;
+    --primary: 145 50% 25%;
+    --primary-foreground: 40 20% 95%;
+    --secondary: 220 15% 15%;
+    --secondary-foreground: 40 20% 90%;
+    --muted: 220 15% 12%;
+    --muted-foreground: 220 10% 50%;
+    --accent: 40 70% 55%;
+    --accent-foreground: 220 20% 7%;
+    --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 25 15% 85%;
-    --input: 25 15% 85%;
-    --ring: 142 71% 35%;
-    --radius: 0.75rem;
+    --border: 220 15% 18%;
+    --input: 220 15% 18%;
+    --ring: 145 50% 30%;
+    --radius: 0.625rem;
   }
 
   .dark {
-    --background: 220 20% 10%;
-    --foreground: 25 10% 95%;
-    --card: 220 20% 13%;
-    --card-foreground: 25 10% 95%;
-    --popover: 220 20% 13%;
-    --popover-foreground: 25 10% 95%;
-    --primary: 142 71% 45%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 220 15% 20%;
-    --secondary-foreground: 25 10% 90%;
-    --muted: 220 15% 18%;
-    --muted-foreground: 25 5% 60%;
-    --accent: 35 90% 55%;
-    --accent-foreground: 25 10% 10%;
-    --destructive: 0 70% 50%;
+    --background: 220 20% 4%;
+    --foreground: 40 15% 93%;
+    --card: 220 20% 7%;
+    --card-foreground: 40 15% 93%;
+    --popover: 220 20% 8%;
+    --popover-foreground: 40 15% 93%;
+    --primary: 145 45% 28%;
+    --primary-foreground: 40 15% 95%;
+    --secondary: 220 15% 12%;
+    --secondary-foreground: 40 10% 85%;
+    --muted: 220 15% 10%;
+    --muted-foreground: 220 10% 45%;
+    --accent: 40 65% 50%;
+    --accent-foreground: 220 20% 5%;
+    --destructive: 0 65% 45%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 15% 20%;
-    --input: 220 15% 20%;
-    --ring: 142 71% 45%;
+    --border: 220 15% 15%;
+    --input: 220 15% 15%;
+    --ring: 145 45% 35%;
   }
 }
 
@@ -53,126 +54,241 @@
   * {
     @apply border-border;
   }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
   body {
-    @apply bg-background text-foreground;
+    @apply bg-noche text-naipe-300 antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Headings con estilo "club/deportivo" */
+  h1, h2, h3 {
+    @apply font-bold tracking-tight;
+    text-rendering: optimizeLegibility;
+  }
+  
+  h1 {
+    @apply text-naipe uppercase tracking-wide;
   }
 }
 
-/* Custom scrollbar */
+/* ============================================
+   SCROLLBAR - Estilo mesa
+   ============================================ */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-muted rounded-full;
+  @apply bg-noche-100 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/30 rounded-full hover:bg-muted-foreground/50;
+  @apply bg-paño/50 rounded-full;
+  transition: background 0.2s;
 }
 
-/* Animations */
-@keyframes card-deal {
-  0% {
-    transform: translateY(-100px) rotate(-10deg) scale(0.5);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0) rotate(0) scale(1);
-    opacity: 1;
-  }
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-paño;
 }
 
-@keyframes card-play {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1) translateY(-20px);
-  }
-  100% {
-    transform: scale(0.8) translateY(0);
-  }
+/* ============================================
+   TRUCO COMPONENTS
+   ============================================ */
+
+/* Mesa de paño */
+.mesa-pano {
+  @apply bg-mesa-radial relative overflow-hidden;
 }
 
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(34, 197, 94, 0.6);
-  }
+.mesa-pano::before {
+  content: '';
+  @apply absolute inset-0 opacity-10;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  pointer-events: none;
 }
 
-.animate-card-deal {
-  animation: card-deal 0.5s ease-out forwards;
+/* Carta/Naipe */
+.naipe {
+  @apply bg-naipe-gradient rounded-lg shadow-naipe relative overflow-hidden;
+  aspect-ratio: 2.5 / 3.5;
 }
 
-.animate-card-play {
-  animation: card-play 0.3s ease-out forwards;
+.naipe::before {
+  content: '';
+  @apply absolute inset-0 rounded-lg;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%, rgba(0,0,0,0.05) 100%);
+  pointer-events: none;
 }
 
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+/* Chip/Ficha */
+.chip {
+  @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-semibold text-sm;
+  @apply bg-gradient-to-b from-oro-light to-oro shadow-chip;
+  @apply text-noche-400;
 }
 
-/* Table felt texture */
-.table-felt {
-  background: linear-gradient(135deg, #166534 0%, #14532d 50%, #166534 100%);
-  background-size: 200% 200%;
+.chip-sm {
+  @apply px-2 py-0.5 text-xs;
 }
 
-/* Card shine */
-.card-shine {
-  background: linear-gradient(
-    135deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    transparent 100%
-  );
+/* Card estilo club */
+.card-club {
+  @apply bg-noche-100/80 backdrop-blur-sm border border-paño/20 rounded-club;
+  @apply shadow-lg transition-all duration-200;
 }
 
-/* Accordion animations */
-@keyframes accordion-down {
-  from {
-    height: 0;
-  }
-  to {
-    height: var(--radix-accordion-content-height);
-  }
+.card-club:hover {
+  @apply border-paño/40 shadow-mesa;
 }
 
-@keyframes accordion-up {
-  from {
-    height: var(--radix-accordion-content-height);
-  }
-  to {
-    height: 0;
-  }
+/* Botón primario - Verde paño */
+.btn-pano {
+  @apply bg-paño hover:bg-paño-100 text-naipe font-semibold;
+  @apply rounded-club px-6 py-3 transition-all duration-200;
+  @apply shadow-lg hover:shadow-mesa;
 }
 
-.animate-accordion-down {
-  animation: accordion-down 0.2s ease-out;
+.btn-pano:active {
+  @apply scale-[0.98];
 }
 
-.animate-accordion-up {
-  animation: accordion-up 0.2s ease-out;
+/* Botón secundario - Oro */
+.btn-oro {
+  @apply bg-gradient-to-r from-oro to-oro-dark text-noche font-bold;
+  @apply rounded-club px-6 py-3 transition-all duration-200;
+  @apply shadow-lg hover:shadow-glow-oro;
 }
 
-/* Drop shadow glow */
-.drop-shadow-glow {
-  filter: drop-shadow(0 0 8px currentColor);
+/* Badge equipo */
+.badge-equipo-a {
+  @apply bg-equipoA-bg border border-equipoA-border text-equipoA;
+  @apply px-2 py-0.5 rounded-full text-xs font-semibold;
 }
 
-/* Safe area for mobile */
-.h-safe-area-inset-bottom {
+.badge-equipo-b {
+  @apply bg-equipoB-bg border border-equipoB-border text-equipoB;
+  @apply px-2 py-0.5 rounded-full text-xs font-semibold;
+}
+
+/* Tanteador/Marcador */
+.tanteador {
+  @apply flex items-center gap-4 px-6 py-3 rounded-club;
+  @apply bg-noche-200/80 backdrop-blur border border-paño/30;
+}
+
+.tanteador-score {
+  @apply text-4xl font-bold tabular-nums;
+}
+
+/* Input estilo club */
+.input-club {
+  @apply bg-noche-200 border border-paño/30 rounded-club;
+  @apply text-naipe placeholder:text-naipe-700;
+  @apply focus:border-paño focus:ring-1 focus:ring-paño/50;
+  @apply transition-all duration-200;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+/* Glow effects */
+.glow-oro {
+  @apply shadow-glow-oro;
+}
+
+.glow-pano {
+  @apply shadow-glow-paño;
+}
+
+/* Pulse para elementos activos */
+.pulse-active {
+  animation: pulseActive 2s ease-in-out infinite;
+}
+
+@keyframes pulseActive {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(26, 71, 42, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(26, 71, 42, 0); }
+}
+
+/* Hover lift */
+.hover-lift {
+  @apply transition-transform duration-200;
+}
+
+.hover-lift:hover {
+  @apply -translate-y-1;
+}
+
+/* ============================================
+   SAFE AREAS (Mobile)
+   ============================================ */
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.h-safe-bottom {
   height: env(safe-area-inset-bottom, 0px);
 }
 
-/* Glass effect */
-.glass {
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+/* ============================================
+   UTILITIES
+   ============================================ */
+
+/* Text gradient oro */
+.text-gradient-oro {
+  @apply bg-gradient-to-r from-oro-light via-oro to-oro-dark bg-clip-text text-transparent;
+}
+
+/* Text gradient paño */
+.text-gradient-pano {
+  @apply bg-gradient-to-r from-paño-50 to-paño bg-clip-text text-transparent;
+}
+
+/* Noise overlay */
+.noise-overlay::after {
+  content: '';
+  @apply absolute inset-0 opacity-[0.03] pointer-events-none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Border glow */
+.border-glow {
+  @apply relative;
+}
+
+.border-glow::before {
+  content: '';
+  @apply absolute -inset-px rounded-[inherit] opacity-0 transition-opacity duration-300;
+  background: linear-gradient(135deg, rgba(26, 71, 42, 0.5), rgba(212, 168, 83, 0.3));
+  z-index: -1;
+}
+
+.border-glow:hover::before {
+  @apply opacity-100;
+}
+
+/* Glass effect oscuro */
+.glass-dark {
+  @apply bg-noche-100/70 backdrop-blur-xl border border-white/5;
+}
+
+/* ============================================
+   RESPONSIVE HELPERS
+   ============================================ */
+
+/* Hide scrollbar but allow scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

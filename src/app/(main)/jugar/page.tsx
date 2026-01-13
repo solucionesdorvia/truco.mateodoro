@@ -7,20 +7,22 @@ import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 import { 
   Plus, 
-  Users, 
   Zap, 
   History,
-  Gamepad2,
   Hash,
   Copy,
   Check,
   ArrowRight,
   Coins,
-  Clock
+  Timer,
+  Users,
+  Target,
+  Flame,
+  Sparkles
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -62,6 +64,38 @@ interface CreatedRoom {
   codeTeamB: string
 }
 
+// SVG Icons
+function EspadaSVG({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 32" className={className} fill="currentColor">
+      <path d="M12 0C12 0 8 6 8 10C8 13 9.5 15 12 15.5C14.5 15 16 13 16 10C16 6 12 0 12 0Z" />
+      <path d="M12 15V30" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round"/>
+      <path d="M9 26H15" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+function BastoSVG({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 32" className={className} fill="currentColor">
+      <ellipse cx="12" cy="4" rx="4" ry="3.5"/>
+      <path d="M10 6C10 6 9 10 9 14C9 18 10 22 10 26" strokeWidth="3" stroke="currentColor" fill="none" strokeLinecap="round"/>
+      <path d="M14 6C14 6 15 10 15 14C15 18 14 22 14 26" strokeWidth="3" stroke="currentColor" fill="none" strokeLinecap="round"/>
+      <path d="M8 26H16" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+function CopaSVG({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 28" className={className} fill="currentColor">
+      <path d="M6 0H18V2C18 8 15 12 12 14C9 12 6 8 6 2V0Z" />
+      <path d="M12 14V22" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round"/>
+      <path d="M8 22H16V24H8V22Z" />
+    </svg>
+  )
+}
+
 export default function JugarPage() {
   const router = useRouter()
   const { data: session } = useSession()
@@ -73,6 +107,7 @@ export default function JugarPage() {
   const [createdRoom, setCreatedRoom] = useState<CreatedRoom | null>(null)
   const [joinCode, setJoinCode] = useState('')
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
+  const [step, setStep] = useState(1)
   
   const [config, setConfig] = useState<CreateGameConfig>({
     mode: 'TWO_VS_TWO',
@@ -107,9 +142,9 @@ export default function JugarPage() {
         codeTeamB: data.room.codeTeamB,
       })
       
-      toast.success('¡Partida creada!')
+      toast.success('¡Mesa armada!')
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Error al crear partida')
+      toast.error(error instanceof Error ? error.message : 'Error al crear mesa')
     } finally {
       setIsCreating(false)
     }
@@ -135,7 +170,7 @@ export default function JugarPage() {
         throw new Error(data.error || 'Error al unirse')
       }
       
-      toast.success('¡Te uniste a la partida!')
+      toast.success('¡Entraste a la mesa!')
       router.push(`/lobby/${data.room.id}`)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Error al unirse')
@@ -153,9 +188,17 @@ export default function JugarPage() {
 
   const getModeLabel = (mode: GameMode) => {
     switch (mode) {
-      case 'ONE_VS_ONE': return '1 vs 1'
-      case 'TWO_VS_TWO': return '2 vs 2'
-      case 'THREE_VS_THREE': return '3 vs 3'
+      case 'ONE_VS_ONE': return '1v1'
+      case 'TWO_VS_TWO': return '2v2'
+      case 'THREE_VS_THREE': return '3v3'
+    }
+  }
+
+  const getModeDesc = (mode: GameMode) => {
+    switch (mode) {
+      case 'ONE_VS_ONE': return 'Mano a mano'
+      case 'TWO_VS_TWO': return 'Duplas'
+      case 'THREE_VS_THREE': return 'Equipos'
     }
   }
 
@@ -167,51 +210,82 @@ export default function JugarPage() {
     }
   }
 
+  const resetCreateDialog = () => {
+    setCreatedRoom(null)
+    setStep(1)
+    setConfig({
+      mode: 'TWO_VS_TWO',
+      targetScore: 15,
+      florEnabled: false,
+      chatEnabled: true,
+      timerEnabled: false,
+      timerSeconds: 25,
+      stakeMode: 'NONE',
+      entryFeeCredits: 10,
+      stakeTotalCredits: 100,
+    })
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-          Centro de Juego
+        <Badge className="bg-paño/20 text-paño-50 border-paño/30 mb-4">
+          <Target className="w-3 h-3 mr-1" />
+          Centro de juego
+        </Badge>
+        <h1 className="text-3xl lg:text-5xl font-bold text-naipe mb-4 tracking-tight">
+          ARMÁ TU MESA
         </h1>
-        <p className="text-slate-400 max-w-xl mx-auto">
-          Creá una partida nueva o unite con un código. 
-          Elegí el modo que más te guste y empezá a jugar.
+        <p className="text-naipe-600 max-w-xl mx-auto">
+          Creá una partida o unite con código. 
+          <span className="text-naipe-400"> Elegí modo, reglas y fichas.</span>
         </p>
       </div>
 
-      {/* Main Actions */}
+      {/* Main Actions Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        {/* Quick Match - Placeholder */}
-        <Card className="bg-slate-900/50 border-slate-800 opacity-60 cursor-not-allowed">
-          <CardContent className="p-6 text-center">
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center mb-4">
-              <Zap className="w-8 h-8 text-cyan-400" />
-            </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Quick Match</h3>
-            <p className="text-sm text-slate-500 mb-4">Encontrar oponentes automáticamente</p>
-            <Badge variant="secondary" className="bg-slate-800">Próximamente</Badge>
-          </CardContent>
-        </Card>
+        {/* Quick Match - Coming Soon */}
+        <div className="card-club p-6 text-center opacity-60 cursor-not-allowed relative overflow-hidden">
+          <div className="absolute top-3 right-3">
+            <Badge className="bg-noche-200 text-naipe-700 border-paño/20 text-[10px]">
+              Próximamente
+            </Badge>
+          </div>
+          <div className="w-16 h-16 mx-auto rounded-club bg-celeste/10 border border-celeste/30 flex items-center justify-center mb-4">
+            <Zap className="w-8 h-8 text-celeste/50" />
+          </div>
+          <h3 className="text-lg font-semibold text-naipe-400 mb-2">Quick Match</h3>
+          <p className="text-sm text-naipe-700">Encontrar rival automático</p>
+        </div>
 
         {/* Create Game */}
-        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <Dialog open={createDialogOpen} onOpenChange={(open) => {
+          setCreateDialogOpen(open)
+          if (!open) resetCreateDialog()
+        }}>
           <DialogTrigger asChild>
-            <Card className="bg-slate-900/50 border-slate-800 hover:border-amber-500/30 cursor-pointer transition-all group">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center mb-4 group-hover:from-amber-500/30 group-hover:to-orange-500/30 transition-all">
-                  <Plus className="w-8 h-8 text-amber-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2">Crear Partida</h3>
-                <p className="text-sm text-slate-500">Configurá tu propia sala</p>
-              </CardContent>
-            </Card>
+            <div className="card-club p-6 text-center cursor-pointer group hover:-translate-y-1 transition-all duration-300">
+              <div className="w-16 h-16 mx-auto rounded-club bg-paño/20 border border-paño/40 flex items-center justify-center mb-4 group-hover:bg-paño/30 group-hover:border-paño/60 transition-all">
+                <Plus className="w-8 h-8 text-paño-50 group-hover:scale-110 transition-transform" />
+              </div>
+              <h3 className="text-lg font-semibold text-naipe mb-2">Armar mesa</h3>
+              <p className="text-sm text-naipe-700">Configurá tu propia partida</p>
+            </div>
           </DialogTrigger>
-          <DialogContent className="bg-slate-900 border-slate-800 max-w-lg max-h-[90vh] overflow-y-auto">
+          
+          <DialogContent className="bg-noche-100 border-paño/20 max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-white">Crear Nueva Partida</DialogTitle>
-              <DialogDescription className="text-slate-400">
-                Configurá las opciones de tu partida
+              <DialogTitle className="text-naipe flex items-center gap-2">
+                <EspadaSVG className="w-5 h-6 text-paño" />
+                {createdRoom ? 'Mesa lista' : step === 1 ? 'Paso 1: Reglas' : 'Paso 2: Fichas'}
+              </DialogTitle>
+              <DialogDescription className="text-naipe-600">
+                {createdRoom 
+                  ? 'Compartí los códigos con tu equipo' 
+                  : step === 1 
+                    ? 'Elegí modo, puntos y opciones'
+                    : 'Definí si se juega con fichas'}
               </DialogDescription>
             </DialogHeader>
 
@@ -219,148 +293,174 @@ export default function JugarPage() {
               /* Success State */
               <div className="space-y-6 py-4">
                 <div className="text-center">
-                  <div className="w-16 h-16 mx-auto rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                    <Check className="w-8 h-8 text-green-400" />
+                  <div className="w-16 h-16 mx-auto rounded-full bg-paño/20 border border-paño/40 flex items-center justify-center mb-4">
+                    <Check className="w-8 h-8 text-paño-50" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">¡Partida Creada!</h3>
-                  <p className="text-slate-400 text-sm">Compartí los códigos con tu equipo</p>
+                  <h3 className="text-xl font-bold text-naipe mb-1">¡Mesa armada!</h3>
+                  <p className="text-naipe-600 text-sm">Pasales los códigos a tus compañeros</p>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/30 text-center">
-                    <p className="text-xs text-blue-400 mb-1">Equipo A</p>
-                    <p className="text-2xl font-mono font-bold text-white mb-2">{createdRoom.codeTeamA}</p>
+                  <div className="p-4 rounded-club bg-equipoA-bg border border-equipoA-border text-center">
+                    <p className="text-xs text-equipoA mb-2 font-semibold">EQUIPO A</p>
+                    <p className="text-2xl font-mono font-bold text-naipe tracking-wider mb-3">{createdRoom.codeTeamA}</p>
                     <Button 
                       size="sm" 
                       variant="ghost" 
-                      className="text-blue-400"
+                      className="text-equipoA hover:bg-equipoA/20"
                       onClick={() => copyCode(createdRoom.codeTeamA)}
                     >
                       {copiedCode === createdRoom.codeTeamA ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      <span className="ml-1 text-xs">Copiar</span>
                     </Button>
                   </div>
-                  <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-center">
-                    <p className="text-xs text-red-400 mb-1">Equipo B</p>
-                    <p className="text-2xl font-mono font-bold text-white mb-2">{createdRoom.codeTeamB}</p>
+                  <div className="p-4 rounded-club bg-equipoB-bg border border-equipoB-border text-center">
+                    <p className="text-xs text-equipoB mb-2 font-semibold">EQUIPO B</p>
+                    <p className="text-2xl font-mono font-bold text-naipe tracking-wider mb-3">{createdRoom.codeTeamB}</p>
                     <Button 
                       size="sm" 
                       variant="ghost" 
-                      className="text-red-400"
+                      className="text-equipoB hover:bg-equipoB/20"
                       onClick={() => copyCode(createdRoom.codeTeamB)}
                     >
                       {copiedCode === createdRoom.codeTeamB ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      <span className="ml-1 text-xs">Copiar</span>
                     </Button>
                   </div>
                 </div>
                 
                 <Button 
-                  className="w-full bg-gradient-to-r from-amber-500 to-orange-600"
+                  className="w-full btn-pano"
                   onClick={() => router.push(`/lobby/${createdRoom.id}`)}
                 >
-                  Ir al Lobby
+                  Ir al lobby
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </div>
-            ) : (
-              /* Config Form */
+            ) : step === 1 ? (
+              /* Step 1: Mode & Rules */
               <div className="space-y-6 py-4">
                 {/* Mode Selection */}
-                <div className="space-y-2">
-                  <Label className="text-slate-200">Modo de Juego</Label>
-                  <div className="grid grid-cols-3 gap-2">
+                <div className="space-y-3">
+                  <Label className="text-naipe-300 text-sm">Modo de juego</Label>
+                  <div className="grid grid-cols-3 gap-3">
                     {(['ONE_VS_ONE', 'TWO_VS_TWO', 'THREE_VS_THREE'] as GameMode[]).map((mode) => (
-                      <Button
+                      <button
                         key={mode}
                         type="button"
-                        variant={config.mode === mode ? 'default' : 'outline'}
-                        className={config.mode === mode 
-                          ? 'bg-amber-500/20 border-amber-500/50 text-amber-400' 
-                          : 'border-slate-700 text-slate-400'
-                        }
+                        className={`p-4 rounded-club border-2 transition-all duration-200 ${
+                          config.mode === mode 
+                            ? 'bg-paño/20 border-paño text-naipe' 
+                            : 'bg-noche-200 border-paño/20 text-naipe-600 hover:border-paño/40'
+                        }`}
                         onClick={() => setConfig({ ...config, mode })}
                       >
-                        {getModeLabel(mode)}
-                      </Button>
+                        <div className="text-2xl font-bold">{getModeLabel(mode)}</div>
+                        <div className="text-xs mt-1 opacity-70">{getModeDesc(mode)}</div>
+                      </button>
                     ))}
                   </div>
-                  <p className="text-xs text-slate-500">{getPlayersCount(config.mode)} jugadores</p>
+                  <p className="text-xs text-naipe-700 flex items-center gap-1">
+                    <Users className="w-3 h-3" />
+                    {getPlayersCount(config.mode)} jugadores
+                  </p>
                 </div>
 
                 {/* Target Score */}
-                <div className="space-y-2">
-                  <Label className="text-slate-200">Puntos para ganar</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
+                <div className="space-y-3">
+                  <Label className="text-naipe-300 text-sm">Puntos para ganar</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
                       type="button"
-                      variant={config.targetScore === 15 ? 'default' : 'outline'}
-                      className={config.targetScore === 15 
-                        ? 'bg-amber-500/20 border-amber-500/50 text-amber-400' 
-                        : 'border-slate-700 text-slate-400'
-                      }
+                      className={`p-3 rounded-club border-2 transition-all ${
+                        config.targetScore === 15 
+                          ? 'bg-paño/20 border-paño text-naipe' 
+                          : 'bg-noche-200 border-paño/20 text-naipe-600 hover:border-paño/40'
+                      }`}
                       onClick={() => setConfig({ ...config, targetScore: 15 })}
                     >
-                      15 puntos
-                    </Button>
-                    <Button
+                      <span className="text-xl font-bold">15</span>
+                      <span className="text-xs ml-1 opacity-70">puntos</span>
+                    </button>
+                    <button
                       type="button"
-                      variant={config.targetScore === 30 ? 'default' : 'outline'}
-                      className={config.targetScore === 30 
-                        ? 'bg-amber-500/20 border-amber-500/50 text-amber-400' 
-                        : 'border-slate-700 text-slate-400'
-                      }
+                      className={`p-3 rounded-club border-2 transition-all ${
+                        config.targetScore === 30 
+                          ? 'bg-paño/20 border-paño text-naipe' 
+                          : 'bg-noche-200 border-paño/20 text-naipe-600 hover:border-paño/40'
+                      }`}
                       onClick={() => setConfig({ ...config, targetScore: 30 })}
                     >
-                      30 puntos
-                    </Button>
+                      <span className="text-xl font-bold">30</span>
+                      <span className="text-xs ml-1 opacity-70">puntos</span>
+                    </button>
                   </div>
                 </div>
 
                 {/* Options */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-slate-200">Flor</Label>
-                      <p className="text-xs text-slate-500">3 cartas del mismo palo</p>
+                <div className="space-y-4 pt-4 border-t border-paño/20">
+                  <div className="flex items-center justify-between p-3 rounded-club bg-noche-200">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-club bg-oro/10 flex items-center justify-center">
+                        <Sparkles className="w-4 h-4 text-oro" />
+                      </div>
+                      <div>
+                        <Label className="text-naipe-300 text-sm">Flor</Label>
+                        <p className="text-xs text-naipe-700">3 del mismo palo</p>
+                      </div>
                     </div>
                     <Switch
                       checked={config.florEnabled}
                       onCheckedChange={(checked) => setConfig({ ...config, florEnabled: checked })}
+                      className="data-[state=checked]:bg-paño"
                     />
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-slate-200">Chat</Label>
-                      <p className="text-xs text-slate-500">Mensajes en partida</p>
+                  <div className="flex items-center justify-between p-3 rounded-club bg-noche-200">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-club bg-celeste/10 flex items-center justify-center">
+                        <Users className="w-4 h-4 text-celeste" />
+                      </div>
+                      <div>
+                        <Label className="text-naipe-300 text-sm">Chat</Label>
+                        <p className="text-xs text-naipe-700">Mensajes en partida</p>
+                      </div>
                     </div>
                     <Switch
                       checked={config.chatEnabled}
                       onCheckedChange={(checked) => setConfig({ ...config, chatEnabled: checked })}
+                      className="data-[state=checked]:bg-paño"
                     />
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-slate-200">Timer</Label>
-                      <p className="text-xs text-slate-500">Tiempo límite por turno</p>
+                  <div className="flex items-center justify-between p-3 rounded-club bg-noche-200">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-club bg-destructive/10 flex items-center justify-center">
+                        <Timer className="w-4 h-4 text-destructive" />
+                      </div>
+                      <div>
+                        <Label className="text-naipe-300 text-sm">Timer</Label>
+                        <p className="text-xs text-naipe-700">Tiempo límite por turno</p>
+                      </div>
                     </div>
                     <Switch
                       checked={config.timerEnabled}
                       onCheckedChange={(checked) => setConfig({ ...config, timerEnabled: checked })}
+                      className="data-[state=checked]:bg-paño"
                     />
                   </div>
                   
                   {config.timerEnabled && (
-                    <div className="pl-4 border-l-2 border-slate-700">
-                      <Label className="text-slate-300 text-sm">Segundos por turno</Label>
+                    <div className="ml-11 p-3 rounded-club bg-noche-300 border-l-2 border-destructive/30">
+                      <Label className="text-naipe-400 text-xs">Segundos por turno</Label>
                       <Select
                         value={config.timerSeconds.toString()}
                         onValueChange={(v) => setConfig({ ...config, timerSeconds: parseInt(v) })}
                       >
-                        <SelectTrigger className="bg-slate-800 border-slate-700 mt-1">
+                        <SelectTrigger className="bg-noche-200 border-paño/20 mt-1 text-naipe">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="bg-slate-800 border-slate-700">
+                        <SelectContent className="bg-noche-200 border-paño/20">
                           <SelectItem value="15">15 segundos</SelectItem>
                           <SelectItem value="25">25 segundos</SelectItem>
                           <SelectItem value="45">45 segundos</SelectItem>
@@ -371,72 +471,111 @@ export default function JugarPage() {
                   )}
                 </div>
 
+                <Button 
+                  className="w-full btn-pano"
+                  onClick={() => setStep(2)}
+                >
+                  Siguiente
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            ) : (
+              /* Step 2: Stake */
+              <div className="space-y-6 py-4">
                 {/* Stake Mode */}
-                <div className="space-y-4 pt-4 border-t border-slate-800">
-                  <div>
-                    <Label className="text-slate-200">Modo de Apuesta</Label>
-                    <Select
-                      value={config.stakeMode}
-                      onValueChange={(v) => setConfig({ ...config, stakeMode: v as StakeMode })}
-                    >
-                      <SelectTrigger className="bg-slate-800 border-slate-700 mt-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-slate-700">
-                        <SelectItem value="NONE">Sin apuesta</SelectItem>
-                        <SelectItem value="ENTRY_FEE">Entrada fija</SelectItem>
-                        <SelectItem value="TEAM_POOL">Pozo por equipo</SelectItem>
-                      </SelectContent>
-                    </Select>
+                <div className="space-y-3">
+                  <Label className="text-naipe-300 text-sm">¿Se juega con fichas?</Label>
+                  <div className="space-y-2">
+                    {[
+                      { value: 'NONE', label: 'Gratis', desc: 'Sin fichas, por diversión', icon: '🎮' },
+                      { value: 'ENTRY_FEE', label: 'Entrada fija', desc: 'Cada jugador paga igual', icon: '🎟️' },
+                      { value: 'TEAM_POOL', label: 'Pozo por equipo', desc: 'Cada equipo arma su pozo', icon: '💰' },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={`w-full p-4 rounded-club border-2 text-left transition-all ${
+                          config.stakeMode === option.value 
+                            ? 'bg-paño/20 border-paño' 
+                            : 'bg-noche-200 border-paño/20 hover:border-paño/40'
+                        }`}
+                        onClick={() => setConfig({ ...config, stakeMode: option.value as StakeMode })}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{option.icon}</span>
+                          <div>
+                            <div className="font-semibold text-naipe">{option.label}</div>
+                            <div className="text-xs text-naipe-700">{option.desc}</div>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
                   </div>
-                  
-                  {config.stakeMode === 'ENTRY_FEE' && (
-                    <div className="pl-4 border-l-2 border-amber-500/30">
-                      <Label className="text-slate-300 text-sm">Fichas de entrada</Label>
-                      <Input
-                        type="number"
-                        min={1}
-                        value={config.entryFeeCredits}
-                        onChange={(e) => setConfig({ ...config, entryFeeCredits: parseInt(e.target.value) || 0 })}
-                        className="bg-slate-800 border-slate-700 mt-1"
-                      />
-                    </div>
-                  )}
-                  
-                  {config.stakeMode === 'TEAM_POOL' && (
-                    <div className="pl-4 border-l-2 border-amber-500/30 space-y-2">
-                      <Label className="text-slate-300 text-sm">Total del pozo por equipo</Label>
-                      <Input
-                        type="number"
-                        min={1}
-                        value={config.stakeTotalCredits}
-                        onChange={(e) => setConfig({ ...config, stakeTotalCredits: parseInt(e.target.value) || 0 })}
-                        className="bg-slate-800 border-slate-700"
-                      />
-                      <p className="text-xs text-slate-500">
-                        Cada equipo debe juntar {config.stakeTotalCredits} fichas entre todos sus jugadores
-                      </p>
-                    </div>
-                  )}
                 </div>
-
-                {/* User Balance */}
-                {session?.user && (config.stakeMode !== 'NONE') && (
-                  <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
-                    <Coins className="w-4 h-4 text-amber-400" />
-                    <span className="text-sm text-amber-400">
-                      Tu saldo: {session.user.creditsBalance ?? 0} fichas
-                    </span>
+                
+                {config.stakeMode === 'ENTRY_FEE' && (
+                  <div className="p-4 rounded-club bg-oro/10 border border-oro/30 space-y-3">
+                    <Label className="text-oro text-sm flex items-center gap-2">
+                      <Coins className="w-4 h-4" />
+                      Fichas de entrada por jugador
+                    </Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={config.entryFeeCredits}
+                      onChange={(e) => setConfig({ ...config, entryFeeCredits: parseInt(e.target.value) || 0 })}
+                      className="bg-noche-200 border-oro/30 text-naipe text-xl font-bold text-center"
+                    />
+                    <p className="text-xs text-oro/80">
+                      Pozo total: {config.entryFeeCredits * getPlayersCount(config.mode)} fichas
+                    </p>
+                  </div>
+                )}
+                
+                {config.stakeMode === 'TEAM_POOL' && (
+                  <div className="p-4 rounded-club bg-oro/10 border border-oro/30 space-y-3">
+                    <Label className="text-oro text-sm flex items-center gap-2">
+                      <Coins className="w-4 h-4" />
+                      Total del pozo por equipo
+                    </Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={config.stakeTotalCredits}
+                      onChange={(e) => setConfig({ ...config, stakeTotalCredits: parseInt(e.target.value) || 0 })}
+                      className="bg-noche-200 border-oro/30 text-naipe text-xl font-bold text-center"
+                    />
+                    <p className="text-xs text-oro/80">
+                      Cada equipo debe juntar {config.stakeTotalCredits} fichas entre todos. 
+                      Pozo total: {config.stakeTotalCredits * 2} fichas.
+                    </p>
                   </div>
                 )}
 
-                <Button 
-                  className="w-full bg-gradient-to-r from-amber-500 to-orange-600"
-                  onClick={handleCreateGame}
-                  disabled={isCreating}
-                >
-                  {isCreating ? 'Creando...' : 'Crear Partida'}
-                </Button>
+                {/* Balance preview */}
+                {session?.user && config.stakeMode !== 'NONE' && (
+                  <div className="flex items-center gap-2 p-3 rounded-club bg-noche-200 border border-paño/20">
+                    <div className="chip">{session.user.creditsBalance ?? 0}</div>
+                    <span className="text-sm text-naipe-600">Tu saldo actual</span>
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <Button 
+                    variant="outline"
+                    className="flex-1 border-paño/30 text-naipe-400 hover:bg-noche-200"
+                    onClick={() => setStep(1)}
+                  >
+                    Atrás
+                  </Button>
+                  <Button 
+                    className="flex-1 btn-pano"
+                    onClick={handleCreateGame}
+                    disabled={isCreating}
+                  >
+                    {isCreating ? 'Creando...' : 'Armar mesa'}
+                  </Button>
+                </div>
               </div>
             )}
           </DialogContent>
@@ -445,42 +584,44 @@ export default function JugarPage() {
         {/* Join Game */}
         <Dialog open={joinDialogOpen} onOpenChange={setJoinDialogOpen}>
           <DialogTrigger asChild>
-            <Card className="bg-slate-900/50 border-slate-800 hover:border-green-500/30 cursor-pointer transition-all group">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center mb-4 group-hover:from-green-500/30 group-hover:to-emerald-500/30 transition-all">
-                  <Hash className="w-8 h-8 text-green-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2">Unirse con Código</h3>
-                <p className="text-sm text-slate-500">Ingresá a una partida existente</p>
-              </CardContent>
-            </Card>
+            <div className="card-club p-6 text-center cursor-pointer group hover:-translate-y-1 transition-all duration-300">
+              <div className="w-16 h-16 mx-auto rounded-club bg-oro/10 border border-oro/30 flex items-center justify-center mb-4 group-hover:bg-oro/20 group-hover:border-oro/50 transition-all">
+                <Hash className="w-8 h-8 text-oro group-hover:scale-110 transition-transform" />
+              </div>
+              <h3 className="text-lg font-semibold text-naipe mb-2">Unirse</h3>
+              <p className="text-sm text-naipe-700">Entrar con código</p>
+            </div>
           </DialogTrigger>
-          <DialogContent className="bg-slate-900 border-slate-800">
+          
+          <DialogContent className="bg-noche-100 border-paño/20">
             <DialogHeader>
-              <DialogTitle className="text-white">Unirse a Partida</DialogTitle>
-              <DialogDescription className="text-slate-400">
-                Ingresá el código que te compartieron
+              <DialogTitle className="text-naipe flex items-center gap-2">
+                <Hash className="w-5 h-5 text-oro" />
+                Unirse a mesa
+              </DialogTitle>
+              <DialogDescription className="text-naipe-600">
+                Ingresá el código que te pasaron
               </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-6 py-4">
               <div className="space-y-2">
-                <Label className="text-slate-200">Código de Partida</Label>
+                <Label className="text-naipe-300 text-sm">Código de partida</Label>
                 <Input
-                  placeholder="Ej: ABC123"
+                  placeholder="ABC123"
                   value={joinCode}
                   onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                  className="bg-slate-800 border-slate-700 text-center text-2xl font-mono tracking-widest uppercase"
+                  className="bg-noche-200 border-paño/30 text-center text-3xl font-mono font-bold tracking-[0.3em] uppercase text-naipe h-16"
                   maxLength={6}
                 />
               </div>
               
               <Button 
-                className="w-full bg-gradient-to-r from-green-500 to-emerald-600"
+                className="w-full btn-oro"
                 onClick={handleJoinGame}
                 disabled={isJoining || !joinCode.trim()}
               >
-                {isJoining ? 'Uniéndose...' : 'Unirse'}
+                {isJoining ? 'Entrando...' : 'Entrar'}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
@@ -488,80 +629,84 @@ export default function JugarPage() {
         </Dialog>
 
         {/* My Games */}
-        <Link href="/mis-partidas">
-          <Card className="bg-slate-900/50 border-slate-800 hover:border-purple-500/30 cursor-pointer transition-all group h-full">
-            <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-purple-500/20 to-violet-500/20 flex items-center justify-center mb-4 group-hover:from-purple-500/30 group-hover:to-violet-500/30 transition-all">
-                <History className="w-8 h-8 text-purple-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Mis Partidas</h3>
-              <p className="text-sm text-slate-500">Ver historial y estadísticas</p>
-            </CardContent>
-          </Card>
+        <Link href="/mis-partidas" className="block">
+          <div className="card-club p-6 text-center cursor-pointer group hover:-translate-y-1 transition-all duration-300 h-full">
+            <div className="w-16 h-16 mx-auto rounded-club bg-celeste/10 border border-celeste/30 flex items-center justify-center mb-4 group-hover:bg-celeste/20 group-hover:border-celeste/50 transition-all">
+              <History className="w-8 h-8 text-celeste group-hover:scale-110 transition-transform" />
+            </div>
+            <h3 className="text-lg font-semibold text-naipe mb-2">Mis partidas</h3>
+            <p className="text-sm text-naipe-700">Historial y estadísticas</p>
+          </div>
         </Link>
       </div>
 
       {/* Info Section */}
       <div className="grid lg:grid-cols-3 gap-6">
         {/* How to Play */}
-        <Card className="bg-slate-900/50 border-slate-800 lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Gamepad2 className="w-5 h-5 text-amber-400" />
-              Cómo Funciona
+        <Card className="card-club lg:col-span-2 border-0">
+          <CardHeader className="border-b border-paño/20">
+            <CardTitle className="text-naipe flex items-center gap-2">
+              <Target className="w-5 h-5 text-paño" />
+              Cómo funciona
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
-                <span className="text-amber-400 font-bold">1</span>
+          <CardContent className="p-6">
+            <div className="grid sm:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-full bg-paño/20 border border-paño/30 flex items-center justify-center mx-auto mb-3">
+                  <span className="text-paño-50 font-bold">1</span>
+                </div>
+                <h4 className="font-semibold text-naipe mb-1">Armá o unite</h4>
+                <p className="text-sm text-naipe-700">Creá una mesa o entrá con código de equipo</p>
               </div>
-              <div>
-                <p className="text-white font-medium">Creá o unite</p>
-                <p className="text-sm text-slate-500">Creá una partida y compartí los códigos, o unite con un código que te pasaron.</p>
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-full bg-paño/20 border border-paño/30 flex items-center justify-center mx-auto mb-3">
+                  <span className="text-paño-50 font-bold">2</span>
+                </div>
+                <h4 className="font-semibold text-naipe mb-1">Esperá en el lobby</h4>
+                <p className="text-sm text-naipe-700">Cuando estén todos, el creador inicia</p>
               </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
-                <span className="text-amber-400 font-bold">2</span>
-              </div>
-              <div>
-                <p className="text-white font-medium">Esperá en el lobby</p>
-                <p className="text-sm text-slate-500">Cuando todos estén listos, el creador inicia la partida.</p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
-                <span className="text-amber-400 font-bold">3</span>
-              </div>
-              <div>
-                <p className="text-white font-medium">¡A jugar!</p>
-                <p className="text-sm text-slate-500">Jugá en tiempo real. El equipo que llegue a los puntos primero gana.</p>
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-full bg-paño/20 border border-paño/30 flex items-center justify-center mx-auto mb-3">
+                  <span className="text-paño-50 font-bold">3</span>
+                </div>
+                <h4 className="font-semibold text-naipe mb-1">¡A jugar!</h4>
+                <p className="text-sm text-naipe-700">En tiempo real hasta que un equipo gane</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Stake Info */}
-        <Card className="bg-slate-900/50 border-slate-800">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Coins className="w-5 h-5 text-green-400" />
-              Sobre las Apuestas
+        <Card className="card-club border-0">
+          <CardHeader className="border-b border-paño/20">
+            <CardTitle className="text-naipe flex items-center gap-2">
+              <Coins className="w-5 h-5 text-oro" />
+              Modos de fichas
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 text-sm">
-            <div className="p-3 rounded-lg bg-slate-800/50">
-              <p className="text-amber-400 font-medium mb-1">Sin apuesta</p>
-              <p className="text-slate-500">Partida por diversión, sin fichas en juego.</p>
+          <CardContent className="p-6 space-y-4">
+            <div className="p-3 rounded-club bg-noche-200">
+              <div className="flex items-center gap-2 mb-1">
+                <span>🎮</span>
+                <span className="font-semibold text-naipe text-sm">Gratis</span>
+              </div>
+              <p className="text-xs text-naipe-700">Sin fichas. Por diversión.</p>
             </div>
-            <div className="p-3 rounded-lg bg-slate-800/50">
-              <p className="text-amber-400 font-medium mb-1">Entrada fija</p>
-              <p className="text-slate-500">Cada jugador paga una entrada. El pozo va al equipo ganador.</p>
+            <div className="p-3 rounded-club bg-noche-200">
+              <div className="flex items-center gap-2 mb-1">
+                <span>🎟️</span>
+                <span className="font-semibold text-naipe text-sm">Entrada fija</span>
+              </div>
+              <p className="text-xs text-naipe-700">Cada jugador paga igual. El pozo va al ganador.</p>
             </div>
-            <div className="p-3 rounded-lg bg-slate-800/50">
-              <p className="text-amber-400 font-medium mb-1">Pozo por equipo</p>
-              <p className="text-slate-500">Cada equipo arma su pozo. Reparto proporcional o a un receptor.</p>
+            <div className="p-3 rounded-club bg-oro/10 border border-oro/20">
+              <div className="flex items-center gap-2 mb-1">
+                <span>💰</span>
+                <span className="font-semibold text-oro text-sm">Pozo por equipo</span>
+                <Badge className="bg-oro/20 text-oro text-[10px] border-none">Popular</Badge>
+              </div>
+              <p className="text-xs text-naipe-700">Cada equipo junta su pozo. Reparto proporcional o a uno.</p>
             </div>
           </CardContent>
         </Card>
@@ -569,4 +714,3 @@ export default function JugarPage() {
     </div>
   )
 }
-

@@ -4,18 +4,19 @@ import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 import { 
-  HelpCircle, 
+  LifeBuoy, 
   MessageSquare, 
-  ChevronDown,
   Send,
   Coins,
-  Gamepad2,
+  Swords,
   Bug,
   CreditCard,
   AlertCircle,
   CheckCircle2,
   Clock,
-  Mail
+  Mail,
+  HelpCircle,
+  ChevronDown
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -40,51 +41,51 @@ import { Badge } from '@/components/ui/badge'
 
 const faqItems = [
   {
-    category: 'general',
-    question: '¿Cómo empiezo a jugar?',
-    answer: 'Creá una cuenta gratis, luego andá a "Jugar" y creá una partida o unite con un código que te compartan. Podés jugar partidas 1v1, 2v2 o 3v3.'
+    category: 'inicio',
+    question: '¿Cómo arranco a jugar?',
+    answer: 'Creá una cuenta gratis, andá a "Jugar" y armá una mesa o unite con un código que te pasen. Podés jugar 1v1, 2v2 o 3v3.'
   },
   {
-    category: 'general',
+    category: 'inicio',
     question: '¿Qué modos de juego hay?',
-    answer: 'Tenemos 3 modos: 1v1 (mano a mano), 2v2 (duplas) y 3v3 (equipos). Cada modo puede jugarse a 15 o 30 puntos, con o sin flor.'
+    answer: 'Hay 3 modos: 1v1 (mano a mano), 2v2 (duplas) y 3v3 (equipos). Cada uno puede jugarse a 15 o 30 puntos, con o sin flor.'
   },
   {
     category: 'fichas',
     question: '¿Qué son las fichas?',
-    answer: 'Las fichas son la moneda interna del juego. Se usan para participar en partidas con apuesta. 1 ficha = 1 crédito. No tienen valor monetario real.'
+    answer: 'Las fichas son la moneda interna. 1 ficha = 1 crédito. Se usan para partidas con pozo. No tienen valor monetario real fuera de la plataforma.'
   },
   {
     category: 'fichas',
     question: '¿Cómo consigo fichas?',
-    answer: 'Por ahora, las fichas son cargadas por los administradores. Próximamente habilitaremos la compra de fichas.'
+    answer: 'Por ahora las carga el admin. Próximamente habilitamos compra de fichas.'
   },
   {
     category: 'fichas',
-    question: '¿Qué es el modo TEAM_POOL?',
-    answer: 'En este modo, cada equipo arma un pozo colectivo. Cada jugador aporta lo que quiera hasta completar el total. Al ganar, se reparte proporcional al aporte o se puede elegir un receptor único.'
+    question: '¿Qué es el modo pozo por equipo (TEAM_POOL)?',
+    answer: 'Cada equipo arma un pozo colectivo. Cada jugador aporta lo que quiera hasta completar el total. Al ganar, se reparte proporcional al aporte o a un receptor elegido por el equipo.'
   },
   {
     category: 'partida',
     question: '¿Qué pasa si me desconecto?',
-    answer: 'Si te desconectás brevemente, podés volver a la partida. Si pasa mucho tiempo, tu equipo puede continuar en desventaja. Las fichas apostadas no se reembolsan por desconexión voluntaria.'
+    answer: 'Si volvés rápido, retomás la partida. Si tardás mucho, tu equipo sigue en desventaja. Las fichas apostadas no se devuelven por desconexión.'
   },
   {
     category: 'partida',
     question: '¿Cómo funciona el timer?',
-    answer: 'Si el creador activa el timer, cada jugador tiene un tiempo límite para hacer su jugada. Si se acaba el tiempo, pierde el turno automáticamente.'
+    answer: 'Si el creador activa el timer, cada jugador tiene tiempo límite para jugar. Si se te acaba, perdés el turno automáticamente.'
   },
   {
     category: 'partida',
-    question: '¿Puedo abandonar una partida?',
-    answer: 'Sí, pero si hay fichas en juego, las perdés. En TEAM_POOL, tu equipo puede continuar pero en desventaja.'
+    question: '¿Qué es el código de equipo?',
+    answer: 'Al crear una mesa, se generan 2 códigos: uno para el Equipo A y otro para el B. Pasale el código correspondiente a cada jugador para que entre en el equipo correcto.'
   },
 ]
 
 const categoryIcons = {
   PAGOS: CreditCard,
   FICHAS: Coins,
-  PARTIDA: Gamepad2,
+  PARTIDA: Swords,
   BUG: Bug,
   OTRO: AlertCircle,
 }
@@ -111,7 +112,7 @@ export default function SoportePage() {
     }
     
     if (!session && !formData.email) {
-      toast.error('Ingresá tu email para que podamos contactarte')
+      toast.error('Ingresá tu email para que podamos responderte')
       return
     }
 
@@ -129,7 +130,7 @@ export default function SoportePage() {
       }
       
       setSubmitted(true)
-      toast.success('Ticket enviado correctamente')
+      toast.success('Ticket enviado')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Error al enviar')
     } finally {
@@ -141,48 +142,50 @@ export default function SoportePage() {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="text-3xl font-bold text-white mb-4 flex items-center justify-center gap-3">
-          <HelpCircle className="w-8 h-8 text-blue-400" />
-          Centro de Soporte
+        <Badge className="bg-celeste/20 text-celeste border-celeste/30 mb-3">
+          <LifeBuoy className="w-3 h-3 mr-1" />
+          Ayuda
+        </Badge>
+        <h1 className="text-3xl lg:text-5xl font-bold text-naipe mb-4 tracking-tight">
+          SOPORTE
         </h1>
-        <p className="text-slate-400 max-w-xl mx-auto">
-          ¿Tenés alguna duda o problema? Revisá las preguntas frecuentes o envianos un ticket.
+        <p className="text-naipe-600 max-w-xl mx-auto">
+          ¿Tenés alguna duda o problema? Revisá las preguntas frecuentes o mandanos un ticket.
         </p>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8">
         {/* FAQ Section */}
         <div id="faq">
-          <Card className="bg-slate-900/50 border-slate-800">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-amber-400" />
-                Preguntas Frecuentes
+          <Card className="card-club border-0">
+            <CardHeader className="border-b border-paño/20">
+              <CardTitle className="text-naipe flex items-center gap-2">
+                <HelpCircle className="w-5 h-5 text-oro" />
+                Preguntas frecuentes
               </CardTitle>
-              <CardDescription className="text-slate-400">
-                Las dudas más comunes de nuestros jugadores
+              <CardDescription className="text-naipe-600">
+                Las dudas más comunes de los jugadores
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4">
               <Accordion type="single" collapsible className="space-y-2">
                 {faqItems.map((item, index) => (
                   <AccordionItem 
                     key={index} 
                     value={`item-${index}`}
-                    className="border border-slate-800 rounded-lg px-4 data-[state=open]:bg-slate-800/30"
+                    className="border border-paño/20 rounded-club px-4 data-[state=open]:bg-paño/5"
                   >
-                    <AccordionTrigger className="text-white hover:text-amber-400 hover:no-underline py-4">
+                    <AccordionTrigger className="text-naipe hover:text-oro hover:no-underline py-4">
                       <div className="flex items-center gap-3 text-left">
                         <Badge 
-                          variant="outline" 
-                          className="text-[10px] border-slate-700 text-slate-500"
+                          className="bg-noche-200 text-naipe-700 border-none text-[10px]"
                         >
                           {item.category}
                         </Badge>
                         <span className="text-sm">{item.question}</span>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="text-slate-400 text-sm pb-4">
+                    <AccordionContent className="text-naipe-400 text-sm pb-4">
                       {item.answer}
                     </AccordionContent>
                   </AccordionItem>
@@ -194,29 +197,29 @@ export default function SoportePage() {
 
         {/* Ticket Form */}
         <div>
-          <Card className="bg-slate-900/50 border-slate-800">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Send className="w-5 h-5 text-green-400" />
-                Enviar un Ticket
+          <Card className="card-club border-0">
+            <CardHeader className="border-b border-paño/20">
+              <CardTitle className="text-naipe flex items-center gap-2">
+                <Send className="w-5 h-5 text-paño-50" />
+                Pedir ayuda
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-naipe-600">
                 ¿No encontraste la respuesta? Escribinos
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               {submitted ? (
                 <div className="text-center py-8">
-                  <div className="w-16 h-16 mx-auto rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                    <CheckCircle2 className="w-8 h-8 text-green-400" />
+                  <div className="w-16 h-16 mx-auto rounded-full bg-paño/20 border border-paño/30 flex items-center justify-center mb-4">
+                    <CheckCircle2 className="w-8 h-8 text-paño-50" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">¡Ticket Enviado!</h3>
-                  <p className="text-slate-400 text-sm mb-4">
-                    Te responderemos lo antes posible.
+                  <h3 className="text-xl font-bold text-naipe mb-2">¡Ticket enviado!</h3>
+                  <p className="text-naipe-600 text-sm mb-6">
+                    Te respondemos lo antes posible.
                   </p>
                   <Button 
                     variant="outline" 
-                    className="border-slate-700"
+                    className="border-paño/30 text-naipe-400 rounded-club"
                     onClick={() => {
                       setSubmitted(false)
                       setFormData({ subject: '', category: '', body: '', roomId: '', email: '' })
@@ -226,21 +229,21 @@ export default function SoportePage() {
                   </Button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-5">
                   {/* Email (if not logged in) */}
                   {!session && (
                     <div className="space-y-2">
-                      <Label className="text-slate-200">
-                        Tu Email <span className="text-red-400">*</span>
+                      <Label className="text-naipe-300 text-sm">
+                        Tu email <span className="text-destructive">*</span>
                       </Label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-naipe-700" />
                         <Input
                           type="email"
                           placeholder="tu@email.com"
                           value={formData.email}
                           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          className="bg-slate-800 border-slate-700 pl-10"
+                          className="bg-noche-200 border-paño/20 pl-10 text-naipe rounded-club"
                           required
                         />
                       </div>
@@ -249,58 +252,58 @@ export default function SoportePage() {
 
                   {/* Subject */}
                   <div className="space-y-2">
-                    <Label className="text-slate-200">
-                      Asunto <span className="text-red-400">*</span>
+                    <Label className="text-naipe-300 text-sm">
+                      Asunto <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       placeholder="Resumen del problema"
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      className="bg-slate-800 border-slate-700"
+                      className="bg-noche-200 border-paño/20 text-naipe rounded-club"
                       required
                     />
                   </div>
 
                   {/* Category */}
                   <div className="space-y-2">
-                    <Label className="text-slate-200">
-                      Categoría <span className="text-red-400">*</span>
+                    <Label className="text-naipe-300 text-sm">
+                      Categoría <span className="text-destructive">*</span>
                     </Label>
                     <Select
                       value={formData.category}
                       onValueChange={(v) => setFormData({ ...formData, category: v })}
                     >
-                      <SelectTrigger className="bg-slate-800 border-slate-700">
+                      <SelectTrigger className="bg-noche-200 border-paño/20 text-naipe rounded-club">
                         <SelectValue placeholder="Seleccionar categoría" />
                       </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-slate-700">
+                      <SelectContent className="bg-noche-200 border-paño/20">
                         <SelectItem value="PAGOS">
                           <div className="flex items-center gap-2">
-                            <CreditCard className="w-4 h-4" />
+                            <CreditCard className="w-4 h-4 text-naipe-600" />
                             Pagos / Compras
                           </div>
                         </SelectItem>
                         <SelectItem value="FICHAS">
                           <div className="flex items-center gap-2">
-                            <Coins className="w-4 h-4" />
+                            <Coins className="w-4 h-4 text-oro" />
                             Fichas / Saldo
                           </div>
                         </SelectItem>
                         <SelectItem value="PARTIDA">
                           <div className="flex items-center gap-2">
-                            <Gamepad2 className="w-4 h-4" />
+                            <Swords className="w-4 h-4 text-paño-50" />
                             Problema en partida
                           </div>
                         </SelectItem>
                         <SelectItem value="BUG">
                           <div className="flex items-center gap-2">
-                            <Bug className="w-4 h-4" />
+                            <Bug className="w-4 h-4 text-destructive" />
                             Bug / Error
                           </div>
                         </SelectItem>
                         <SelectItem value="OTRO">
                           <div className="flex items-center gap-2">
-                            <AlertCircle className="w-4 h-4" />
+                            <AlertCircle className="w-4 h-4 text-naipe-600" />
                             Otro
                           </div>
                         </SelectItem>
@@ -311,14 +314,14 @@ export default function SoportePage() {
                   {/* Room ID (optional) */}
                   {formData.category === 'PARTIDA' && (
                     <div className="space-y-2">
-                      <Label className="text-slate-200">
-                        Código de Partida <span className="text-slate-500">(opcional)</span>
+                      <Label className="text-naipe-300 text-sm">
+                        Código de partida <span className="text-naipe-700">(opcional)</span>
                       </Label>
                       <Input
-                        placeholder="Ej: ABC123"
+                        placeholder="ABC123"
                         value={formData.roomId}
                         onChange={(e) => setFormData({ ...formData, roomId: e.target.value.toUpperCase() })}
-                        className="bg-slate-800 border-slate-700 uppercase"
+                        className="bg-noche-200 border-paño/20 uppercase text-naipe rounded-club font-mono tracking-wider"
                         maxLength={6}
                       />
                     </div>
@@ -326,21 +329,21 @@ export default function SoportePage() {
 
                   {/* Description */}
                   <div className="space-y-2">
-                    <Label className="text-slate-200">
-                      Descripción <span className="text-red-400">*</span>
+                    <Label className="text-naipe-300 text-sm">
+                      Descripción <span className="text-destructive">*</span>
                     </Label>
                     <Textarea
                       placeholder="Contanos qué pasó con el mayor detalle posible..."
                       value={formData.body}
                       onChange={(e) => setFormData({ ...formData, body: e.target.value })}
-                      className="bg-slate-800 border-slate-700 min-h-[150px]"
+                      className="bg-noche-200 border-paño/20 text-naipe rounded-club min-h-[150px]"
                       required
                     />
                   </div>
 
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600"
+                    className="w-full btn-pano"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
@@ -351,7 +354,7 @@ export default function SoportePage() {
                     ) : (
                       <>
                         <Send className="w-4 h-4 mr-2" />
-                        Enviar Ticket
+                        Enviar ticket
                       </>
                     )}
                   </Button>
@@ -360,16 +363,16 @@ export default function SoportePage() {
             </CardContent>
           </Card>
 
-          {/* Contact Info */}
-          <Card className="bg-slate-900/50 border-slate-800 mt-6">
-            <CardContent className="p-6">
+          {/* Response time */}
+          <Card className="card-club border-0 mt-6">
+            <CardContent className="p-4">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-blue-400" />
+                <div className="w-10 h-10 rounded-club bg-celeste/10 border border-celeste/30 flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-celeste" />
                 </div>
                 <div>
-                  <p className="text-white font-medium">Tiempo de respuesta</p>
-                  <p className="text-sm text-slate-400">Generalmente respondemos en menos de 24hs</p>
+                  <p className="text-naipe font-medium">Tiempo de respuesta</p>
+                  <p className="text-sm text-naipe-600">Generalmente respondemos en menos de 24hs</p>
                 </div>
               </div>
             </CardContent>
@@ -379,4 +382,3 @@ export default function SoportePage() {
     </div>
   )
 }
-

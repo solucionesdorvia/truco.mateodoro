@@ -8,13 +8,15 @@ import {
   ArrowUpRight, 
   ArrowDownLeft, 
   Filter,
-  Calendar,
   Info,
   ShoppingCart,
   HelpCircle,
   TrendingUp,
   TrendingDown,
-  Clock
+  Clock,
+  Users,
+  Target,
+  ChevronRight
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -51,14 +53,14 @@ interface Transaction {
   }
 }
 
-const typeLabels: Record<string, { label: string; color: string }> = {
-  ADMIN_LOAD: { label: 'Carga Admin', color: 'text-green-400 bg-green-400/10' },
-  ADMIN_ADJUST: { label: 'Ajuste Admin', color: 'text-purple-400 bg-purple-400/10' },
-  GAME_ENTRY_FEE: { label: 'Entrada', color: 'text-amber-400 bg-amber-400/10' },
-  STAKE_LOCK: { label: 'Stake Bloqueado', color: 'text-red-400 bg-red-400/10' },
-  STAKE_REFUND: { label: 'Reembolso Stake', color: 'text-blue-400 bg-blue-400/10' },
-  STAKE_PAYOUT: { label: 'Pago Stake', color: 'text-green-400 bg-green-400/10' },
-  REFUND: { label: 'Reembolso', color: 'text-blue-400 bg-blue-400/10' },
+const typeLabels: Record<string, { label: string; color: string; bg: string }> = {
+  ADMIN_LOAD: { label: 'Carga', color: 'text-paño-50', bg: 'bg-paño/20' },
+  ADMIN_ADJUST: { label: 'Ajuste', color: 'text-celeste', bg: 'bg-celeste/20' },
+  GAME_ENTRY_FEE: { label: 'Entrada', color: 'text-oro', bg: 'bg-oro/20' },
+  STAKE_LOCK: { label: 'Pozo', color: 'text-destructive', bg: 'bg-destructive/20' },
+  STAKE_REFUND: { label: 'Reembolso', color: 'text-celeste', bg: 'bg-celeste/20' },
+  STAKE_PAYOUT: { label: 'Premio', color: 'text-paño-50', bg: 'bg-paño/20' },
+  REFUND: { label: 'Devolución', color: 'text-celeste', bg: 'bg-celeste/20' },
 }
 
 export default function FichasPage() {
@@ -110,11 +112,11 @@ export default function FichasPage() {
   if (status === 'loading') {
     return (
       <div className="container mx-auto px-4 py-8">
-        <Skeleton className="h-10 w-48 mb-8" />
+        <Skeleton className="h-10 w-48 mb-8 bg-noche-100" />
         <div className="grid lg:grid-cols-3 gap-6">
-          <Skeleton className="h-48" />
-          <Skeleton className="h-48" />
-          <Skeleton className="h-48" />
+          <Skeleton className="h-40 bg-noche-100" />
+          <Skeleton className="h-40 bg-noche-100" />
+          <Skeleton className="h-40 bg-noche-100" />
         </div>
       </div>
     )
@@ -125,58 +127,105 @@ export default function FichasPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Mis Fichas</h1>
-          <p className="text-slate-400">Gestioná tu saldo y mirá tus movimientos</p>
+          <Badge className="bg-oro/20 text-oro border-oro/30 mb-3">
+            <Coins className="w-3 h-3 mr-1" />
+            Billetera
+          </Badge>
+          <h1 className="text-3xl lg:text-4xl font-bold text-naipe mb-2 tracking-tight">MIS FICHAS</h1>
+          <p className="text-naipe-600">Tu saldo y movimientos</p>
         </div>
         
         <div className="flex gap-2">
           {/* How it works */}
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline" className="border-slate-700 text-slate-300">
+              <Button variant="outline" className="border-paño/30 text-naipe-400 hover:bg-noche-100 rounded-club">
                 <HelpCircle className="w-4 h-4 mr-2" />
-                Cómo funciona
+                <span className="hidden sm:inline">Cómo funcionan los pozos</span>
+                <span className="sm:hidden">Pozos</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-slate-900 border-slate-800 max-w-lg">
+            <DialogContent className="bg-noche-100 border-paño/20 max-w-lg">
               <DialogHeader>
-                <DialogTitle className="text-white">Cómo funcionan las fichas</DialogTitle>
-                <DialogDescription className="text-slate-400">
-                  Sistema de economía del juego
+                <DialogTitle className="text-naipe flex items-center gap-2">
+                  <Coins className="w-5 h-5 text-oro" />
+                  Cómo funcionan los pozos
+                </DialogTitle>
+                <DialogDescription className="text-naipe-600">
+                  Sistema de fichas y apuestas
                 </DialogDescription>
               </DialogHeader>
               
               <div className="space-y-6 py-4">
-                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
-                  <h3 className="text-amber-400 font-semibold mb-2">1 Ficha = 1 Crédito</h3>
-                  <p className="text-sm text-slate-400">
-                    Las fichas son la moneda interna del juego. Se usan para participar en partidas con apuesta.
+                <div className="p-4 rounded-club bg-oro/10 border border-oro/30">
+                  <h3 className="text-oro font-bold text-lg mb-2">1 ficha = 1 crédito</h3>
+                  <p className="text-sm text-naipe-400">
+                    Las fichas son la moneda del juego. Se usan para entrar en partidas con pozo.
                   </p>
                 </div>
                 
+                {/* Example 3v3 */}
                 <div className="space-y-3">
-                  <h4 className="text-white font-medium">Modos de apuesta:</h4>
+                  <h4 className="text-naipe font-semibold">Ejemplo: 3v3 con pozo de 100 por equipo</h4>
                   
-                  <div className="p-3 rounded-lg bg-slate-800/50">
-                    <p className="text-green-400 font-medium text-sm">Entrada Fija</p>
-                    <p className="text-xs text-slate-500">
-                      Cada jugador paga un monto fijo al entrar. El pozo total se reparte entre el equipo ganador.
-                    </p>
+                  <div className="p-4 rounded-club bg-noche-200 space-y-4">
+                    <div>
+                      <p className="text-xs text-naipe-700 mb-2">EQUIPO A aporta 100 fichas:</p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge className="bg-equipoA-bg text-equipoA border-equipoA-border">Doro: 60</Badge>
+                        <Badge className="bg-equipoA-bg text-equipoA border-equipoA-border">Lucho: 20</Badge>
+                        <Badge className="bg-equipoA-bg text-equipoA border-equipoA-border">Mateo: 20</Badge>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <p className="text-xs text-naipe-700 mb-2">EQUIPO B aporta 100 fichas:</p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge className="bg-equipoB-bg text-equipoB border-equipoB-border">Rival 1: 50</Badge>
+                        <Badge className="bg-equipoB-bg text-equipoB border-equipoB-border">Rival 2: 30</Badge>
+                        <Badge className="bg-equipoB-bg text-equipoB border-equipoB-border">Rival 3: 20</Badge>
+                      </div>
+                    </div>
+                    
+                    <div className="pt-3 border-t border-paño/20">
+                      <p className="text-oro font-bold text-center">Pozo total: 200 fichas</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payout modes */}
+                <div className="space-y-3">
+                  <h4 className="text-naipe font-semibold">Modos de reparto (si gana Equipo A):</h4>
+                  
+                  <div className="p-3 rounded-club bg-paño/10 border border-paño/30">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Target className="w-4 h-4 text-paño-50" />
+                      <span className="font-semibold text-paño-50 text-sm">Proporcional</span>
+                    </div>
+                    <p className="text-xs text-naipe-600 mb-2">Cada jugador recibe según lo que aportó:</p>
+                    <div className="flex gap-2 flex-wrap text-xs">
+                      <span className="text-naipe-400">Doro: 120</span>
+                      <span className="text-naipe-400">Lucho: 40</span>
+                      <span className="text-naipe-400">Mateo: 40</span>
+                    </div>
                   </div>
                   
-                  <div className="p-3 rounded-lg bg-slate-800/50">
-                    <p className="text-purple-400 font-medium text-sm">Pozo por Equipo (TEAM_POOL)</p>
-                    <p className="text-xs text-slate-500">
-                      Cada equipo arma su propio pozo. Los jugadores aportan lo que quieran hasta completar el total.
-                      Al ganar, se reparte proporcional al aporte o a un receptor elegido.
-                    </p>
+                  <div className="p-3 rounded-club bg-celeste/10 border border-celeste/30">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Users className="w-4 h-4 text-celeste" />
+                      <span className="font-semibold text-celeste text-sm">Se lo lleva uno</span>
+                    </div>
+                    <p className="text-xs text-naipe-600 mb-2">Un jugador elegido recibe todo:</p>
+                    <div className="text-xs">
+                      <span className="text-naipe-400">Doro: 200 (elegido por el equipo)</span>
+                    </div>
                   </div>
                 </div>
                 
-                <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700">
-                  <p className="text-slate-300 text-sm">
-                    <Info className="w-4 h-4 inline mr-2 text-blue-400" />
-                    Las fichas solo se usan dentro de la plataforma. No hay retiros de dinero real.
+                <div className="p-3 rounded-club bg-noche-200 border border-paño/20">
+                  <p className="text-naipe-400 text-xs flex items-start gap-2">
+                    <Info className="w-4 h-4 text-celeste shrink-0 mt-0.5" />
+                    Las fichas solo se usan dentro de la plataforma. No hay retiro de dinero real.
                   </p>
                 </div>
               </div>
@@ -184,10 +233,11 @@ export default function FichasPage() {
           </Dialog>
           
           {/* Buy Credits - Placeholder */}
-          <Button className="bg-gradient-to-r from-amber-500 to-orange-600" disabled>
+          <Button className="btn-oro" disabled>
             <ShoppingCart className="w-4 h-4 mr-2" />
-            Comprar Fichas
-            <Badge className="ml-2 bg-slate-900/50" variant="secondary">Pronto</Badge>
+            <span className="hidden sm:inline">Cargar fichas</span>
+            <span className="sm:hidden">Cargar</span>
+            <Badge className="ml-2 bg-noche/50 text-naipe-400 border-none text-[10px]">Pronto</Badge>
           </Button>
         </div>
       </div>
@@ -195,127 +245,131 @@ export default function FichasPage() {
       {/* Balance Cards */}
       <div className="grid lg:grid-cols-3 gap-6 mb-8">
         {/* Current Balance */}
-        <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                <Coins className="w-6 h-6 text-amber-400" />
-              </div>
+        <Card className="card-club border-0 overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-oro/10 to-oro/5" />
+          <CardContent className="p-6 relative">
+            <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-slate-400">Saldo Actual</p>
-                <p className="text-3xl font-bold text-white">
+                <p className="text-sm text-naipe-600 mb-1">Saldo actual</p>
+                <p className="text-5xl font-bold text-oro tabular-nums">
                   {session?.user?.creditsBalance ?? 0}
                 </p>
+                <p className="text-xs text-naipe-700 mt-2">fichas disponibles</p>
+              </div>
+              <div className="w-14 h-14 rounded-club bg-oro/20 border border-oro/30 flex items-center justify-center">
+                <Coins className="w-7 h-7 text-oro" />
               </div>
             </div>
-            <p className="text-xs text-slate-500">Fichas disponibles para jugar</p>
           </CardContent>
         </Card>
 
         {/* Total In */}
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="card-club border-0">
           <CardContent className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-green-400" />
-              </div>
+            <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-slate-400">Total Ingresado</p>
-                <p className="text-3xl font-bold text-green-400">+{totalIn}</p>
+                <p className="text-sm text-naipe-600 mb-1">Total ingresado</p>
+                <p className="text-4xl font-bold text-paño-50 tabular-nums">+{totalIn}</p>
+                <p className="text-xs text-naipe-700 mt-2">fichas recibidas</p>
+              </div>
+              <div className="w-12 h-12 rounded-club bg-paño/20 border border-paño/30 flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-paño-50" />
               </div>
             </div>
-            <p className="text-xs text-slate-500">Fichas recibidas (todo el tiempo)</p>
           </CardContent>
         </Card>
 
         {/* Total Out */}
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="card-club border-0">
           <CardContent className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center">
-                <TrendingDown className="w-6 h-6 text-red-400" />
-              </div>
+            <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-slate-400">Total Gastado</p>
-                <p className="text-3xl font-bold text-red-400">-{totalOut}</p>
+                <p className="text-sm text-naipe-600 mb-1">Total apostado</p>
+                <p className="text-4xl font-bold text-destructive tabular-nums">-{totalOut}</p>
+                <p className="text-xs text-naipe-700 mt-2">fichas en pozos</p>
+              </div>
+              <div className="w-12 h-12 rounded-club bg-destructive/20 border border-destructive/30 flex items-center justify-center">
+                <TrendingDown className="w-6 h-6 text-destructive" />
               </div>
             </div>
-            <p className="text-xs text-slate-500">Fichas apostadas (todo el tiempo)</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Transactions */}
-      <Card className="bg-slate-900/50 border-slate-800">
-        <CardHeader className="flex flex-row items-center justify-between">
+      <Card className="card-club border-0">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-paño/20">
           <div>
-            <CardTitle className="text-white">Historial de Movimientos</CardTitle>
-            <CardDescription className="text-slate-400">
-              {filteredTransactions.length} movimientos
+            <CardTitle className="text-naipe">Movimientos</CardTitle>
+            <CardDescription className="text-naipe-700">
+              {filteredTransactions.length} registros
             </CardDescription>
           </div>
           
           <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-48 bg-slate-800 border-slate-700">
-              <Filter className="w-4 h-4 mr-2" />
+            <SelectTrigger className="w-full sm:w-48 bg-noche-200 border-paño/20 text-naipe rounded-club">
+              <Filter className="w-4 h-4 mr-2 text-naipe-600" />
               <SelectValue placeholder="Filtrar" />
             </SelectTrigger>
-            <SelectContent className="bg-slate-800 border-slate-700">
+            <SelectContent className="bg-noche-200 border-paño/20">
               <SelectItem value="ALL">Todos</SelectItem>
               <SelectItem value="ADMIN_LOAD">Cargas</SelectItem>
-              <SelectItem value="STAKE_LOCK">Stakes</SelectItem>
-              <SelectItem value="STAKE_PAYOUT">Pagos</SelectItem>
+              <SelectItem value="STAKE_LOCK">Pozos</SelectItem>
+              <SelectItem value="STAKE_PAYOUT">Premios</SelectItem>
               <SelectItem value="STAKE_REFUND">Reembolsos</SelectItem>
             </SelectContent>
           </Select>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           {isLoading ? (
             <div className="space-y-3">
               {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-16" />
+                <Skeleton key={i} className="h-20 bg-noche-200 rounded-club" />
               ))}
             </div>
           ) : filteredTransactions.length === 0 ? (
-            <div className="text-center py-12">
-              <Coins className="w-12 h-12 text-slate-700 mx-auto mb-4" />
-              <p className="text-slate-500">No hay movimientos</p>
+            <div className="text-center py-16">
+              <div className="w-16 h-16 rounded-full bg-noche-200 flex items-center justify-center mx-auto mb-4">
+                <Coins className="w-8 h-8 text-naipe-700" />
+              </div>
+              <p className="text-naipe-600 mb-2">Sin movimientos</p>
+              <p className="text-naipe-700 text-sm">Tus transacciones aparecerán acá</p>
             </div>
           ) : (
             <ScrollArea className="h-[500px] pr-4">
               <div className="space-y-3">
                 {filteredTransactions.map((tx) => {
-                  const typeInfo = typeLabels[tx.type] || { label: tx.type, color: 'text-slate-400 bg-slate-400/10' }
+                  const typeInfo = typeLabels[tx.type] || { label: tx.type, color: 'text-naipe-600', bg: 'bg-noche-200' }
                   const isPositive = tx.amount > 0
                   
                   return (
                     <div 
                       key={tx.id}
-                      className="flex items-center gap-4 p-4 rounded-xl bg-slate-800/30 border border-slate-700/30 hover:border-slate-600/50 transition-colors"
+                      className="flex items-center gap-4 p-4 rounded-club bg-noche-200 border border-paño/10 hover:border-paño/30 transition-all duration-200 group"
                     >
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isPositive ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isPositive ? 'bg-paño/20' : 'bg-destructive/20'}`}>
                         {isPositive ? (
-                          <ArrowDownLeft className="w-5 h-5 text-green-400" />
+                          <ArrowDownLeft className="w-5 h-5 text-paño-50" />
                         ) : (
-                          <ArrowUpRight className="w-5 h-5 text-red-400" />
+                          <ArrowUpRight className="w-5 h-5 text-destructive" />
                         )}
                       </div>
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <Badge variant="secondary" className={`text-xs ${typeInfo.color}`}>
+                          <Badge className={`${typeInfo.bg} ${typeInfo.color} border-none text-xs`}>
                             {typeInfo.label}
                           </Badge>
                           {tx.room && (
-                            <span className="text-xs text-slate-500 font-mono">
+                            <span className="text-xs text-naipe-700 font-mono">
                               {tx.room.codeTeamA}
                             </span>
                           )}
                         </div>
                         {tx.note && (
-                          <p className="text-sm text-slate-400 truncate">{tx.note}</p>
+                          <p className="text-sm text-naipe-400 truncate">{tx.note}</p>
                         )}
-                        <div className="flex items-center gap-1 text-xs text-slate-500 mt-1">
+                        <div className="flex items-center gap-1 text-xs text-naipe-700 mt-1">
                           <Clock className="w-3 h-3" />
                           {new Date(tx.createdAt).toLocaleString('es-AR', {
                             day: '2-digit',
@@ -327,7 +381,7 @@ export default function FichasPage() {
                         </div>
                       </div>
                       
-                      <div className={`text-lg font-bold ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                      <div className={`text-xl font-bold tabular-nums ${isPositive ? 'text-paño-50' : 'text-destructive'}`}>
                         {isPositive ? '+' : ''}{tx.amount}
                       </div>
                     </div>
@@ -341,4 +395,3 @@ export default function FichasPage() {
     </div>
   )
 }
-

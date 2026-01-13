@@ -5,15 +5,16 @@ import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { 
   Users, 
-  Gamepad2, 
+  Swords, 
   Coins, 
-  HelpCircle, 
+  LifeBuoy, 
   Trophy,
   LogOut,
   User,
   History,
   Shield,
-  Menu
+  Menu,
+  Sparkles
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -37,11 +38,27 @@ import {
 
 const navItems = [
   { href: '/comunidad', label: 'Comunidad', icon: Users },
-  { href: '/jugar', label: 'Jugar', icon: Gamepad2 },
+  { href: '/jugar', label: 'Jugar', icon: Swords },
   { href: '/fichas', label: 'Fichas', icon: Coins },
-  { href: '/soporte', label: 'Soporte', icon: HelpCircle },
+  { href: '/soporte', label: 'Soporte', icon: LifeBuoy },
   { href: '/rankings', label: 'Rankings', icon: Trophy },
 ]
+
+// Logo SVG - Palo de espadas estilizado
+function TrucoLogo({ className }: { className?: string }) {
+  return (
+    <svg 
+      viewBox="0 0 32 32" 
+      className={className}
+      fill="currentColor"
+    >
+      <path d="M16 2C16 2 12 8 12 12C12 14.5 13.5 16.5 16 17C18.5 16.5 20 14.5 20 12C20 8 16 2 16 2Z" />
+      <path d="M16 17V28" strokeWidth="2.5" stroke="currentColor" fill="none" strokeLinecap="round"/>
+      <path d="M12 24H20" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round"/>
+      <circle cx="16" cy="14" r="2" fill="currentColor" opacity="0.3"/>
+    </svg>
+  )
+}
 
 export function Navbar() {
   const { data: session, status } = useSession()
@@ -49,19 +66,23 @@ export function Navbar() {
   const isLoading = status === 'loading'
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-800/50 bg-slate-950/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full border-b border-paño/20 bg-noche/90 backdrop-blur-xl">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
+        <Link href="/" className="flex items-center gap-2.5 group">
           <div className="relative">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:shadow-amber-500/40 transition-all">
-              <span className="text-xl font-bold text-white">T</span>
+            <div className="w-10 h-10 rounded-club bg-gradient-to-br from-paño to-paño-600 flex items-center justify-center shadow-lg shadow-paño/30 group-hover:shadow-paño/50 transition-all duration-300">
+              <TrucoLogo className="w-6 h-6 text-naipe" />
             </div>
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-500 border-2 border-slate-950" />
           </div>
-          <span className="font-bold text-xl bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent hidden sm:block">
-            Truco
-          </span>
+          <div className="hidden sm:flex flex-col -space-y-1">
+            <span className="font-bold text-lg tracking-tight text-naipe">
+              TRUCO
+            </span>
+            <span className="text-[10px] tracking-[0.2em] text-oro uppercase font-semibold">
+              Argentino
+            </span>
+          </div>
         </Link>
 
         {/* Desktop Navigation */}
@@ -74,13 +95,13 @@ export function Navbar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all',
+                  'flex items-center gap-2 px-4 py-2.5 rounded-club text-sm font-medium transition-all duration-200',
                   isActive
-                    ? 'bg-amber-500/20 text-amber-400'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                    ? 'bg-paño/30 text-naipe border border-paño/40'
+                    : 'text-naipe-600 hover:text-naipe hover:bg-noche-100/50'
                 )}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className={cn("w-4 h-4", isActive && "text-oro")} />
                 {item.label}
               </Link>
             )
@@ -93,10 +114,10 @@ export function Navbar() {
           {session?.user && (
             <Link 
               href="/fichas"
-              className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/50 border border-slate-700/50 hover:border-amber-500/50 transition-colors"
+              className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-full bg-noche-100 border border-oro/30 hover:border-oro/60 hover:shadow-glow-oro transition-all duration-200"
             >
-              <Coins className="w-4 h-4 text-amber-400" />
-              <span className="text-sm font-semibold text-amber-400">
+              <Coins className="w-4 h-4 text-oro" />
+              <span className="text-sm font-bold text-oro tabular-nums">
                 {session.user.creditsBalance ?? 0}
               </span>
             </Link>
@@ -105,13 +126,16 @@ export function Navbar() {
           {/* Mobile Menu */}
           <Sheet>
             <SheetTrigger asChild className="lg:hidden">
-              <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
+              <Button variant="ghost" size="icon" className="text-naipe-600 hover:text-naipe hover:bg-noche-100">
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-80 bg-slate-900 border-slate-800">
+            <SheetContent side="right" className="w-80 bg-noche-100 border-paño/20">
               <SheetHeader>
-                <SheetTitle className="text-white">Menú</SheetTitle>
+                <SheetTitle className="text-naipe flex items-center gap-2">
+                  <TrucoLogo className="w-5 h-5 text-paño" />
+                  Menú
+                </SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-2 mt-6">
                 {navItems.map((item) => {
@@ -122,13 +146,13 @@ export function Navbar() {
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all',
+                        'flex items-center gap-3 px-4 py-3.5 rounded-club text-sm font-medium transition-all duration-200',
                         isActive
-                          ? 'bg-amber-500/20 text-amber-400'
-                          : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                          ? 'bg-paño/30 text-naipe border border-paño/40'
+                          : 'text-naipe-600 hover:text-naipe hover:bg-noche-200'
                       )}
                     >
-                      <Icon className="w-5 h-5" />
+                      <Icon className={cn("w-5 h-5", isActive && "text-oro")} />
                       {item.label}
                     </Link>
                   )
@@ -139,58 +163,61 @@ export function Navbar() {
 
           {/* User Menu / Auth Buttons */}
           {isLoading ? (
-            <div className="w-10 h-10 rounded-full bg-slate-800 animate-pulse" />
+            <div className="w-10 h-10 rounded-full bg-noche-100 animate-pulse" />
           ) : session?.user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="relative h-10 w-10 rounded-full p-0 hover:ring-2 hover:ring-amber-500/50"
+                  className="relative h-10 w-10 rounded-full p-0 hover:ring-2 hover:ring-paño/50 transition-all duration-200"
                 >
-                  <Avatar className="h-10 w-10 border-2 border-slate-700">
-                    <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-600 text-white font-bold">
+                  <Avatar className="h-10 w-10 border-2 border-paño/30">
+                    <AvatarFallback className="bg-gradient-to-br from-paño to-paño-600 text-naipe font-bold text-sm">
                       {session.user.username?.charAt(0).toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent 
-                className="w-56 bg-slate-900 border-slate-800" 
+                className="w-56 bg-noche-100 border-paño/20" 
                 align="end"
               >
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium text-white">{session.user.username}</p>
-                    <p className="text-xs text-slate-400">{session.user.email}</p>
-                    <p className="text-xs text-amber-400 font-semibold">
-                      {session.user.creditsBalance ?? 0} fichas
-                    </p>
+                    <p className="text-sm font-semibold text-naipe">{session.user.username}</p>
+                    <p className="text-xs text-naipe-700">{session.user.email}</p>
+                    <div className="flex items-center gap-1 pt-1">
+                      <Coins className="w-3 h-3 text-oro" />
+                      <p className="text-xs text-oro font-bold">
+                        {session.user.creditsBalance ?? 0} fichas
+                      </p>
+                    </div>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-slate-800" />
-                <DropdownMenuItem asChild className="cursor-pointer hover:bg-slate-800 focus:bg-slate-800">
-                  <Link href="/perfil" className="flex items-center text-slate-300">
+                <DropdownMenuSeparator className="bg-paño/20" />
+                <DropdownMenuItem asChild className="cursor-pointer hover:bg-noche-200 focus:bg-noche-200">
+                  <Link href="/perfil" className="flex items-center text-naipe-400">
                     <User className="mr-2 h-4 w-4" />
                     Mi Perfil
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer hover:bg-slate-800 focus:bg-slate-800">
-                  <Link href="/mis-partidas" className="flex items-center text-slate-300">
+                <DropdownMenuItem asChild className="cursor-pointer hover:bg-noche-200 focus:bg-noche-200">
+                  <Link href="/mis-partidas" className="flex items-center text-naipe-400">
                     <History className="mr-2 h-4 w-4" />
                     Mis Partidas
                   </Link>
                 </DropdownMenuItem>
                 {session.user.role === 'ADMIN' && (
-                  <DropdownMenuItem asChild className="cursor-pointer hover:bg-slate-800 focus:bg-slate-800">
-                    <Link href="/admin" className="flex items-center text-purple-400">
+                  <DropdownMenuItem asChild className="cursor-pointer hover:bg-noche-200 focus:bg-noche-200">
+                    <Link href="/admin" className="flex items-center text-celeste">
                       <Shield className="mr-2 h-4 w-4" />
                       Admin Panel
                     </Link>
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuSeparator className="bg-slate-800" />
+                <DropdownMenuSeparator className="bg-paño/20" />
                 <DropdownMenuItem 
-                  className="cursor-pointer hover:bg-red-900/30 focus:bg-red-900/30 text-red-400"
+                  className="cursor-pointer hover:bg-destructive/20 focus:bg-destructive/20 text-destructive"
                   onClick={() => signOut({ callbackUrl: '/' })}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
@@ -201,12 +228,13 @@ export function Navbar() {
           ) : (
             <div className="flex items-center gap-2">
               <Link href="/login">
-                <Button variant="ghost" className="text-slate-300 hover:text-white hover:bg-slate-800">
-                  Iniciar Sesión
+                <Button variant="ghost" className="text-naipe-400 hover:text-naipe hover:bg-noche-100">
+                  Entrar
                 </Button>
               </Link>
               <Link href="/register" className="hidden sm:block">
-                <Button className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-lg shadow-amber-500/20">
+                <Button className="btn-pano flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" />
                   Registrarse
                 </Button>
               </Link>
@@ -217,4 +245,3 @@ export function Navbar() {
     </header>
   )
 }
-

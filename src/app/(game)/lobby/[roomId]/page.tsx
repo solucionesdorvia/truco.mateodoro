@@ -4,14 +4,35 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
+import { 
+  Users, 
+  Copy, 
+  Check, 
+  LogOut, 
+  Coins, 
+  MessageSquare, 
+  Send,
+  Swords,
+  Target,
+  Crown,
+  Sparkles,
+  Timer
+} from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Progress } from '@/components/ui/progress'
+import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { connectSocket, getSocket, type RoomState } from '@/lib/socket/client'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 export default function LobbyPage() {
   const params = useParams()
@@ -24,6 +45,8 @@ export default function LobbyPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [chatMessage, setChatMessage] = useState('')
   const [chatMessages, setChatMessages] = useState<Array<{ id: string; username: string; message: string; timestamp: string }>>([])
+  const [copiedCode, setCopiedCode] = useState<string | null>(null)
+  const [payoutMode, setPayoutMode] = useState<'PROPORTIONAL' | 'SINGLE_RECEIVER'>('PROPORTIONAL')
 
   useEffect(() => {
     if (status === 'loading') return
@@ -77,7 +100,7 @@ export default function LobbyPage() {
     })
 
     socket.on('game:started', () => {
-      toast.success('¡La partida comenzó!')
+      toast.success('¡Arrancó la partida!')
       router.push(`/table/${roomId}`)
     })
 
@@ -86,7 +109,7 @@ export default function LobbyPage() {
     })
 
     socket.on('player:joined', (data) => {
-      toast.info(`${data.username} se unió al equipo ${data.team}`)
+      toast.info(`${data.username} entró al equipo ${data.team}`)
     })
 
     socket.on('player:disconnected', () => {
@@ -129,16 +152,28 @@ export default function LobbyPage() {
   const handleLeave = async () => {
     try {
       await fetch(`/api/rooms/${roomId}/leave`, { method: 'POST' })
-      router.push('/')
+      router.push('/jugar')
     } catch {
       toast.error('Error al salir')
     }
   }
 
+  const copyCode = (code: string) => {
+    navigator.clipboard.writeText(code)
+    setCopiedCode(code)
+    toast.success('Código copiado')
+    setTimeout(() => setCopiedCode(null), 2000)
+  }
+
   if (status === 'loading' || isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-950 via-emerald-900 to-green-950 flex items-center justify-center">
-        <div className="text-white text-xl">Cargando sala...</div>
+      <div className="min-h-screen bg-noche flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 rounded-full bg-paño/20 border border-paño/40 flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <Swords className="w-8 h-8 text-paño-50" />
+          </div>
+          <p className="text-naipe-400">Cargando lobby...</p>
+        </div>
       </div>
     )
   }
@@ -153,57 +188,121 @@ export default function LobbyPage() {
   
   const stakeA = roomState.stakeContributions?.filter(s => s.team === 'A').reduce((sum, s) => sum + s.amountCredits, 0) || 0
   const stakeB = roomState.stakeContributions?.filter(s => s.team === 'B').reduce((sum, s) => sum + s.amountCredits, 0) || 0
+  const totalStake = roomState.stakeTotalCredits || 0
   
   const isCreator = roomState.createdBy.id === session?.user?.id
-  const canStart = teamA.length >= playersPerTeam && teamB.length >= playersPerTeam &&
-    (roomState.stakeMode !== 'TEAM_POOL' || (stakeA >= (roomState.stakeTotalCredits || 0) && stakeB >= (roomState.stakeTotalCredits || 0)))
+  const teamsComplete = teamA.length >= playersPerTeam && teamB.length >= playersPerTeam
+  const stakeComplete = roomState.stakeMode !== 'TEAM_POOL' || (stakeA >= totalStake && stakeB >= totalStake)
+  const canStart = teamsComplete && stakeComplete
+
+  const getModeLabel = () => {
+    switch(roomState.mode) {
+      case 'ONE_VS_ONE': return '1v1'
+      case 'TWO_VS_TWO': return '2v2'
+      case 'THREE_VS_THREE': return '3v3'
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-950 via-emerald-900 to-green-950 p-4">
-      <div className="container mx-auto max-w-6xl py-4">
+    <div className="min-h-screen bg-noche relative">
+      {/* Ambient paño glow */}
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-paño/10 rounded-full blur-[150px] pointer-events-none" />
+      
+      <div className="relative container mx-auto max-w-6xl px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-white">Lobby de Partida</h1>
-            <p className="text-green-300">
-              {roomState.mode.replace(/_/g, ' ')} • {roomState.targetScore} puntos
-              {roomState.florEnabled && ' • Flor'}
-            </p>
+            <Badge className="bg-paño/20 text-paño-50 border-paño/30 mb-2">
+              <Swords className="w-3 h-3 mr-1" />
+              Lobby
+            </Badge>
+            <h1 className="text-2xl lg:text-3xl font-bold text-naipe tracking-tight">
+              {getModeLabel()} • {roomState.targetScore} puntos
+            </h1>
+            <div className="flex items-center gap-3 mt-1">
+              {roomState.florEnabled && (
+                <Badge className="bg-oro/20 text-oro border-oro/30 text-xs">
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  Flor
+                </Badge>
+              )}
+              {roomState.timerEnabled && (
+                <Badge className="bg-celeste/20 text-celeste border-celeste/30 text-xs">
+                  <Timer className="w-3 h-3 mr-1" />
+                  {roomState.timerSeconds}s
+                </Badge>
+              )}
+              {roomState.stakeMode === 'TEAM_POOL' && (
+                <Badge className="bg-oro/20 text-oro border-oro/30 text-xs">
+                  <Coins className="w-3 h-3 mr-1" />
+                  Pozo {totalStake} por equipo
+                </Badge>
+              )}
+            </div>
           </div>
-          <Button variant="outline" onClick={handleLeave} className="border-red-500 text-red-400 hover:bg-red-500/20">
+          <Button 
+            variant="outline" 
+            onClick={handleLeave} 
+            className="border-destructive/30 text-destructive hover:bg-destructive/10 rounded-club"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
             Salir
           </Button>
         </div>
 
-        {/* Codes */}
+        {/* Team Codes */}
         <div className="grid md:grid-cols-2 gap-4 mb-6">
-          <Card className="bg-blue-900/50 border-blue-600">
-            <CardContent className="pt-4 text-center">
-              <p className="text-blue-200 text-sm mb-1">Código Equipo A</p>
-              <p className="text-3xl font-mono font-bold text-white tracking-widest">
-                {roomState.codeTeamA}
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="bg-red-900/50 border-red-600">
-            <CardContent className="pt-4 text-center">
-              <p className="text-red-200 text-sm mb-1">Código Equipo B</p>
-              <p className="text-3xl font-mono font-bold text-white tracking-widest">
-                {roomState.codeTeamB}
-              </p>
-            </CardContent>
-          </Card>
+          <div className="p-4 rounded-club bg-equipoA-bg border-2 border-equipoA-border">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-equipoA font-semibold mb-1">CÓDIGO EQUIPO A</p>
+                <p className="text-3xl font-mono font-bold text-naipe tracking-[0.2em]">
+                  {roomState.codeTeamA}
+                </p>
+              </div>
+              <Button 
+                size="icon"
+                variant="ghost"
+                onClick={() => copyCode(roomState.codeTeamA)}
+                className="text-equipoA hover:bg-equipoA/20"
+              >
+                {copiedCode === roomState.codeTeamA ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+              </Button>
+            </div>
+          </div>
+          <div className="p-4 rounded-club bg-equipoB-bg border-2 border-equipoB-border">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-equipoB font-semibold mb-1">CÓDIGO EQUIPO B</p>
+                <p className="text-3xl font-mono font-bold text-naipe tracking-[0.2em]">
+                  {roomState.codeTeamB}
+                </p>
+              </div>
+              <Button 
+                size="icon"
+                variant="ghost"
+                onClick={() => copyCode(roomState.codeTeamB)}
+                className="text-equipoB hover:bg-equipoB/20"
+              >
+                {copiedCode === roomState.codeTeamB ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+              </Button>
+            </div>
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Teams */}
+          {/* Teams Panel */}
           <div className="lg:col-span-2 grid md:grid-cols-2 gap-4">
             {/* Team A */}
-            <Card className="bg-blue-900/30 border-blue-700">
-              <CardHeader>
-                <CardTitle className="text-blue-300 flex items-center justify-between">
-                  <span>Equipo A</span>
-                  <Badge variant="outline" className="border-blue-500 text-blue-300">
+            <Card className="card-club border-0 overflow-hidden">
+              <div className="h-1 bg-equipoA" />
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center justify-between">
+                  <span className="text-naipe flex items-center gap-2">
+                    <Users className="w-5 h-5 text-equipoA" />
+                    Equipo A
+                  </span>
+                  <Badge className={`${teamA.length >= playersPerTeam ? 'bg-paño/20 text-paño-50 border-paño/30' : 'bg-noche-200 text-naipe-600 border-paño/20'}`}>
                     {teamA.length}/{playersPerTeam}
                   </Badge>
                 </CardTitle>
@@ -217,45 +316,68 @@ export default function LobbyPage() {
                   return (
                     <div
                       key={i}
-                      className={`p-3 rounded-lg ${
-                        player ? 'bg-blue-800/50' : 'bg-blue-950/30 border-2 border-dashed border-blue-700'
+                      className={`p-3 rounded-club transition-all ${
+                        player 
+                          ? 'bg-equipoA-bg border border-equipoA-border' 
+                          : 'bg-noche-200/50 border-2 border-dashed border-paño/20'
                       }`}
                     >
                       {player ? (
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${player.isConnected ? 'bg-green-400' : 'bg-gray-500'}`} />
-                            <span className="text-white font-medium">{player.user.username}</span>
+                            <div className={`w-2 h-2 rounded-full ${player.isConnected ? 'bg-paño-50 animate-pulse' : 'bg-naipe-700'}`} />
+                            <span className="text-naipe font-semibold">{player.user.username}</span>
+                            {player.user.id === roomState.createdBy.id && (
+                              <Crown className="w-3 h-3 text-oro" />
+                            )}
                           </div>
                           {roomState.stakeMode === 'TEAM_POOL' && (
-                            <span className="text-amber-400">${contribution?.amountCredits || 0}</span>
+                            <span className="chip chip-sm">{contribution?.amountCredits || 0}</span>
                           )}
                         </div>
                       ) : (
-                        <span className="text-blue-400 text-sm">Esperando jugador...</span>
+                        <span className="text-naipe-700 text-sm">Esperando jugador...</span>
                       )}
                     </div>
                   )
                 })}
                 
-                {roomState.stakeMode === 'TEAM_POOL' && roomState.stakeTotalCredits && (
-                  <div className="pt-2 border-t border-blue-700">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-blue-300">Pozo</span>
-                      <span className="text-white">${stakeA} / ${roomState.stakeTotalCredits}</span>
+                {/* Stake Progress */}
+                {roomState.stakeMode === 'TEAM_POOL' && totalStake > 0 && (
+                  <div className="pt-3 border-t border-paño/20">
+                    <div className="flex justify-between text-sm mb-2">
+                      <span className="text-naipe-600">Pozo equipo</span>
+                      <span className={`font-bold tabular-nums ${stakeA >= totalStake ? 'text-paño-50' : 'text-naipe'}`}>
+                        {stakeA} / {totalStake}
+                      </span>
                     </div>
-                    <Progress value={(stakeA / roomState.stakeTotalCredits) * 100} className="h-2" />
+                    <div className="h-2 bg-noche-200 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full transition-all duration-500 ${stakeA >= totalStake ? 'bg-paño' : 'bg-equipoA'}`}
+                        style={{ width: `${Math.min((stakeA / totalStake) * 100, 100)}%` }}
+                      />
+                    </div>
+                    {stakeA >= totalStake && (
+                      <p className="text-paño-50 text-xs mt-2 flex items-center gap-1">
+                        <Check className="w-3 h-3" />
+                        Pozo completo
+                      </p>
+                    )}
                   </div>
                 )}
               </CardContent>
             </Card>
 
             {/* Team B */}
-            <Card className="bg-red-900/30 border-red-700">
-              <CardHeader>
-                <CardTitle className="text-red-300 flex items-center justify-between">
-                  <span>Equipo B</span>
-                  <Badge variant="outline" className="border-red-500 text-red-300">
+            <Card className="card-club border-0 overflow-hidden">
+              <div className="h-1 bg-equipoB" />
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center justify-between">
+                  <span className="text-naipe flex items-center gap-2">
+                    <Users className="w-5 h-5 text-equipoB" />
+                    Equipo B
+                  </span>
+                  <Badge className={`${teamB.length >= playersPerTeam ? 'bg-paño/20 text-paño-50 border-paño/30' : 'bg-noche-200 text-naipe-600 border-paño/20'}`}>
                     {teamB.length}/{playersPerTeam}
                   </Badge>
                 </CardTitle>
@@ -269,34 +391,53 @@ export default function LobbyPage() {
                   return (
                     <div
                       key={i}
-                      className={`p-3 rounded-lg ${
-                        player ? 'bg-red-800/50' : 'bg-red-950/30 border-2 border-dashed border-red-700'
+                      className={`p-3 rounded-club transition-all ${
+                        player 
+                          ? 'bg-equipoB-bg border border-equipoB-border' 
+                          : 'bg-noche-200/50 border-2 border-dashed border-paño/20'
                       }`}
                     >
                       {player ? (
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${player.isConnected ? 'bg-green-400' : 'bg-gray-500'}`} />
-                            <span className="text-white font-medium">{player.user.username}</span>
+                            <div className={`w-2 h-2 rounded-full ${player.isConnected ? 'bg-paño-50 animate-pulse' : 'bg-naipe-700'}`} />
+                            <span className="text-naipe font-semibold">{player.user.username}</span>
+                            {player.user.id === roomState.createdBy.id && (
+                              <Crown className="w-3 h-3 text-oro" />
+                            )}
                           </div>
                           {roomState.stakeMode === 'TEAM_POOL' && (
-                            <span className="text-amber-400">${contribution?.amountCredits || 0}</span>
+                            <span className="chip chip-sm">{contribution?.amountCredits || 0}</span>
                           )}
                         </div>
                       ) : (
-                        <span className="text-red-400 text-sm">Esperando jugador...</span>
+                        <span className="text-naipe-700 text-sm">Esperando jugador...</span>
                       )}
                     </div>
                   )
                 })}
                 
-                {roomState.stakeMode === 'TEAM_POOL' && roomState.stakeTotalCredits && (
-                  <div className="pt-2 border-t border-red-700">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-red-300">Pozo</span>
-                      <span className="text-white">${stakeB} / ${roomState.stakeTotalCredits}</span>
+                {/* Stake Progress */}
+                {roomState.stakeMode === 'TEAM_POOL' && totalStake > 0 && (
+                  <div className="pt-3 border-t border-paño/20">
+                    <div className="flex justify-between text-sm mb-2">
+                      <span className="text-naipe-600">Pozo equipo</span>
+                      <span className={`font-bold tabular-nums ${stakeB >= totalStake ? 'text-paño-50' : 'text-naipe'}`}>
+                        {stakeB} / {totalStake}
+                      </span>
                     </div>
-                    <Progress value={(stakeB / roomState.stakeTotalCredits) * 100} className="h-2" />
+                    <div className="h-2 bg-noche-200 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full transition-all duration-500 ${stakeB >= totalStake ? 'bg-paño' : 'bg-equipoB'}`}
+                        style={{ width: `${Math.min((stakeB / totalStake) * 100, 100)}%` }}
+                      />
+                    </div>
+                    {stakeB >= totalStake && (
+                      <p className="text-paño-50 text-xs mt-2 flex items-center gap-1">
+                        <Check className="w-3 h-3" />
+                        Pozo completo
+                      </p>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -307,45 +448,85 @@ export default function LobbyPage() {
           <div className="space-y-4">
             {/* Stake Panel */}
             {roomState.stakeMode === 'TEAM_POOL' && (
-              <Card className="bg-amber-900/30 border-amber-700">
-                <CardHeader>
-                  <CardTitle className="text-amber-300 text-lg">💰 Tu Aporte</CardTitle>
+              <Card className="card-club border-0 overflow-hidden">
+                <div className="h-1 bg-gradient-to-r from-oro to-oro-dark" />
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-naipe flex items-center gap-2">
+                    <Coins className="w-5 h-5 text-oro" />
+                    Tu aporte
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-amber-200">$</span>
-                    <Input
-                      type="number"
-                      min={0}
-                      max={session?.user?.creditsBalance || 0}
-                      value={myStake}
-                      onChange={(e) => handleStakeUpdate(parseInt(e.target.value) || 0)}
-                      className="bg-amber-950/50 border-amber-600 text-white text-xl text-center"
-                    />
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label className="text-naipe-600 text-xs mb-2 block">Fichas a aportar</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min={0}
+                        max={session?.user?.creditsBalance || 0}
+                        value={myStake}
+                        onChange={(e) => handleStakeUpdate(parseInt(e.target.value) || 0)}
+                        className="bg-noche-200 border-oro/30 text-naipe text-xl text-center font-bold rounded-club"
+                      />
+                    </div>
                   </div>
-                  <p className="text-amber-300 text-xs">
-                    Tu saldo: ${session?.user?.creditsBalance || 0} créditos
-                  </p>
+                  
+                  <div className="p-3 rounded-club bg-noche-200 flex items-center justify-between">
+                    <span className="text-naipe-600 text-sm">Tu saldo</span>
+                    <span className="chip">{session?.user?.creditsBalance || 0}</span>
+                  </div>
+
+                  {/* Payout Mode selector */}
+                  <div>
+                    <Label className="text-naipe-600 text-xs mb-2 block">Modo de reparto</Label>
+                    <Select value={payoutMode} onValueChange={(v: 'PROPORTIONAL' | 'SINGLE_RECEIVER') => setPayoutMode(v)}>
+                      <SelectTrigger className="bg-noche-200 border-paño/20 text-naipe rounded-club">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-noche-200 border-paño/20">
+                        <SelectItem value="PROPORTIONAL">
+                          <div className="flex items-center gap-2">
+                            <Target className="w-4 h-4 text-paño-50" />
+                            Proporcional
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="SINGLE_RECEIVER">
+                          <div className="flex items-center gap-2">
+                            <Users className="w-4 h-4 text-celeste" />
+                            Se lo lleva uno
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-naipe-700 text-xs mt-2">
+                      {payoutMode === 'PROPORTIONAL' 
+                        ? 'Cada uno recibe según su aporte'
+                        : 'Un jugador elegido recibe todo'}
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             )}
 
             {/* Chat */}
             {roomState.chatEnabled && (
-              <Card className="bg-green-900/30 border-green-700">
-                <CardHeader>
-                  <CardTitle className="text-green-300 text-lg">💬 Chat</CardTitle>
+              <Card className="card-club border-0">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-naipe flex items-center gap-2 text-base">
+                    <MessageSquare className="w-5 h-5 text-paño-50" />
+                    Chat
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <ScrollArea className="h-32 bg-green-950/30 rounded p-2">
+                  <ScrollArea className="h-32 bg-noche-200 rounded-club p-3">
                     {chatMessages.map((msg) => (
-                      <div key={msg.id} className="text-sm mb-1">
-                        <span className="text-green-400 font-medium">{msg.username}:</span>{' '}
-                        <span className="text-white">{msg.message}</span>
+                      <div key={msg.id} className="text-sm mb-2">
+                        <span className="text-paño-50 font-semibold">{msg.username}:</span>{' '}
+                        <span className="text-naipe-300">{msg.message}</span>
                       </div>
                     ))}
                     {chatMessages.length === 0 && (
-                      <p className="text-green-500 text-sm">Sin mensajes aún...</p>
+                      <p className="text-naipe-700 text-sm text-center py-4">Sin mensajes</p>
                     )}
                   </ScrollArea>
                   <div className="flex gap-2">
@@ -354,10 +535,10 @@ export default function LobbyPage() {
                       value={chatMessage}
                       onChange={(e) => setChatMessage(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleSendChat()}
-                      className="bg-green-950/50 border-green-600 text-white placeholder:text-green-500"
+                      className="bg-noche-200 border-paño/20 text-naipe placeholder:text-naipe-700 rounded-club"
                     />
-                    <Button onClick={handleSendChat} size="sm" className="bg-green-600 hover:bg-green-700">
-                      Enviar
+                    <Button onClick={handleSendChat} size="icon" className="bg-paño hover:bg-paño-100 shrink-0 rounded-club">
+                      <Send className="w-4 h-4 text-naipe" />
                     </Button>
                   </div>
                 </CardContent>
@@ -369,10 +550,32 @@ export default function LobbyPage() {
               <Button
                 onClick={handleStartGame}
                 disabled={!canStart}
-                className="w-full py-6 text-lg bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50"
+                className={`w-full py-6 text-lg rounded-club transition-all ${
+                  canStart 
+                    ? 'btn-pano glow-pano' 
+                    : 'bg-noche-200 text-naipe-700 cursor-not-allowed'
+                }`}
               >
-                {canStart ? '🎮 Iniciar Partida' : '⏳ Esperando jugadores...'}
+                {canStart ? (
+                  <>
+                    <Swords className="w-5 h-5 mr-2" />
+                    Iniciar partida
+                  </>
+                ) : (
+                  <>
+                    <Timer className="w-5 h-5 mr-2" />
+                    {!teamsComplete ? 'Esperando jugadores...' : 'Completando pozos...'}
+                  </>
+                )}
               </Button>
+            )}
+
+            {!isCreator && (
+              <div className="p-4 rounded-club bg-noche-200 border border-paño/20 text-center">
+                <p className="text-naipe-400 text-sm">
+                  Esperando que <span className="text-naipe font-semibold">{roomState.createdBy.username}</span> inicie la partida
+                </p>
+              </div>
             )}
           </div>
         </div>
@@ -380,4 +583,3 @@ export default function LobbyPage() {
     </div>
   )
 }
-

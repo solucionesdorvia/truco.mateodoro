@@ -9,10 +9,9 @@ import {
   Plus,
   Heart,
   Clock,
-  Tag,
   Send,
   Lightbulb,
-  Gamepad2,
+  Swords,
   UserPlus,
   MessagesSquare,
   Filter
@@ -56,10 +55,10 @@ interface Post {
 }
 
 const categoryConfig = {
-  TIP: { label: 'Tip', icon: Lightbulb, color: 'text-amber-400 bg-amber-400/10 border-amber-400/30' },
-  PARTIDA: { label: 'Partida', icon: Gamepad2, color: 'text-green-400 bg-green-400/10 border-green-400/30' },
-  BUSCO_EQUIPO: { label: 'Busco Equipo', icon: UserPlus, color: 'text-blue-400 bg-blue-400/10 border-blue-400/30' },
-  GENERAL: { label: 'General', icon: MessagesSquare, color: 'text-slate-400 bg-slate-400/10 border-slate-400/30' },
+  TIP: { label: 'Tip', icon: Lightbulb, color: 'text-oro', bg: 'bg-oro/20', border: 'border-oro/30' },
+  PARTIDA: { label: 'Partida', icon: Swords, color: 'text-paño-50', bg: 'bg-paño/20', border: 'border-paño/30' },
+  BUSCO_EQUIPO: { label: 'Busco Equipo', icon: UserPlus, color: 'text-celeste', bg: 'bg-celeste/20', border: 'border-celeste/30' },
+  GENERAL: { label: 'General', icon: MessagesSquare, color: 'text-naipe-400', bg: 'bg-naipe/10', border: 'border-naipe/20' },
 }
 
 export default function ComunidadPage() {
@@ -132,7 +131,7 @@ export default function ComunidadPage() {
 
   const handleLike = async (postId: string) => {
     if (!session) {
-      toast.error('Iniciá sesión para dar like')
+      toast.error('Entrá para dar like')
       return
     }
     
@@ -170,21 +169,24 @@ export default function ComunidadPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-            <Users className="w-8 h-8 text-blue-400" />
-            Comunidad
+          <Badge className="bg-paño/20 text-paño-50 border-paño/30 mb-3">
+            <Users className="w-3 h-3 mr-1" />
+            Club
+          </Badge>
+          <h1 className="text-3xl lg:text-4xl font-bold text-naipe mb-2 tracking-tight">
+            COMUNIDAD
           </h1>
-          <p className="text-slate-400">Conectá con otros jugadores, compartí tips y buscá equipo</p>
+          <p className="text-naipe-600">Conectá con otros jugadores, compartí tips y armá equipo</p>
         </div>
         
         <div className="flex gap-2">
           {/* Filter */}
           <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-40 bg-slate-800 border-slate-700">
-              <Filter className="w-4 h-4 mr-2" />
+            <SelectTrigger className="w-40 bg-noche-200 border-paño/20 text-naipe rounded-club">
+              <Filter className="w-4 h-4 mr-2 text-naipe-600" />
               <SelectValue placeholder="Filtrar" />
             </SelectTrigger>
-            <SelectContent className="bg-slate-800 border-slate-700">
+            <SelectContent className="bg-noche-200 border-paño/20">
               <SelectItem value="ALL">Todos</SelectItem>
               <SelectItem value="TIP">Tips</SelectItem>
               <SelectItem value="PARTIDA">Partidas</SelectItem>
@@ -197,94 +199,83 @@ export default function ComunidadPage() {
           {session ? (
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-blue-500 to-cyan-600">
+                <Button className="btn-pano">
                   <Plus className="w-4 h-4 mr-2" />
                   Publicar
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-slate-900 border-slate-800">
+              <DialogContent className="bg-noche-100 border-paño/20">
                 <DialogHeader>
-                  <DialogTitle className="text-white">Nueva Publicación</DialogTitle>
-                  <DialogDescription className="text-slate-400">
+                  <DialogTitle className="text-naipe flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5 text-paño" />
+                    Nueva publicación
+                  </DialogTitle>
+                  <DialogDescription className="text-naipe-600">
                     Compartí algo con la comunidad
                   </DialogDescription>
                 </DialogHeader>
                 
                 <form onSubmit={handleSubmit} className="space-y-6 py-4">
                   {/* Category */}
-                  <div className="space-y-2">
-                    <Label className="text-slate-200">Categoría</Label>
-                    <Select
-                      value={formData.category}
-                      onValueChange={(v) => setFormData({ ...formData, category: v })}
-                    >
-                      <SelectTrigger className="bg-slate-800 border-slate-700">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-slate-700">
-                        <SelectItem value="TIP">
-                          <div className="flex items-center gap-2">
-                            <Lightbulb className="w-4 h-4 text-amber-400" />
-                            Tip / Consejo
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="PARTIDA">
-                          <div className="flex items-center gap-2">
-                            <Gamepad2 className="w-4 h-4 text-green-400" />
-                            Partida / Anécdota
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="BUSCO_EQUIPO">
-                          <div className="flex items-center gap-2">
-                            <UserPlus className="w-4 h-4 text-blue-400" />
-                            Busco Equipo
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="GENERAL">
-                          <div className="flex items-center gap-2">
-                            <MessagesSquare className="w-4 h-4 text-slate-400" />
-                            General
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <div className="space-y-3">
+                    <Label className="text-naipe-300 text-sm">Categoría</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {Object.entries(categoryConfig).map(([key, config]) => {
+                        const Icon = config.icon
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            className={`p-3 rounded-club border-2 text-left transition-all flex items-center gap-2 ${
+                              formData.category === key 
+                                ? `${config.bg} ${config.border} ${config.color}` 
+                                : 'bg-noche-200 border-paño/20 text-naipe-600 hover:border-paño/40'
+                            }`}
+                            onClick={() => setFormData({ ...formData, category: key })}
+                          >
+                            <Icon className="w-4 h-4" />
+                            <span className="text-sm font-medium">{config.label}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
                   
                   {/* Title (optional) */}
                   <div className="space-y-2">
-                    <Label className="text-slate-200">
-                      Título <span className="text-slate-500">(opcional)</span>
+                    <Label className="text-naipe-300 text-sm">
+                      Título <span className="text-naipe-700">(opcional)</span>
                     </Label>
                     <Input
                       placeholder="Un título llamativo"
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="bg-slate-800 border-slate-700"
+                      className="bg-noche-200 border-paño/20 text-naipe rounded-club"
                       maxLength={100}
                     />
                   </div>
                   
                   {/* Body */}
                   <div className="space-y-2">
-                    <Label className="text-slate-200">
-                      Mensaje <span className="text-red-400">*</span>
+                    <Label className="text-naipe-300 text-sm">
+                      Mensaje <span className="text-destructive">*</span>
                     </Label>
                     <Textarea
                       placeholder="¿Qué querés compartir?"
                       value={formData.body}
                       onChange={(e) => setFormData({ ...formData, body: e.target.value })}
-                      className="bg-slate-800 border-slate-700 min-h-[120px]"
+                      className="bg-noche-200 border-paño/20 text-naipe rounded-club min-h-[120px]"
                       maxLength={500}
                       required
                     />
-                    <p className="text-xs text-slate-500 text-right">
+                    <p className="text-xs text-naipe-700 text-right">
                       {formData.body.length}/500
                     </p>
                   </div>
                   
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-blue-500 to-cyan-600"
+                    className="w-full btn-pano"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? 'Publicando...' : (
@@ -298,8 +289,8 @@ export default function ComunidadPage() {
               </DialogContent>
             </Dialog>
           ) : (
-            <Button variant="outline" className="border-slate-700" disabled>
-              Iniciá sesión para publicar
+            <Button variant="outline" className="border-paño/30 text-naipe-600 rounded-club" disabled>
+              Entrá para publicar
             </Button>
           )}
         </div>
@@ -311,20 +302,22 @@ export default function ComunidadPage() {
         <div className="lg:col-span-2 space-y-4">
           {isLoading ? (
             [...Array(5)].map((_, i) => (
-              <Card key={i} className="bg-slate-900/50 border-slate-800">
+              <Card key={i} className="card-club border-0">
                 <CardContent className="p-6">
-                  <Skeleton className="h-4 w-20 mb-3" />
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-20 mb-3 bg-noche-200" />
+                  <Skeleton className="h-4 w-full mb-2 bg-noche-200" />
+                  <Skeleton className="h-4 w-3/4 bg-noche-200" />
                 </CardContent>
               </Card>
             ))
           ) : posts.length === 0 ? (
-            <Card className="bg-slate-900/50 border-slate-800">
-              <CardContent className="p-12 text-center">
-                <MessageSquare className="w-12 h-12 text-slate-700 mx-auto mb-4" />
-                <p className="text-slate-500">No hay publicaciones todavía</p>
-                <p className="text-sm text-slate-600 mt-1">¡Sé el primero en publicar!</p>
+            <Card className="card-club border-0">
+              <CardContent className="p-16 text-center">
+                <div className="w-16 h-16 rounded-full bg-noche-200 flex items-center justify-center mx-auto mb-4">
+                  <MessageSquare className="w-8 h-8 text-naipe-700" />
+                </div>
+                <p className="text-naipe-400 mb-2">Sin publicaciones todavía</p>
+                <p className="text-sm text-naipe-700">¡Sé el primero en publicar!</p>
               </CardContent>
             </Card>
           ) : (
@@ -333,25 +326,25 @@ export default function ComunidadPage() {
               const Icon = config.icon
               
               return (
-                <Card key={post.id} className="bg-slate-900/50 border-slate-800 hover:border-slate-700 transition-colors">
+                <Card key={post.id} className="card-club border-0 hover:border-paño/30 transition-all duration-200">
                   <CardContent className="p-6">
                     {/* Header */}
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <Avatar className="w-10 h-10 border border-slate-700">
-                          <AvatarFallback className="bg-gradient-to-br from-slate-700 to-slate-800 text-white text-sm">
+                        <Avatar className="w-10 h-10 border-2 border-paño/20">
+                          <AvatarFallback className="bg-gradient-to-br from-paño to-paño-600 text-naipe text-sm font-bold">
                             {post.user.username.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium text-white">{post.user.username}</p>
-                          <div className="flex items-center gap-2 text-xs text-slate-500">
+                          <p className="font-semibold text-naipe">{post.user.username}</p>
+                          <div className="flex items-center gap-2 text-xs text-naipe-700">
                             <Clock className="w-3 h-3" />
                             {formatTimeAgo(post.createdAt)}
                           </div>
                         </div>
                       </div>
-                      <Badge variant="outline" className={`${config.color} text-xs`}>
+                      <Badge className={`${config.bg} ${config.color} ${config.border} text-xs`}>
                         <Icon className="w-3 h-3 mr-1" />
                         {config.label}
                       </Badge>
@@ -359,21 +352,19 @@ export default function ComunidadPage() {
                     
                     {/* Content */}
                     {post.title && (
-                      <h3 className="font-semibold text-white mb-2">{post.title}</h3>
+                      <h3 className="font-bold text-naipe mb-2 text-lg">{post.title}</h3>
                     )}
-                    <p className="text-slate-300 whitespace-pre-wrap">{post.body}</p>
+                    <p className="text-naipe-300 whitespace-pre-wrap leading-relaxed">{post.body}</p>
                     
                     {/* Actions */}
-                    <div className="flex items-center gap-4 mt-4 pt-4 border-t border-slate-800">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-slate-500 hover:text-red-400"
+                    <div className="flex items-center gap-4 mt-4 pt-4 border-t border-paño/10">
+                      <button 
+                        className="flex items-center gap-1.5 text-naipe-600 hover:text-destructive transition-colors"
                         onClick={() => handleLike(post.id)}
                       >
-                        <Heart className="w-4 h-4 mr-1" />
-                        {post.likes}
-                      </Button>
+                        <Heart className="w-4 h-4" />
+                        <span className="text-sm font-medium">{post.likes}</span>
+                      </button>
                     </div>
                   </CardContent>
                 </Card>
@@ -385,57 +376,72 @@ export default function ComunidadPage() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <Card className="bg-slate-900/50 border-slate-800">
-            <CardHeader>
-              <CardTitle className="text-white text-lg">Acciones Rápidas</CardTitle>
+          <Card className="card-club border-0">
+            <CardHeader className="border-b border-paño/20">
+              <CardTitle className="text-naipe text-lg">Publicaciones rápidas</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="p-4 space-y-2">
               <Button 
                 variant="outline" 
-                className="w-full justify-start border-slate-700 text-slate-300 hover:bg-blue-500/10 hover:text-blue-400 hover:border-blue-500/30"
+                className="w-full justify-start border-paño/20 text-naipe-400 hover:bg-celeste/10 hover:text-celeste hover:border-celeste/30 rounded-club"
                 onClick={() => {
                   if (session) {
-                    setFormData({ ...formData, category: 'BUSCO_EQUIPO' })
+                    setFormData({ ...formData, category: 'BUSCO_EQUIPO', title: '', body: '' })
                     setDialogOpen(true)
                   } else {
-                    toast.error('Iniciá sesión para publicar')
+                    toast.error('Entrá para publicar')
                   }
                 }}
               >
-                <UserPlus className="w-4 h-4 mr-3 text-blue-400" />
-                Buscar equipo
+                <UserPlus className="w-4 h-4 mr-3 text-celeste" />
+                Busco dupla 2v2
               </Button>
               <Button 
                 variant="outline" 
-                className="w-full justify-start border-slate-700 text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 hover:border-amber-500/30"
+                className="w-full justify-start border-paño/20 text-naipe-400 hover:bg-celeste/10 hover:text-celeste hover:border-celeste/30 rounded-club"
                 onClick={() => {
                   if (session) {
-                    setFormData({ ...formData, category: 'TIP' })
+                    setFormData({ ...formData, category: 'BUSCO_EQUIPO', title: 'Busco equipo 3v3', body: '' })
                     setDialogOpen(true)
                   } else {
-                    toast.error('Iniciá sesión para publicar')
+                    toast.error('Entrá para publicar')
                   }
                 }}
               >
-                <Lightbulb className="w-4 h-4 mr-3 text-amber-400" />
+                <UserPlus className="w-4 h-4 mr-3 text-celeste" />
+                Busco equipo 3v3
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start border-paño/20 text-naipe-400 hover:bg-oro/10 hover:text-oro hover:border-oro/30 rounded-club"
+                onClick={() => {
+                  if (session) {
+                    setFormData({ ...formData, category: 'TIP', title: '', body: '' })
+                    setDialogOpen(true)
+                  } else {
+                    toast.error('Entrá para publicar')
+                  }
+                }}
+              >
+                <Lightbulb className="w-4 h-4 mr-3 text-oro" />
                 Compartir tip
               </Button>
             </CardContent>
           </Card>
 
-          {/* Community Stats */}
-          <Card className="bg-slate-900/50 border-slate-800">
-            <CardHeader>
-              <CardTitle className="text-white text-lg">Comunidad</CardTitle>
+          {/* Stats */}
+          <Card className="card-club border-0">
+            <CardHeader className="border-b border-paño/20">
+              <CardTitle className="text-naipe text-lg">Actividad</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-slate-400 text-sm">Publicaciones</span>
-                <span className="text-white font-bold">{posts.length}</span>
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center justify-between p-2">
+                <span className="text-naipe-600 text-sm">Total publicaciones</span>
+                <span className="text-naipe font-bold tabular-nums">{posts.length}</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-slate-400 text-sm">Esta semana</span>
-                <span className="text-white font-bold">
+              <div className="flex items-center justify-between p-2">
+                <span className="text-naipe-600 text-sm">Esta semana</span>
+                <span className="text-naipe font-bold tabular-nums">
                   {posts.filter(p => {
                     const postDate = new Date(p.createdAt)
                     const weekAgo = new Date()
@@ -448,24 +454,36 @@ export default function ComunidadPage() {
           </Card>
 
           {/* Categories Legend */}
-          <Card className="bg-slate-900/50 border-slate-800">
-            <CardHeader>
-              <CardTitle className="text-white text-lg">Categorías</CardTitle>
+          <Card className="card-club border-0">
+            <CardHeader className="border-b border-paño/20">
+              <CardTitle className="text-naipe text-lg">Categorías</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="p-4 space-y-2">
               {Object.entries(categoryConfig).map(([key, config]) => {
                 const Icon = config.icon
+                const count = posts.filter(p => p.category === key).length
                 return (
-                  <div 
+                  <button 
                     key={key}
-                    className="flex items-center gap-3 cursor-pointer hover:bg-slate-800/50 p-2 rounded-lg transition-colors"
-                    onClick={() => setFilter(key)}
+                    className={`w-full flex items-center justify-between p-3 rounded-club transition-all ${
+                      filter === key 
+                        ? `${config.bg} ${config.border} border` 
+                        : 'hover:bg-noche-200'
+                    }`}
+                    onClick={() => setFilter(filter === key ? 'ALL' : key)}
                   >
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${config.color.split(' ')[1]}`}>
-                      <Icon className={`w-4 h-4 ${config.color.split(' ')[0]}`} />
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-club flex items-center justify-center ${config.bg}`}>
+                        <Icon className={`w-4 h-4 ${config.color}`} />
+                      </div>
+                      <span className={`text-sm ${filter === key ? config.color : 'text-naipe-400'}`}>
+                        {config.label}
+                      </span>
                     </div>
-                    <span className="text-sm text-slate-300">{config.label}</span>
-                  </div>
+                    <span className={`text-xs font-semibold ${filter === key ? config.color : 'text-naipe-700'}`}>
+                      {count}
+                    </span>
+                  </button>
                 )
               })}
             </CardContent>
@@ -475,4 +493,3 @@ export default function ComunidadPage() {
     </div>
   )
 }
-

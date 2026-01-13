@@ -7,12 +7,13 @@ import {
   Clock,
   Users,
   Target,
-  Percent,
   Coins,
   Crown,
   ChevronUp,
   ChevronDown,
-  Minus
+  Minus,
+  Flame,
+  Timer
 } from 'lucide-react'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -29,6 +30,7 @@ interface PlayerRanking {
   gamesWon: number
   winRate: number
   creditsWon: number
+  streak?: number
   trend?: 'up' | 'down' | 'same'
 }
 
@@ -92,125 +94,165 @@ export default function RankingsPage() {
     }
   }
 
-  const renderPositionBadge = (position: number) => {
-    if (position === 1) return <span className="text-2xl">🥇</span>
-    if (position === 2) return <span className="text-2xl">🥈</span>
-    if (position === 3) return <span className="text-2xl">🥉</span>
-    return (
-      <span className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-sm font-bold text-slate-400">
-        {position}
-      </span>
-    )
-  }
-
   const renderTrend = (trend?: 'up' | 'down' | 'same') => {
-    if (trend === 'up') return <ChevronUp className="w-4 h-4 text-green-400" />
-    if (trend === 'down') return <ChevronDown className="w-4 h-4 text-red-400" />
-    return <Minus className="w-4 h-4 text-slate-600" />
+    if (trend === 'up') return <ChevronUp className="w-4 h-4 text-paño-50" />
+    if (trend === 'down') return <ChevronDown className="w-4 h-4 text-destructive" />
+    return <Minus className="w-4 h-4 text-naipe-700" />
   }
 
   const renderLeaderboard = (players: PlayerRanking[], isWeekly: boolean) => {
     if (players.length === 0) {
       return (
-        <div className="text-center py-12">
-          <Trophy className="w-12 h-12 text-slate-700 mx-auto mb-4" />
-          <p className="text-slate-500">No hay datos de ranking todavía</p>
-          <p className="text-sm text-slate-600 mt-1">¡Jugá partidas para aparecer!</p>
+        <div className="text-center py-16">
+          <div className="w-20 h-20 rounded-full bg-noche-200 flex items-center justify-center mx-auto mb-4">
+            <Trophy className="w-10 h-10 text-naipe-700" />
+          </div>
+          <p className="text-naipe-400 mb-2">Sin datos de ranking todavía</p>
+          <p className="text-sm text-naipe-700">¡Jugá partidas para aparecer en la tabla!</p>
         </div>
       )
     }
 
-    // Top 3
+    // Top 3 (Podio)
     const top3 = players.slice(0, 3)
     const rest = players.slice(3)
 
     return (
-      <div className="space-y-6">
-        {/* Top 3 Cards */}
-        <div className="grid grid-cols-3 gap-4">
+      <div className="space-y-8">
+        {/* Podio */}
+        <div className="grid grid-cols-3 gap-3 sm:gap-6 items-end max-w-2xl mx-auto">
           {/* 2nd Place */}
-          {top3[1] ? (
-            <Card className="bg-gradient-to-br from-slate-400/10 to-slate-500/5 border-slate-600/30 order-1">
-              <CardContent className="p-4 text-center">
-                <span className="text-3xl mb-2 block">🥈</span>
-                <p className="font-semibold text-white truncate">{top3[1].username}</p>
-                <p className="text-2xl font-bold text-amber-400 my-2">{top3[1].gamesWon}</p>
-                <p className="text-xs text-slate-500">victorias</p>
-                <Badge variant="outline" className="mt-2 text-xs border-slate-700">
-                  {top3[1].winRate}% WR
-                </Badge>
-              </CardContent>
-            </Card>
-          ) : <div className="order-1" />}
+          <div className="order-1">
+            {top3[1] && (
+              <div className="card-club p-4 sm:p-6 text-center border-naipe-600/30 bg-gradient-to-b from-naipe-600/10 to-transparent">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-naipe-600/20 border-2 border-naipe-600/40 flex items-center justify-center mx-auto mb-3">
+                  <span className="text-2xl sm:text-3xl font-bold text-naipe-500">2</span>
+                </div>
+                <p className="font-bold text-naipe truncate text-sm sm:text-base">{top3[1].username}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-oro my-2 tabular-nums">{top3[1].gamesWon}</p>
+                <p className="text-xs text-naipe-700">victorias</p>
+                <div className="flex items-center justify-center gap-2 mt-3">
+                  <Badge className="bg-noche-200 text-naipe-400 border-none text-[10px]">
+                    {top3[1].winRate}% WR
+                  </Badge>
+                  {top3[1].streak && top3[1].streak > 0 && (
+                    <Badge className="bg-oro/20 text-oro border-none text-[10px]">
+                      <Flame className="w-2 h-2 mr-0.5" />
+                      {top3[1].streak}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
           
           {/* 1st Place */}
-          {top3[0] ? (
-            <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/10 border-amber-500/30 order-2 transform scale-105">
-              <CardContent className="p-4 text-center">
-                <Crown className="w-6 h-6 text-amber-400 mx-auto mb-1" />
-                <span className="text-4xl mb-2 block">🥇</span>
-                <p className="font-bold text-white truncate text-lg">{top3[0].username}</p>
-                <p className="text-3xl font-bold text-amber-400 my-2">{top3[0].gamesWon}</p>
-                <p className="text-xs text-slate-500">victorias</p>
-                <Badge className="mt-2 bg-amber-500/20 text-amber-400 border-amber-500/30">
-                  {top3[0].winRate}% WR
-                </Badge>
-              </CardContent>
-            </Card>
-          ) : <div className="order-2" />}
+          <div className="order-2">
+            {top3[0] && (
+              <div className="card-club p-4 sm:p-6 text-center border-oro/40 bg-gradient-to-b from-oro/20 to-transparent relative scale-105 sm:scale-110">
+                <Crown className="w-6 h-6 sm:w-8 sm:h-8 text-oro mx-auto mb-2 absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2" />
+                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-oro/20 border-2 border-oro/50 flex items-center justify-center mx-auto mb-3 mt-2">
+                  <span className="text-3xl sm:text-4xl font-bold text-oro">1</span>
+                </div>
+                <p className="font-bold text-naipe truncate sm:text-lg">{top3[0].username}</p>
+                <p className="text-3xl sm:text-4xl font-bold text-oro my-2 tabular-nums">{top3[0].gamesWon}</p>
+                <p className="text-xs text-naipe-700">victorias</p>
+                <div className="flex items-center justify-center gap-2 mt-3">
+                  <Badge className="bg-oro/20 text-oro border-none text-xs">
+                    {top3[0].winRate}% WR
+                  </Badge>
+                  {top3[0].streak && top3[0].streak > 0 && (
+                    <Badge className="bg-oro/30 text-oro border-none text-xs">
+                      <Flame className="w-3 h-3 mr-0.5" />
+                      {top3[0].streak}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
           
           {/* 3rd Place */}
-          {top3[2] ? (
-            <Card className="bg-gradient-to-br from-orange-700/10 to-orange-800/5 border-orange-700/30 order-3">
-              <CardContent className="p-4 text-center">
-                <span className="text-3xl mb-2 block">🥉</span>
-                <p className="font-semibold text-white truncate">{top3[2].username}</p>
-                <p className="text-2xl font-bold text-amber-400 my-2">{top3[2].gamesWon}</p>
-                <p className="text-xs text-slate-500">victorias</p>
-                <Badge variant="outline" className="mt-2 text-xs border-slate-700">
-                  {top3[2].winRate}% WR
-                </Badge>
-              </CardContent>
-            </Card>
-          ) : <div className="order-3" />}
+          <div className="order-3">
+            {top3[2] && (
+              <div className="card-club p-4 sm:p-6 text-center border-oro-muted/30 bg-gradient-to-b from-oro-muted/10 to-transparent">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-oro-muted/20 border-2 border-oro-muted/40 flex items-center justify-center mx-auto mb-3">
+                  <span className="text-2xl sm:text-3xl font-bold text-oro-muted">3</span>
+                </div>
+                <p className="font-bold text-naipe truncate text-sm sm:text-base">{top3[2].username}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-oro my-2 tabular-nums">{top3[2].gamesWon}</p>
+                <p className="text-xs text-naipe-700">victorias</p>
+                <div className="flex items-center justify-center gap-2 mt-3">
+                  <Badge className="bg-noche-200 text-naipe-400 border-none text-[10px]">
+                    {top3[2].winRate}% WR
+                  </Badge>
+                  {top3[2].streak && top3[2].streak > 0 && (
+                    <Badge className="bg-oro/20 text-oro border-none text-[10px]">
+                      <Flame className="w-2 h-2 mr-0.5" />
+                      {top3[2].streak}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Rest of leaderboard */}
+        {/* Tabla del resto */}
         {rest.length > 0 && (
-          <Card className="bg-slate-900/50 border-slate-800">
+          <Card className="card-club border-0 overflow-hidden">
+            <CardHeader className="border-b border-paño/20 py-4">
+              <div className="grid grid-cols-12 gap-2 text-xs text-naipe-700 font-semibold uppercase tracking-wide">
+                <div className="col-span-1">#</div>
+                <div className="col-span-4">Jugador</div>
+                <div className="col-span-2 text-center">PJ</div>
+                <div className="col-span-2 text-center">PG</div>
+                <div className="col-span-2 text-center">Racha</div>
+                <div className="col-span-1 text-center">Fichas</div>
+              </div>
+            </CardHeader>
             <CardContent className="p-0">
               <ScrollArea className="h-[400px]">
-                <div className="divide-y divide-slate-800">
+                <div className="divide-y divide-paño/10">
                   {rest.map((player) => (
                     <div 
                       key={player.userId}
-                      className="flex items-center gap-4 p-4 hover:bg-slate-800/30 transition-colors"
+                      className="grid grid-cols-12 gap-2 items-center p-4 hover:bg-paño/5 transition-colors"
                     >
-                      <div className="flex items-center gap-2 w-12">
-                        {renderPositionBadge(player.position)}
+                      <div className="col-span-1">
+                        <span className="w-8 h-8 rounded-full bg-noche-200 flex items-center justify-center text-sm font-bold text-naipe-600">
+                          {player.position}
+                        </span>
                       </div>
                       
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-white truncate">{player.username}</p>
-                        <div className="flex items-center gap-3 text-xs text-slate-500">
-                          <span className="flex items-center gap-1">
-                            <Target className="w-3 h-3" />
-                            {player.gamesPlayed} jugadas
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Percent className="w-3 h-3" />
-                            {player.winRate}%
-                          </span>
-                        </div>
+                      <div className="col-span-4">
+                        <p className="font-semibold text-naipe truncate">{player.username}</p>
+                        <p className="text-xs text-naipe-700">{player.winRate}% WR</p>
                       </div>
                       
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-amber-400">{player.gamesWon}</p>
-                        <p className="text-xs text-slate-500">victorias</p>
+                      <div className="col-span-2 text-center">
+                        <span className="text-naipe-400 font-semibold tabular-nums">{player.gamesPlayed}</span>
                       </div>
                       
-                      <div className="w-6">
-                        {renderTrend(player.trend)}
+                      <div className="col-span-2 text-center">
+                        <span className="text-oro font-bold tabular-nums">{player.gamesWon}</span>
+                      </div>
+                      
+                      <div className="col-span-2 text-center">
+                        {player.streak && player.streak > 0 ? (
+                          <Badge className="bg-oro/20 text-oro border-none text-xs">
+                            <Flame className="w-3 h-3 mr-0.5" />
+                            {player.streak}
+                          </Badge>
+                        ) : (
+                          <span className="text-naipe-700">-</span>
+                        )}
+                      </div>
+                      
+                      <div className="col-span-1 text-center">
+                        <span className={`font-semibold tabular-nums ${player.creditsWon > 0 ? 'text-paño-50' : player.creditsWon < 0 ? 'text-destructive' : 'text-naipe-600'}`}>
+                          {player.creditsWon > 0 ? '+' : ''}{player.creditsWon}
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -226,35 +268,40 @@ export default function RankingsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-            <Trophy className="w-8 h-8 text-amber-400" />
-            Rankings
+          <Badge className="bg-celeste/20 text-celeste border-celeste/30 mb-3">
+            <Trophy className="w-3 h-3 mr-1" />
+            Competitivo
+          </Badge>
+          <h1 className="text-3xl lg:text-5xl font-bold text-naipe mb-2 tracking-tight">
+            TABLA DE LIGA
           </h1>
-          <p className="text-slate-400">Los mejores jugadores de Truco Argentino</p>
+          <p className="text-naipe-600">Los mejores jugadores de Truco Argentino</p>
         </div>
         
         {/* Weekly Countdown */}
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="card-club border-0 max-w-sm">
           <CardContent className="p-4 flex items-center gap-4">
-            <Clock className="w-5 h-5 text-purple-400" />
+            <div className="w-12 h-12 rounded-club bg-celeste/10 border border-celeste/30 flex items-center justify-center shrink-0">
+              <Timer className="w-6 h-6 text-celeste" />
+            </div>
             <div>
-              <p className="text-xs text-slate-500 mb-1">Ranking semanal termina en</p>
-              <div className="flex items-center gap-2">
+              <p className="text-xs text-naipe-700 mb-1.5 font-semibold uppercase tracking-wide">Fecha cierra en</p>
+              <div className="flex items-center gap-3">
                 <div className="text-center">
-                  <p className="text-xl font-bold text-white">{countdown.days}</p>
-                  <p className="text-[10px] text-slate-500">días</p>
+                  <p className="text-2xl font-bold text-naipe tabular-nums">{countdown.days}</p>
+                  <p className="text-[10px] text-naipe-700">días</p>
                 </div>
-                <span className="text-slate-600">:</span>
+                <span className="text-naipe-700 font-light">:</span>
                 <div className="text-center">
-                  <p className="text-xl font-bold text-white">{countdown.hours}</p>
-                  <p className="text-[10px] text-slate-500">hs</p>
+                  <p className="text-2xl font-bold text-naipe tabular-nums">{countdown.hours}</p>
+                  <p className="text-[10px] text-naipe-700">hs</p>
                 </div>
-                <span className="text-slate-600">:</span>
+                <span className="text-naipe-700 font-light">:</span>
                 <div className="text-center">
-                  <p className="text-xl font-bold text-white">{countdown.minutes}</p>
-                  <p className="text-[10px] text-slate-500">min</p>
+                  <p className="text-2xl font-bold text-naipe tabular-nums">{countdown.minutes}</p>
+                  <p className="text-[10px] text-naipe-700">min</p>
                 </div>
               </div>
             </div>
@@ -265,54 +312,54 @@ export default function RankingsPage() {
       {/* Stats Summary */}
       {data && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-slate-900/50 border-slate-800">
+          <Card className="card-club border-0">
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                <Users className="w-5 h-5 text-blue-400" />
+              <div className="w-10 h-10 rounded-club bg-celeste/10 border border-celeste/30 flex items-center justify-center">
+                <Users className="w-5 h-5 text-celeste" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">Jugadores</p>
-                <p className="text-xl font-bold text-white">{data.global.length}</p>
+                <p className="text-xs text-naipe-700">Jugadores</p>
+                <p className="text-xl font-bold text-naipe tabular-nums">{data.global.length}</p>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-slate-900/50 border-slate-800">
+          <Card className="card-club border-0">
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                <Trophy className="w-5 h-5 text-amber-400" />
+              <div className="w-10 h-10 rounded-club bg-oro/10 border border-oro/30 flex items-center justify-center">
+                <Trophy className="w-5 h-5 text-oro" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">Líder Global</p>
-                <p className="text-lg font-bold text-white truncate">
+                <p className="text-xs text-naipe-700">Líder Global</p>
+                <p className="text-lg font-bold text-naipe truncate">
                   {data.global[0]?.username || '-'}
                 </p>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-slate-900/50 border-slate-800">
+          <Card className="card-club border-0">
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                <Medal className="w-5 h-5 text-purple-400" />
+              <div className="w-10 h-10 rounded-club bg-paño/10 border border-paño/30 flex items-center justify-center">
+                <Medal className="w-5 h-5 text-paño-50" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">Líder Semanal</p>
-                <p className="text-lg font-bold text-white truncate">
+                <p className="text-xs text-naipe-700">Líder Semanal</p>
+                <p className="text-lg font-bold text-naipe truncate">
                   {data.weekly[0]?.username || '-'}
                 </p>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-slate-900/50 border-slate-800">
+          <Card className="card-club border-0">
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                <Coins className="w-5 h-5 text-green-400" />
+              <div className="w-10 h-10 rounded-club bg-paño/10 border border-paño/30 flex items-center justify-center">
+                <Coins className="w-5 h-5 text-paño-50" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">Top Ganancias</p>
-                <p className="text-xl font-bold text-green-400">
+                <p className="text-xs text-naipe-700">Top Ganancias</p>
+                <p className="text-xl font-bold text-paño-50 tabular-nums">
                   +{data.global[0]?.creditsWon || 0}
                 </p>
               </div>
@@ -323,12 +370,18 @@ export default function RankingsPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="weekly" className="space-y-6">
-        <TabsList className="bg-slate-800/50 border border-slate-700">
-          <TabsTrigger value="weekly" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400">
+        <TabsList className="bg-noche-100 border border-paño/20 p-1 rounded-club">
+          <TabsTrigger 
+            value="weekly" 
+            className="rounded-club data-[state=active]:bg-paño/20 data-[state=active]:text-paño-50 text-naipe-600"
+          >
             <Clock className="w-4 h-4 mr-2" />
             Semanal
           </TabsTrigger>
-          <TabsTrigger value="global" className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400">
+          <TabsTrigger 
+            value="global" 
+            className="rounded-club data-[state=active]:bg-oro/20 data-[state=active]:text-oro text-naipe-600"
+          >
             <Trophy className="w-4 h-4 mr-2" />
             Global
           </TabsTrigger>
@@ -336,11 +389,11 @@ export default function RankingsPage() {
 
         <TabsContent value="weekly">
           {isLoading ? (
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
-                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-40" />)}
+            <div className="space-y-6">
+              <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
+                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-48 bg-noche-100 rounded-club" />)}
               </div>
-              <Skeleton className="h-64" />
+              <Skeleton className="h-80 bg-noche-100 rounded-club" />
             </div>
           ) : (
             renderLeaderboard(data?.weekly || [], true)
@@ -349,11 +402,11 @@ export default function RankingsPage() {
 
         <TabsContent value="global">
           {isLoading ? (
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
-                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-40" />)}
+            <div className="space-y-6">
+              <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
+                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-48 bg-noche-100 rounded-club" />)}
               </div>
-              <Skeleton className="h-64" />
+              <Skeleton className="h-80 bg-noche-100 rounded-club" />
             </div>
           ) : (
             renderLeaderboard(data?.global || [], false)
@@ -363,4 +416,3 @@ export default function RankingsPage() {
     </div>
   )
 }
-

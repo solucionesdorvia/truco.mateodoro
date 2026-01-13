@@ -4,9 +4,9 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
+import { Crown, MessageSquare, Volume2, VolumeX, Home, Flag } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TrucoCard } from '@/components/game/TrucoCard'
 import { connectSocket, getSocket, type GameStateView } from '@/lib/socket/client'
@@ -19,12 +19,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
-const TRUCO_LEVELS = ['', 'Truco', 'Retruco', 'Vale Cuatro']
-const ENVIDO_CALLS = {
-  envido: 'Envido',
-  real_envido: 'Real Envido',
-  falta_envido: 'Falta Envido',
-  envido_envido: 'Envido Envido',
+const TRUCO_LEVELS = ['', 'TRUCO', 'RETRUCO', 'VALE 4']
+const ENVIDO_CALLS: Record<string, string> = {
+  envido: 'ENVIDO',
+  real_envido: 'REAL ENVIDO',
+  falta_envido: 'FALTA ENVIDO',
+  envido_envido: 'ENVIDO ENVIDO',
 }
 
 export default function TablePage() {
@@ -37,6 +37,7 @@ export default function TablePage() {
   const [selectedCard, setSelectedCard] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [showResult, setShowResult] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
 
   const myPlayer = gameState?.players.find(p => p.oderId === session?.user?.id)
   const isMyTurn = gameState?.currentRound?.currentTurn === session?.user?.id
@@ -64,7 +65,7 @@ export default function TablePage() {
     })
 
     socket.on('game:finished', ({ winner }) => {
-      toast.success(`¡Equipo ${winner} ganó la partida!`)
+      toast.success(`¡Equipo ${winner} ganó!`)
       setShowResult(true)
     })
 
@@ -118,16 +119,26 @@ export default function TablePage() {
 
   if (status === 'loading' || isLoading) {
     return (
-      <div className="min-h-screen table-felt flex items-center justify-center">
-        <div className="text-white text-xl">Cargando partida...</div>
+      <div className="min-h-screen bg-noche flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-20 h-20 rounded-full mesa-pano flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <span className="text-3xl">🃏</span>
+          </div>
+          <p className="text-naipe-400">Cargando partida...</p>
+        </div>
       </div>
     )
   }
 
   if (!gameState || !myPlayer) {
     return (
-      <div className="min-h-screen table-felt flex items-center justify-center">
-        <div className="text-white text-xl">Error al cargar la partida</div>
+      <div className="min-h-screen bg-noche flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-naipe-400 mb-4">Error al cargar la partida</p>
+          <Button onClick={() => router.push('/jugar')} className="btn-pano">
+            Volver
+          </Button>
+        </div>
       </div>
     )
   }
@@ -149,51 +160,75 @@ export default function TablePage() {
     myPlayer.hasFlor && round.currentBazaIndex === 0
 
   return (
-    <div className="min-h-screen table-felt relative overflow-hidden">
-      {/* Scores */}
-      <div className="absolute top-4 left-4 flex gap-4 z-10">
-        <Card className="bg-blue-900/80 border-blue-600 px-4 py-2">
-          <div className="text-center">
-            <p className="text-blue-200 text-xs">Equipo A</p>
-            <p className="text-3xl font-bold text-white">{gameState.scoreA}</p>
+    <div className="min-h-screen mesa-pano relative overflow-hidden">
+      {/* Ambient glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-paño/20 rounded-full blur-[100px] pointer-events-none" />
+      
+      {/* Top bar */}
+      <div className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between z-20">
+        <div className="flex items-center gap-4">
+          {/* Tanteador */}
+          <div className="tanteador">
+            <div className="text-center">
+              <p className="text-[10px] text-equipoA font-bold uppercase tracking-wide">A</p>
+              <p className="tanteador-score text-equipoA">{gameState.scoreA}</p>
+            </div>
+            <div className="text-naipe-700 text-xl">-</div>
+            <div className="text-center">
+              <p className="text-[10px] text-equipoB font-bold uppercase tracking-wide">B</p>
+              <p className="tanteador-score text-equipoB">{gameState.scoreB}</p>
+            </div>
           </div>
-        </Card>
-        <Card className="bg-red-900/80 border-red-600 px-4 py-2">
-          <div className="text-center">
-            <p className="text-red-200 text-xs">Equipo B</p>
-            <p className="text-3xl font-bold text-white">{gameState.scoreB}</p>
-          </div>
-        </Card>
+          
+          <Badge className="bg-noche/80 text-naipe-400 border-paño/30">
+            A {gameState.targetScore}
+          </Badge>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="text-naipe-600 hover:text-naipe hover:bg-noche/50"
+            onClick={() => setIsMuted(!isMuted)}
+          >
+            {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="text-naipe-600 hover:text-naipe hover:bg-noche/50"
+            onClick={() => router.push('/jugar')}
+          >
+            <Home className="w-5 h-5" />
+          </Button>
+        </div>
       </div>
 
-      {/* Target score */}
-      <div className="absolute top-4 right-4 z-10">
-        <Badge className="bg-amber-600 text-white">
-          A {gameState.targetScore} puntos
-        </Badge>
-      </div>
-
-      {/* Truco status */}
+      {/* Truco level indicator */}
       {round && round.trucoState.level > 0 && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
-          <Badge className="bg-yellow-500 text-black text-lg px-4 py-1 animate-pulse-glow">
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-10">
+          <Badge className="bg-oro text-noche text-lg px-6 py-1.5 font-bold tracking-wide animate-pulse shadow-glow-oro">
             {TRUCO_LEVELS[round.trucoState.level]}
           </Badge>
         </div>
       )}
 
       {/* Turn indicator */}
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 z-10">
-        <Badge variant="outline" className={`${isMyTurn ? 'bg-green-500 text-white' : 'bg-gray-700 text-gray-300'} text-sm`}>
+      <div className="absolute top-28 left-1/2 -translate-x-1/2 z-10">
+        <Badge className={`${isMyTurn ? 'bg-paño text-naipe animate-pulse' : 'bg-noche/80 text-naipe-600'} px-4 py-1`}>
           {isMyTurn ? '¡Tu turno!' : `Turno de ${gameState.players.find(p => p.oderId === round?.currentTurn)?.odername || '...'}`}
         </Badge>
       </div>
 
       {/* Opponents (top) */}
-      <div className="absolute top-24 left-1/2 -translate-x-1/2 flex gap-8">
+      <div className="absolute top-36 left-1/2 -translate-x-1/2 flex gap-12">
         {opponents.map((opponent) => (
           <div key={opponent.oderId} className="text-center">
-            <div className="flex gap-1 justify-center mb-2">
+            <Badge className={`mb-2 ${opponent.team === 'A' ? 'bg-equipoA-bg text-equipoA border-equipoA-border' : 'bg-equipoB-bg text-equipoB border-equipoB-border'}`}>
+              {opponent.odername}
+            </Badge>
+            <div className="flex gap-1 justify-center">
               {opponent.cards.map((card, i) => (
                 <TrucoCard
                   key={i}
@@ -204,64 +239,80 @@ export default function TablePage() {
                 />
               ))}
             </div>
-            <Badge variant="outline" className={`${opponent.team === 'A' ? 'border-blue-500 text-blue-300' : 'border-red-500 text-red-300'}`}>
-              {opponent.odername}
-            </Badge>
           </div>
         ))}
       </div>
 
-      {/* Center (played cards) */}
+      {/* Center table area */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-        <div className="flex gap-12 items-center">
-          {/* Team A cards */}
-          <div className="text-center">
-            <p className="text-blue-300 text-sm mb-2">Equipo A</p>
-            <div className="flex gap-2">
-              {round?.bazas.map((baza, i) => (
-                baza.cardA && (
-                  <TrucoCard
-                    key={i}
-                    number={baza.cardA.number}
-                    suit={baza.cardA.suit as 'espada' | 'basto' | 'oro' | 'copa'}
-                    size="md"
-                  />
-                )
-              ))}
+        {/* Mesa central */}
+        <div className="relative w-[500px] h-[280px] rounded-[100px] bg-paño-400/20 border-4 border-paño-600/30 flex items-center justify-center">
+          <div className="flex gap-16 items-center">
+            {/* Team A played cards */}
+            <div className="text-center">
+              <p className="text-equipoA text-xs font-semibold mb-2 uppercase tracking-wide">Equipo A</p>
+              <div className="flex gap-2">
+                {round?.bazas.map((baza, i) => (
+                  baza.cardA && (
+                    <TrucoCard
+                      key={i}
+                      number={baza.cardA.number}
+                      suit={baza.cardA.suit as 'espada' | 'basto' | 'oro' | 'copa'}
+                      size="md"
+                    />
+                  )
+                ))}
+              </div>
+            </div>
+            
+            {/* VS divider */}
+            <div className="text-3xl text-naipe-700/50 font-bold">VS</div>
+            
+            {/* Team B played cards */}
+            <div className="text-center">
+              <p className="text-equipoB text-xs font-semibold mb-2 uppercase tracking-wide">Equipo B</p>
+              <div className="flex gap-2">
+                {round?.bazas.map((baza, i) => (
+                  baza.cardB && (
+                    <TrucoCard
+                      key={i}
+                      number={baza.cardB.number}
+                      suit={baza.cardB.suit as 'espada' | 'basto' | 'oro' | 'copa'}
+                      size="md"
+                    />
+                  )
+                ))}
+              </div>
             </div>
           </div>
           
-          {/* VS */}
-          <div className="text-4xl text-white/50">VS</div>
-          
-          {/* Team B cards */}
-          <div className="text-center">
-            <p className="text-red-300 text-sm mb-2">Equipo B</p>
-            <div className="flex gap-2">
-              {round?.bazas.map((baza, i) => (
-                baza.cardB && (
-                  <TrucoCard
-                    key={i}
-                    number={baza.cardB.number}
-                    suit={baza.cardB.suit as 'espada' | 'basto' | 'oro' | 'copa'}
-                    size="md"
-                  />
-                )
-              ))}
-            </div>
+          {/* Baza indicators */}
+          <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+            {[0, 1, 2].map((bazaIdx) => {
+              const baza = round?.bazas[bazaIdx]
+              const winner = baza?.winner
+              return (
+                <div 
+                  key={bazaIdx}
+                  className={`w-3 h-3 rounded-full transition-all ${
+                    winner === 'A' ? 'bg-equipoA' :
+                    winner === 'B' ? 'bg-equipoB' :
+                    winner === 'DRAW' ? 'bg-naipe-600' :
+                    'bg-noche-200'
+                  }`}
+                />
+              )
+            })}
           </div>
         </div>
       </div>
 
-      {/* Teammates */}
+      {/* Teammates (middle) */}
       {teammates.length > 0 && (
-        <div className="absolute bottom-48 left-1/2 -translate-x-1/2 flex gap-8">
+        <div className="absolute bottom-48 left-1/2 -translate-x-1/2 flex gap-12">
           {teammates.map((teammate) => (
             <div key={teammate.oderId} className="text-center">
-              <Badge variant="outline" className={`mb-2 ${teammate.team === 'A' ? 'border-blue-500 text-blue-300' : 'border-red-500 text-red-300'}`}>
-                {teammate.odername}
-              </Badge>
-              <div className="flex gap-1 justify-center">
+              <div className="flex gap-1 justify-center mb-2">
                 {teammate.cards.map((card, i) => (
                   <TrucoCard
                     key={i}
@@ -272,14 +323,17 @@ export default function TablePage() {
                   />
                 ))}
               </div>
+              <Badge className={`${teammate.team === 'A' ? 'bg-equipoA-bg text-equipoA border-equipoA-border' : 'bg-equipoB-bg text-equipoB border-equipoB-border'}`}>
+                {teammate.odername}
+              </Badge>
             </div>
           ))}
         </div>
       )}
 
       {/* My hand */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-        <div className="flex gap-2 justify-center mb-4">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
+        <div className="flex gap-3 justify-center mb-4">
           {myPlayer.cards.map((card) => (
             <TrucoCard
               key={card.id}
@@ -295,57 +349,78 @@ export default function TablePage() {
         
         {/* Play button */}
         {selectedCard && isMyTurn && round?.canPlayCard && (
-          <div className="text-center mb-2">
-            <Button onClick={handlePlayCard} className="bg-emerald-500 hover:bg-emerald-600 text-white px-8">
-              Jugar Carta
+          <div className="text-center mb-3">
+            <Button onClick={handlePlayCard} className="btn-pano px-10 animate-scale-in">
+              Jugar carta
             </Button>
           </div>
         )}
         
-        <p className="text-center text-green-200">
-          {myPlayer.odername} ({myPlayer.team === 'A' ? 'Equipo A' : 'Equipo B'})
-          {myPlayer.envidoPoints > 0 && ` • Envido: ${myPlayer.envidoPoints}`}
-        </p>
+        <div className="text-center">
+          <Badge className={`${myPlayer.team === 'A' ? 'bg-equipoA-bg text-equipoA border-equipoA-border' : 'bg-equipoB-bg text-equipoB border-equipoB-border'} px-4`}>
+            {myPlayer.odername}
+            {myPlayer.envidoPoints > 0 && ` • ${myPlayer.envidoPoints} tantos`}
+          </Badge>
+        </div>
       </div>
 
-      {/* Action buttons */}
-      <div className="absolute bottom-4 left-4 flex flex-col gap-2">
+      {/* Fold button */}
+      <div className="absolute bottom-4 left-4 z-10">
         <Button
           onClick={handleFold}
-          variant="destructive"
+          variant="ghost"
           size="sm"
-          className="bg-red-700 hover:bg-red-800"
+          className="text-destructive hover:text-destructive hover:bg-destructive/10 rounded-club"
         >
-          🏳️ Ir al Mazo
+          <Flag className="w-4 h-4 mr-1" />
+          Mazo
         </Button>
       </div>
 
-      {/* Chant buttons */}
-      <div className="absolute bottom-4 right-4 flex flex-col gap-2">
+      {/* Canto buttons */}
+      <div className="absolute bottom-4 right-4 z-10 flex flex-col gap-2">
         {canCallTruco && !waitingForMe && (
-          <Button onClick={handleTruco} className="bg-yellow-600 hover:bg-yellow-700 text-white">
-            {round?.trucoState.level === 0 ? '🃏 Truco' : 
-             round?.trucoState.level === 1 ? '🃏 Retruco' : '🃏 Vale 4'}
+          <Button 
+            onClick={handleTruco} 
+            className="bg-oro hover:bg-oro-dark text-noche font-bold rounded-club shadow-glow-oro"
+          >
+            {round?.trucoState.level === 0 ? 'TRUCO' : 
+             round?.trucoState.level === 1 ? 'RETRUCO' : 'VALE 4'}
           </Button>
         )}
         
         {canCallEnvido && !waitingForMe && (
           <div className="flex flex-col gap-1">
-            <Button onClick={() => handleEnvido('envido')} size="sm" className="bg-purple-600 hover:bg-purple-700">
+            <Button 
+              onClick={() => handleEnvido('envido')} 
+              size="sm" 
+              className="bg-celeste hover:bg-celeste-dark text-noche font-bold rounded-club"
+            >
               Envido
             </Button>
-            <Button onClick={() => handleEnvido('real_envido')} size="sm" className="bg-purple-700 hover:bg-purple-800">
+            <Button 
+              onClick={() => handleEnvido('real_envido')} 
+              size="sm" 
+              className="bg-celeste-dark hover:bg-celeste text-naipe font-bold rounded-club"
+            >
               Real Envido
             </Button>
-            <Button onClick={() => handleEnvido('falta_envido')} size="sm" className="bg-purple-800 hover:bg-purple-900">
+            <Button 
+              onClick={() => handleEnvido('falta_envido')} 
+              size="sm" 
+              className="bg-noche hover:bg-noche-100 text-celeste border border-celeste/30 font-bold rounded-club"
+            >
               Falta Envido
             </Button>
           </div>
         )}
         
         {canCallFlor && !waitingForMe && (
-          <Button onClick={handleFlor} className="bg-pink-600 hover:bg-pink-700 text-white">
-            🌸 Flor
+          <Button 
+            onClick={handleFlor} 
+            className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold rounded-club"
+          >
+            🌸 FLOR
           </Button>
         )}
       </div>
@@ -353,21 +428,28 @@ export default function TablePage() {
       {/* Response dialogs */}
       {waitingForMe && round?.trucoState.pendingCall && (
         <Dialog open={true}>
-          <DialogContent className="bg-green-900 border-green-700">
+          <DialogContent className="bg-noche-100 border-oro/30 max-w-sm">
             <DialogHeader>
-              <DialogTitle className="text-white text-2xl">
-                ¡Te cantaron {TRUCO_LEVELS[round.trucoState.level + 1]}!
+              <DialogTitle className="text-oro text-2xl text-center font-bold">
+                ¡{TRUCO_LEVELS[round.trucoState.level + 1]}!
               </DialogTitle>
-              <DialogDescription className="text-green-200">
-                ¿Querés aceptar?
+              <DialogDescription className="text-naipe-400 text-center">
+                ¿Querés o no querés?
               </DialogDescription>
             </DialogHeader>
-            <DialogFooter className="flex gap-2">
-              <Button onClick={() => handleRespondTruco('reject')} variant="destructive">
-                No Quiero
+            <DialogFooter className="flex gap-3 sm:justify-center">
+              <Button 
+                onClick={() => handleRespondTruco('reject')} 
+                variant="outline"
+                className="border-destructive/30 text-destructive hover:bg-destructive/10 rounded-club flex-1"
+              >
+                No quiero
               </Button>
-              <Button onClick={() => handleRespondTruco('accept')} className="bg-emerald-500 hover:bg-emerald-600">
-                Quiero
+              <Button 
+                onClick={() => handleRespondTruco('accept')} 
+                className="btn-oro flex-1"
+              >
+                ¡Quiero!
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -376,21 +458,28 @@ export default function TablePage() {
 
       {waitingForMe && round?.envidoState.pendingCall && (
         <Dialog open={true}>
-          <DialogContent className="bg-purple-900 border-purple-700">
+          <DialogContent className="bg-noche-100 border-celeste/30 max-w-sm">
             <DialogHeader>
-              <DialogTitle className="text-white text-2xl">
-                ¡Te cantaron {ENVIDO_CALLS[round.envidoState.pendingCall as keyof typeof ENVIDO_CALLS]}!
+              <DialogTitle className="text-celeste text-2xl text-center font-bold">
+                ¡{ENVIDO_CALLS[round.envidoState.pendingCall] || 'ENVIDO'}!
               </DialogTitle>
-              <DialogDescription className="text-purple-200">
-                Tu envido: {myPlayer.envidoPoints} puntos. ¿Querés aceptar?
+              <DialogDescription className="text-naipe-400 text-center">
+                Tenés <span className="text-naipe font-bold">{myPlayer.envidoPoints} tantos</span>. ¿Querés?
               </DialogDescription>
             </DialogHeader>
-            <DialogFooter className="flex gap-2">
-              <Button onClick={() => handleRespondEnvido('reject')} variant="destructive">
-                No Quiero
+            <DialogFooter className="flex gap-3 sm:justify-center">
+              <Button 
+                onClick={() => handleRespondEnvido('reject')} 
+                variant="outline"
+                className="border-destructive/30 text-destructive hover:bg-destructive/10 rounded-club flex-1"
+              >
+                No quiero
               </Button>
-              <Button onClick={() => handleRespondEnvido('accept')} className="bg-purple-500 hover:bg-purple-600">
-                Quiero
+              <Button 
+                onClick={() => handleRespondEnvido('accept')} 
+                className="bg-celeste hover:bg-celeste-dark text-noche font-bold rounded-club flex-1"
+              >
+                ¡Quiero!
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -399,20 +488,28 @@ export default function TablePage() {
 
       {/* Game result dialog */}
       <Dialog open={showResult} onOpenChange={setShowResult}>
-        <DialogContent className="bg-gradient-to-br from-amber-800 to-amber-900 border-amber-600">
+        <DialogContent className="bg-noche-100 border-paño/30 max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-white text-3xl text-center">
-              {gameState.winner === myPlayer.team ? '🎉 ¡Ganaste!' : '😢 Perdiste'}
+            <DialogTitle className={`text-3xl text-center font-bold ${gameState.winner === myPlayer.team ? 'text-oro' : 'text-naipe-600'}`}>
+              {gameState.winner === myPlayer.team ? '🎉 ¡GANASTE!' : '😔 Perdiste'}
             </DialogTitle>
-            <DialogDescription className="text-amber-200 text-center text-lg">
-              Equipo {gameState.winner} ganó la partida
-              <br />
-              Puntuación final: {gameState.scoreA} - {gameState.scoreB}
+            <DialogDescription className="text-center space-y-2">
+              <p className="text-naipe-400">
+                Equipo {gameState.winner} ganó la partida
+              </p>
+              <div className="tanteador inline-flex">
+                <span className="text-equipoA font-bold text-2xl">{gameState.scoreA}</span>
+                <span className="text-naipe-700 mx-2">-</span>
+                <span className="text-equipoB font-bold text-2xl">{gameState.scoreB}</span>
+              </div>
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="justify-center">
-            <Button onClick={() => router.push('/')} className="bg-amber-500 hover:bg-amber-600 text-black">
-              Volver al Inicio
+          <DialogFooter className="sm:justify-center">
+            <Button 
+              onClick={() => router.push('/jugar')} 
+              className={gameState.winner === myPlayer.team ? 'btn-oro' : 'btn-pano'}
+            >
+              Volver a jugar
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -420,4 +517,3 @@ export default function TablePage() {
     </div>
   )
 }
-
