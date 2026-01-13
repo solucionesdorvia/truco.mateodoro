@@ -12,9 +12,7 @@ import {
   Flame,
   Timer,
   Sparkles,
-  Target,
-  Crown,
-  Zap
+  Target
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -150,150 +148,56 @@ export default function HomePage() {
               </Link>
             </div>
             
-            {/* Mode badges */}
-            <div className="flex items-center justify-center gap-4 sm:gap-8 mt-16 animate-fade-in" style={{ animationDelay: '300ms' }}>
+            {/* Mode buttons - llevan directo a /jugar con filtro */}
+            <div className="flex items-center justify-center gap-3 sm:gap-6 mt-16 animate-fade-in" style={{ animationDelay: '300ms' }}>
               {[
-                { mode: '1v1', label: 'Mano a mano' },
-                { mode: '2v2', label: 'Duplas' },
-                { mode: '3v3', label: 'Equipos' },
-              ].map((item, i) => (
-                <div key={item.mode} className="text-center group cursor-default">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-club bg-noche-100 border border-paño/30 flex items-center justify-center mb-2 group-hover:border-paño/60 group-hover:bg-paño/10 transition-all duration-300">
-                    <span className="text-2xl sm:text-3xl font-bold text-naipe">{item.mode}</span>
+                { mode: '1v1', filter: 'ONE_VS_ONE', label: 'Mano a mano' },
+                { mode: '2v2', filter: 'TWO_VS_TWO', label: 'Duplas' },
+                { mode: '3v3', filter: 'THREE_VS_THREE', label: 'Equipos' },
+              ].map((item) => (
+                <Link 
+                  key={item.mode} 
+                  href={`/jugar?mode=${item.filter}`}
+                  className="text-center group"
+                >
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-club bg-noche-100 border-2 border-paño/30 flex items-center justify-center mb-2 group-hover:border-paño group-hover:bg-paño/20 group-active:scale-95 transition-all duration-200 cursor-pointer">
+                    <span className="text-3xl sm:text-4xl font-bold text-naipe group-hover:text-paño-50">{item.mode}</span>
                   </div>
-                  <p className="text-xs sm:text-sm text-naipe-700">{item.label}</p>
-                </div>
+                  <p className="text-xs sm:text-sm text-naipe-600 group-hover:text-naipe-400">{item.label}</p>
+                </Link>
               ))}
             </div>
           </div>
         </div>
         
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 rounded-full border-2 border-naipe-700/50 flex items-start justify-center p-2">
-            <div className="w-1 h-2 bg-naipe-700 rounded-full" />
-          </div>
-        </div>
       </section>
 
-      {/* Modos Section */}
-      <section className="py-20 relative">
+      {/* Propuesta de valor - Lista simple */}
+      <section className="py-12 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-noche to-noche-100" />
         
         <div className="relative container mx-auto px-4">
-          <div className="text-center mb-12">
-            <Badge className="bg-paño/20 text-paño-50 border-paño/30 mb-4">
-              <Target className="w-3 h-3 mr-1" />
-              Elegí tu modo
-            </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-naipe mb-4 tracking-tight">
-              MODOS DE JUEGO
-            </h2>
-            <p className="text-naipe-600 max-w-xl mx-auto">
-              Desde el clásico mano a mano hasta batallas de equipos con pozo compartido
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {[
-              { 
-                mode: '1v1', 
-                title: 'Mano a Mano', 
-                desc: 'El clásico. Vos contra el otro. Sin excusas.',
-                icon: EspadaSVG,
-                color: 'paño'
-              },
-              { 
-                mode: '2v2', 
-                title: 'Duplas', 
-                desc: 'Armá dupla y competí. Comunicación es clave.',
-                icon: CopaSVG,
-                color: 'oro'
-              },
-              { 
-                mode: '3v3', 
-                title: 'Equipos', 
-                desc: 'El modo definitivo. Pozo por equipo, gloria compartida.',
-                icon: BastoSVG,
-                color: 'celeste',
-                featured: true
-              },
-            ].map((item) => {
-              const IconComp = item.icon
-              return (
-                <Link key={item.mode} href="/jugar" className="group">
-                  <div className={`card-club p-6 h-full transition-all duration-300 hover:-translate-y-2 ${item.featured ? 'ring-2 ring-oro/30' : ''}`}>
-                    {item.featured && (
-                      <Badge className="absolute -top-2 left-4 bg-oro text-noche border-none">
-                        <Crown className="w-3 h-3 mr-1" />
-                        Popular
-                      </Badge>
-                    )}
-                    
-                    <div className={`w-14 h-14 rounded-club bg-${item.color}/10 border border-${item.color}/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                      <IconComp className={`w-7 h-8 text-${item.color}`} />
-                    </div>
-                    
-                    <div className="text-4xl font-bold text-naipe mb-2">{item.mode}</div>
-                    <h3 className="text-lg font-semibold text-naipe-300 mb-2">{item.title}</h3>
-                    <p className="text-sm text-naipe-700">{item.desc}</p>
-                    
-                    <div className="mt-4 flex items-center text-sm text-paño group-hover:text-paño-50 transition-colors">
-                      <span>Jugar</span>
-                      <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                    </div>
+          <div className="max-w-3xl mx-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
+              {[
+                { icon: Swords, text: 'Jugar', sub: 'Mesas abiertas 24/7' },
+                { icon: Trophy, text: 'Liga semanal', sub: 'Premios reales' },
+                { icon: Coins, text: 'Fichas', sub: 'Sistema de créditos' },
+                { icon: Users, text: 'Comunidad', sub: 'Grupos activos' },
+                { icon: Target, text: 'Pozos x equipo', sub: 'Cada uno aporta' },
+                { icon: Shield, text: 'Anti trampa', sub: 'Validación server' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 sm:p-4 rounded-club bg-noche-100/50 border border-paño/10">
+                  <div className="w-10 h-10 rounded-club bg-paño/10 border border-paño/20 flex items-center justify-center shrink-0">
+                    <item.icon className="w-5 h-5 text-paño-50" />
                   </div>
-                </Link>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-noche-100" />
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-10 left-[20%]"><EspadaSVG className="w-32 h-40 text-naipe" /></div>
-          <div className="absolute bottom-20 right-[15%]"><OroSVG className="w-28 h-28 text-naipe" /></div>
-        </div>
-        
-        <div className="relative container mx-auto px-4">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { 
-                icon: Zap, 
-                title: 'Tiempo real', 
-                desc: 'WebSocket. Sin lag. Cada carta al instante.',
-                color: 'oro'
-              },
-              { 
-                icon: Coins, 
-                title: 'Pozos de equipo', 
-                desc: 'Cada uno aporta. El equipo ganador reparte.',
-                color: 'paño'
-              },
-              { 
-                icon: Trophy, 
-                title: 'Liga semanal', 
-                desc: 'Ranking que se resetea. Racha y gloria.',
-                color: 'celeste'
-              },
-              { 
-                icon: Shield, 
-                title: 'Anti-trampa', 
-                desc: 'Todo validado en servidor. Imposible trucar.',
-                color: 'naipe'
-              },
-            ].map((item, i) => (
-              <div key={i} className="card-club p-6 group hover:-translate-y-1 transition-all duration-300">
-                <div className={`w-12 h-12 rounded-club bg-${item.color}/10 border border-${item.color}/30 flex items-center justify-center mb-4`}>
-                  <item.icon className={`w-6 h-6 text-${item.color}`} />
+                  <div className="min-w-0">
+                    <p className="font-semibold text-naipe text-sm">{item.text}</p>
+                    <p className="text-xs text-naipe-700 truncate">{item.sub}</p>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold text-naipe mb-2">{item.title}</h3>
-                <p className="text-sm text-naipe-700">{item.desc}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 import { 
@@ -81,10 +81,14 @@ interface ActiveRoom {
 
 export default function JugarPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { data: session } = useSession()
   
+  // Leer el modo desde query params (ej: /jugar?mode=ONE_VS_ONE)
+  const initialMode = searchParams.get('mode') || 'ALL'
+  
   const [activeTab, setActiveTab] = useState<TabType>('buscar')
-  const [modeFilter, setModeFilter] = useState<string>('ALL')
+  const [modeFilter, setModeFilter] = useState<string>(initialMode)
   const [activeRooms, setActiveRooms] = useState<ActiveRoom[]>([])
   const [isLoadingRooms, setIsLoadingRooms] = useState(true)
   
