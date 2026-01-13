@@ -102,13 +102,42 @@ export async function createRoom(params: CreateRoomParams) {
       stakeTotalCredits: stakeMode === 'TEAM_POOL' ? stakeTotalCredits : null,
       payoutMode,
       platformFeePercent,
+      // Add creator as first player in Team A
+      players: {
+        create: {
+          userId: createdById,
+          team: 'A',
+          seatIndex: 0,
+        },
+      },
     },
     include: {
       createdBy: {
         select: { id: true, username: true },
       },
+      players: {
+        include: {
+          user: {
+            select: { id: true, username: true },
+          },
+        },
+      },
     },
   })
+
+  // If TEAM_POOL mode, create initial stake contribution for creator
+  if (stakeMode === 'TEAM_POOL') {
+    await prisma.stakeContribution.create({
+      data: {
+        roomId: room.id,
+        userId: createdById,
+        team: 'A',
+        amountCredits: 0,
+      },
+    })
+  }
+
+  console.log(`[Room] Creator ${createdById} added to room ${room.id} as Team A, seat 0`)
 
   return room
 }

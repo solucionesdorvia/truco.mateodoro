@@ -171,7 +171,7 @@ export default function JugarPage() {
       }
       
       toast.success('¡Entraste a la mesa!')
-      router.push(`/lobby/${data.room.id}`)
+      router.push(`/lobby/${data.roomId}`)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Error al unirse')
     } finally {
