@@ -52,6 +52,9 @@ enum CreditTransactionType {
   STAKE_REFUND
   STAKE_PAYOUT
   REFUND
+  REFERRAL_BONUS_REFERRER   // Bonus para quien refirió
+  REFERRAL_BONUS_REFERRED   // Bonus para el referido
+  REFERRAL_PURCHASE_BONUS   // Bonus extra por primera compra del referido
 }
 
 // Models
@@ -64,6 +67,9 @@ model User {
   creditsBalance     Int      @default(0)
   mustChangePassword Boolean  @default(false)
   avatarUrl          String?
+  referralCode       String?  @unique // Código único para referir
+  referredById       String?  // Quién lo refirió
+  referredBy         User?    @relation("Referrals", fields: [referredById], references: [id])
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -77,9 +83,13 @@ model User {
   playerStats         PlayerStats?
   communityPosts      CommunityPost[]
   supportTickets      SupportTicket[]
+  referrals           User[]               @relation("Referrals") // Usuarios que refirió
+  referralRecords     Referral[]           @relation("ReferrerRecords") // Registros como referente
+  referredRecords     Referral[]           @relation("ReferredRecords") // Registros como referido
 
   @@index([email])
   @@index([username])
+  @@index([referralCode])
 }
 
 model GameRoom {
@@ -90,6 +100,7 @@ model GameRoom {
   chatEnabled         Boolean     @default(true)
   timerEnabled        Boolean     @default(false)
   timerSeconds        Int         @default(25)
+  isPublic            Boolean     @default(true) // Pública aparece en listado, privada solo con código
   status              RoomStatus  @default(WAITING)
   
   // Unique codes for each team
@@ -304,4 +315,37 @@ model SupportMessage {
   createdAt DateTime      @default(now())
 
   @@index([ticketId])
+}
+
+// Referral System
+enum ReferralStatus {
+  PENDING      // Referido registrado pero no activado
+  ACTIVATED    // Referido completó 3 partidas
+  PURCHASED    // Referido hizo primera compra (bonus extra)
+}
+
+model Referral {
+  id              String         @id @default(cuid())
+  referrerId      String
+  referrer        User           @relation("ReferrerRecords", fields: [referrerId], references: [id])
+  referredId      String
+  referred        User           @relation("ReferredRecords", fields: [referredId], references: [id])
+  status          ReferralStatus @default(PENDING)
+  
+  // Bonuses awarded
+  referredBonus   Int            @default(0)  // Bonus dado al referido al registrarse
+  referrerBonus   Int            @default(0)  // Bonus dado al referente al activar
+  purchaseBonus   Int            @default(0)  // Bonus extra por primera compra
+  
+  // Tracking
+  gamesCompleted  Int            @default(0)  // Partidas completadas por el referido
+  activatedAt     DateTime?
+  purchasedAt     DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@unique([referrerId, referredId])
+  @@index([referrerId])
+  @@index([referredId])
+  @@index([status])
 }

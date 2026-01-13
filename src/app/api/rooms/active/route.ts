@@ -15,12 +15,10 @@ export async function GET(request: Request) {
       whereClause.mode = mode
     }
     
-    // TODO: Agregar campo isPublic al modelo GameRoom en schema.prisma
-    // Por ahora, el filtro se aplica solo si el campo existe
-    // Una vez agregado: npx prisma migrate dev --name add_isPublic_to_game_room
-    // if (isPublicParam === 'true') {
-    //   whereClause.isPublic = true
-    // }
+    // Filtrar solo mesas públicas en el listado
+    if (isPublicParam === 'true') {
+      whereClause.isPublic = true
+    }
     
     const rooms = await prisma.gameRoom.findMany({
       where: whereClause,

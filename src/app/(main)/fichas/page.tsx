@@ -61,6 +61,9 @@ const typeLabels: Record<string, { label: string; color: string; bg: string }> =
   STAKE_REFUND: { label: 'Reembolso', color: 'text-celeste', bg: 'bg-celeste/20' },
   STAKE_PAYOUT: { label: 'Premio', color: 'text-paño-50', bg: 'bg-paño/20' },
   REFUND: { label: 'Devolución', color: 'text-celeste', bg: 'bg-celeste/20' },
+  REFERRAL_BONUS_REFERRER: { label: 'Bonus referido', color: 'text-paño-50', bg: 'bg-paño/20' },
+  REFERRAL_BONUS_REFERRED: { label: 'Bonus bienvenida', color: 'text-paño-50', bg: 'bg-paño/20' },
+  REFERRAL_PURCHASE_BONUS: { label: 'Bonus compra', color: 'text-oro', bg: 'bg-oro/20' },
 }
 
 export default function FichasPage() {
