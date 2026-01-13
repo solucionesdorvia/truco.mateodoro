@@ -310,26 +310,34 @@ export default function RankingsPage() {
 
       {/* Premios de la semana */}
       <Card className="card-club border-0 mb-8 overflow-hidden">
-        <div className="bg-gradient-to-r from-oro/20 via-oro/10 to-oro/20 p-6">
+        <div className="bg-gradient-to-r from-oro/20 via-oro/10 to-oro/20 p-4 sm:p-6">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Coins className="w-5 h-5 text-oro" />
-            <h2 className="text-xl font-bold text-naipe">Premios de la semana</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-naipe">Premios de la semana</h2>
           </div>
-          <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
-            <div className="text-center p-4 rounded-club bg-oro/10 border border-oro/30">
-              <div className="text-2xl mb-1">🥇</div>
-              <p className="text-xs text-naipe-600 mb-1">1° Puesto</p>
-              <p className="text-2xl font-bold text-oro">$1.000.000</p>
+          {/* Mobile: 2 cols con 1° full width | Desktop: 3 cols */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 max-w-2xl mx-auto">
+            {/* 1° Puesto - full width en mobile */}
+            <div className="col-span-2 md:col-span-1 text-center p-3 sm:p-4 rounded-club bg-oro/10 border-2 border-oro/40">
+              <div className="flex items-center justify-center gap-2 md:flex-col md:gap-0">
+                <span className="text-2xl sm:text-3xl">🥇</span>
+                <div className="text-left md:text-center">
+                  <p className="text-xs text-naipe-600 mb-0.5 sm:mb-1">1° Puesto</p>
+                  <p className="text-xl sm:text-2xl font-bold text-oro">$1.000.000</p>
+                </div>
+              </div>
             </div>
-            <div className="text-center p-4 rounded-club bg-naipe-600/10 border border-naipe-600/30">
-              <div className="text-2xl mb-1">🥈</div>
-              <p className="text-xs text-naipe-600 mb-1">2° Puesto</p>
-              <p className="text-2xl font-bold text-naipe-500">$500.000</p>
+            {/* 2° Puesto */}
+            <div className="text-center p-3 sm:p-4 rounded-club bg-naipe-600/10 border border-naipe-600/30">
+              <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">🥈</div>
+              <p className="text-[10px] sm:text-xs text-naipe-600 mb-0.5 sm:mb-1">2° Puesto</p>
+              <p className="text-lg sm:text-2xl font-bold text-naipe-500">$500.000</p>
             </div>
-            <div className="text-center p-4 rounded-club bg-oro-muted/10 border border-oro-muted/30">
-              <div className="text-2xl mb-1">🥉</div>
-              <p className="text-xs text-naipe-600 mb-1">3° Puesto</p>
-              <p className="text-2xl font-bold text-oro-muted">$150.000</p>
+            {/* 3° Puesto */}
+            <div className="text-center p-3 sm:p-4 rounded-club bg-oro-muted/10 border border-oro-muted/30">
+              <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">🥉</div>
+              <p className="text-[10px] sm:text-xs text-naipe-600 mb-0.5 sm:mb-1">3° Puesto</p>
+              <p className="text-lg sm:text-2xl font-bold text-oro-muted">$150.000</p>
             </div>
           </div>
         </div>

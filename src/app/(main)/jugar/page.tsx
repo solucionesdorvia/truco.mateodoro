@@ -415,45 +415,75 @@ export default function JugarPage() {
                     {activeRooms.map((room) => (
                       <div 
                         key={room.id}
-                        className="p-4 rounded-club bg-noche-200 border border-paño/10 hover:border-paño/30 transition-all"
+                        className="p-3 sm:p-4 rounded-club bg-noche-200 border border-paño/10 hover:border-paño/30 transition-all"
                       >
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-4">
-                            {/* Mode badge grande */}
-                            <div className="w-14 h-14 rounded-club bg-paño/10 border border-paño/30 flex flex-col items-center justify-center">
-                              <span className="text-xl font-bold text-naipe">{getModeLabel(room.mode)}</span>
-                              <span className="text-[10px] text-naipe-700">{room.targetScore}pts</span>
+                        <div className="flex items-start sm:items-center justify-between gap-3">
+                          {/* Info de la mesa */}
+                          <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                            {/* Mode badge */}
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-club bg-paño/10 border border-paño/30 flex flex-col items-center justify-center shrink-0">
+                              <span className="text-lg sm:text-xl font-bold text-naipe">{getModeLabel(room.mode)}</span>
+                              <span className="text-[9px] sm:text-[10px] text-naipe-700">{room.targetScore}pts</span>
                             </div>
                             
-                            <div>
-                              <div className="flex items-center gap-2 mb-1">
+                            <div className="min-w-0 flex-1">
+                              {/* Badges fila 1 */}
+                              <div className="flex flex-wrap items-center gap-1.5 mb-1">
                                 {getStakeBadge(room)}
                                 {room.florEnabled && (
-                                  <Badge className="bg-oro/10 text-oro border-oro/20 text-xs">
-                                    <Sparkles className="w-3 h-3 mr-1" />
+                                  <Badge className="bg-oro/10 text-oro border-oro/20 text-[10px] sm:text-xs px-1.5 py-0.5">
+                                    <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5" />
                                     Flor
                                   </Badge>
                                 )}
                               </div>
-                              <div className="flex items-center gap-3 text-sm text-naipe-600">
+                              
+                              {/* Info fila 2 */}
+                              <div className="flex items-center gap-2 text-xs sm:text-sm text-naipe-600">
                                 <span className="flex items-center gap-1">
                                   <Users className="w-3 h-3" />
                                   {room.currentPlayers}/{room.totalSlots}
                                 </span>
-                                <span className="text-naipe-700">•</span>
-                                <span className="text-naipe-700">por @{room.createdBy.username}</span>
+                                <span className="text-naipe-700 hidden sm:inline">•</span>
+                                <span className="text-naipe-700 hidden sm:inline truncate max-w-[100px]">@{room.createdBy.username}</span>
                               </div>
-                              {/* Plazas por equipo */}
-                              <div className="flex items-center gap-2 mt-2 text-xs">
-                                <span className="text-equipoA">A: {room.teamACount}/{room.teamASlots}</span>
-                                <span className="text-naipe-700">|</span>
-                                <span className="text-equipoB">B: {room.teamBCount}/{room.teamBSlots}</span>
+                              
+                              {/* Plazas y botones en mobile */}
+                              <div className="flex items-center justify-between gap-2 mt-2">
+                                <div className="flex items-center gap-1.5 text-[10px] sm:text-xs">
+                                  <span className="px-1.5 py-0.5 rounded bg-equipoA/20 text-equipoA font-medium">A: {room.teamACount}/{room.teamASlots}</span>
+                                  <span className="px-1.5 py-0.5 rounded bg-equipoB/20 text-equipoB font-medium">B: {room.teamBCount}/{room.teamBSlots}</span>
+                                </div>
+                                
+                                {/* Botones A/B en mobile dentro de la card */}
+                                <div className="flex gap-1 sm:hidden">
+                                  {room.teamACount < room.teamASlots && (
+                                    <Button 
+                                      size="sm"
+                                      className="bg-equipoA hover:bg-equipoA/80 text-white rounded-club h-7 px-2.5 font-bold text-xs"
+                                      onClick={() => handleJoinGame(room.codeTeamA)}
+                                      disabled={isJoining}
+                                    >
+                                      A
+                                    </Button>
+                                  )}
+                                  {room.teamBCount < room.teamBSlots && (
+                                    <Button 
+                                      size="sm"
+                                      className="bg-equipoB hover:bg-equipoB/80 text-white rounded-club h-7 px-2.5 font-bold text-xs"
+                                      onClick={() => handleJoinGame(room.codeTeamB)}
+                                      disabled={isJoining}
+                                    >
+                                      B
+                                    </Button>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>
                           
-                          {/* Botones compactos A/B */}
-                          <div className="flex gap-1.5">
+                          {/* Botones A/B desktop */}
+                          <div className="hidden sm:flex gap-1.5 shrink-0">
                             {room.teamACount < room.teamASlots && (
                               <Button 
                                 size="icon"
