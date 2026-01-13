@@ -502,7 +502,7 @@ export default function HomePage() {
             </div>
             
             <p className="text-sm text-naipe-800">
-              Hecho con 🧉 por Doro
+              Hecho por Doro
             </p>
             
             <div className="flex items-center gap-6">
