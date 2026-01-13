@@ -16,8 +16,7 @@ import {
   Timer
 } from 'lucide-react'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -272,12 +271,12 @@ export default function RankingsPage() {
         <div>
           <Badge className="bg-celeste/20 text-celeste border-celeste/30 mb-3">
             <Trophy className="w-3 h-3 mr-1" />
-            Competitivo
+            Liga Semanal
           </Badge>
           <h1 className="text-3xl lg:text-5xl font-bold text-naipe mb-2 tracking-tight">
-            TABLA DE LIGA
+            RANKING SEMANAL
           </h1>
-          <p className="text-naipe-600">Los mejores jugadores de Truco Argentino</p>
+          <p className="text-naipe-600">Competí y ganá premios todas las semanas</p>
         </div>
         
         {/* Weekly Countdown */}
@@ -309,17 +308,44 @@ export default function RankingsPage() {
         </Card>
       </div>
 
+      {/* Premios de la semana */}
+      <Card className="card-club border-0 mb-8 overflow-hidden">
+        <div className="bg-gradient-to-r from-oro/20 via-oro/10 to-oro/20 p-6">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Coins className="w-5 h-5 text-oro" />
+            <h2 className="text-xl font-bold text-naipe">Premios de la semana</h2>
+          </div>
+          <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+            <div className="text-center p-4 rounded-club bg-oro/10 border border-oro/30">
+              <div className="text-2xl mb-1">🥇</div>
+              <p className="text-xs text-naipe-600 mb-1">1° Puesto</p>
+              <p className="text-2xl font-bold text-oro">$1.000.000</p>
+            </div>
+            <div className="text-center p-4 rounded-club bg-naipe-600/10 border border-naipe-600/30">
+              <div className="text-2xl mb-1">🥈</div>
+              <p className="text-xs text-naipe-600 mb-1">2° Puesto</p>
+              <p className="text-2xl font-bold text-naipe-500">$500.000</p>
+            </div>
+            <div className="text-center p-4 rounded-club bg-oro-muted/10 border border-oro-muted/30">
+              <div className="text-2xl mb-1">🥉</div>
+              <p className="text-xs text-naipe-600 mb-1">3° Puesto</p>
+              <p className="text-2xl font-bold text-oro-muted">$150.000</p>
+            </div>
+          </div>
+        </div>
+      </Card>
+
       {/* Stats Summary */}
       {data && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           <Card className="card-club border-0">
             <CardContent className="p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-club bg-celeste/10 border border-celeste/30 flex items-center justify-center">
                 <Users className="w-5 h-5 text-celeste" />
               </div>
               <div>
-                <p className="text-xs text-naipe-700">Jugadores</p>
-                <p className="text-xl font-bold text-naipe tabular-nums">{data.global.length}</p>
+                <p className="text-xs text-naipe-700">Jugadores esta semana</p>
+                <p className="text-xl font-bold text-naipe tabular-nums">{data.weekly.length}</p>
               </div>
             </CardContent>
           </Card>
@@ -327,24 +353,10 @@ export default function RankingsPage() {
           <Card className="card-club border-0">
             <CardContent className="p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-club bg-oro/10 border border-oro/30 flex items-center justify-center">
-                <Trophy className="w-5 h-5 text-oro" />
+                <Crown className="w-5 h-5 text-oro" />
               </div>
               <div>
-                <p className="text-xs text-naipe-700">Líder Global</p>
-                <p className="text-lg font-bold text-naipe truncate">
-                  {data.global[0]?.username || '-'}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="card-club border-0">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-club bg-paño/10 border border-paño/30 flex items-center justify-center">
-                <Medal className="w-5 h-5 text-paño-50" />
-              </div>
-              <div>
-                <p className="text-xs text-naipe-700">Líder Semanal</p>
+                <p className="text-xs text-naipe-700">Líder actual</p>
                 <p className="text-lg font-bold text-naipe truncate">
                   {data.weekly[0]?.username || '-'}
                 </p>
@@ -355,12 +367,12 @@ export default function RankingsPage() {
           <Card className="card-club border-0">
             <CardContent className="p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-club bg-paño/10 border border-paño/30 flex items-center justify-center">
-                <Coins className="w-5 h-5 text-paño-50" />
+                <Flame className="w-5 h-5 text-oro" />
               </div>
               <div>
-                <p className="text-xs text-naipe-700">Top Ganancias</p>
-                <p className="text-xl font-bold text-paño-50 tabular-nums">
-                  +{data.global[0]?.creditsWon || 0}
+                <p className="text-xs text-naipe-700">Mejor racha</p>
+                <p className="text-xl font-bold text-oro tabular-nums">
+                  {data.weekly[0]?.streak || 0}
                 </p>
               </div>
             </CardContent>
@@ -368,51 +380,17 @@ export default function RankingsPage() {
         </div>
       )}
 
-      {/* Tabs */}
-      <Tabs defaultValue="weekly" className="space-y-6">
-        <TabsList className="bg-noche-100 border border-paño/20 p-1 rounded-club">
-          <TabsTrigger 
-            value="weekly" 
-            className="rounded-club data-[state=active]:bg-paño/20 data-[state=active]:text-paño-50 text-naipe-600"
-          >
-            <Clock className="w-4 h-4 mr-2" />
-            Semanal
-          </TabsTrigger>
-          <TabsTrigger 
-            value="global" 
-            className="rounded-club data-[state=active]:bg-oro/20 data-[state=active]:text-oro text-naipe-600"
-          >
-            <Trophy className="w-4 h-4 mr-2" />
-            Global
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="weekly">
-          {isLoading ? (
-            <div className="space-y-6">
-              <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
-                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-48 bg-noche-100 rounded-club" />)}
-              </div>
-              <Skeleton className="h-80 bg-noche-100 rounded-club" />
-            </div>
-          ) : (
-            renderLeaderboard(data?.weekly || [], true)
-          )}
-        </TabsContent>
-
-        <TabsContent value="global">
-          {isLoading ? (
-            <div className="space-y-6">
-              <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
-                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-48 bg-noche-100 rounded-club" />)}
-              </div>
-              <Skeleton className="h-80 bg-noche-100 rounded-club" />
-            </div>
-          ) : (
-            renderLeaderboard(data?.global || [], false)
-          )}
-        </TabsContent>
-      </Tabs>
+      {/* Tabla semanal directa (sin tabs) */}
+      {isLoading ? (
+        <div className="space-y-6">
+          <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
+            {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-48 bg-noche-100 rounded-club" />)}
+          </div>
+          <Skeleton className="h-80 bg-noche-100 rounded-club" />
+        </div>
+      ) : (
+        renderLeaderboard(data?.weekly || [], true)
+      )}
     </div>
   )
 }

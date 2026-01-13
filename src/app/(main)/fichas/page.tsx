@@ -70,6 +70,9 @@ export default function FichasPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [filter, setFilter] = useState<string>('ALL')
+  
+  // Solo admin ve los montos negativos explícitos
+  const isAdmin = session?.user?.role === 'ADMIN'
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -279,21 +282,38 @@ export default function FichasPage() {
           </CardContent>
         </Card>
 
-        {/* Total Out */}
-        <Card className="card-club border-0">
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm text-naipe-600 mb-1">Total apostado</p>
-                <p className="text-4xl font-bold text-destructive tabular-nums">-{totalOut}</p>
-                <p className="text-xs text-naipe-700 mt-2">fichas en pozos</p>
+        {/* Total Out - Solo visible para admin */}
+        {isAdmin ? (
+          <Card className="card-club border-0">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm text-naipe-600 mb-1">Total apostado</p>
+                  <p className="text-4xl font-bold text-destructive tabular-nums">-{totalOut}</p>
+                  <p className="text-xs text-naipe-700 mt-2">fichas en pozos</p>
+                </div>
+                <div className="w-12 h-12 rounded-club bg-destructive/20 border border-destructive/30 flex items-center justify-center">
+                  <TrendingDown className="w-6 h-6 text-destructive" />
+                </div>
               </div>
-              <div className="w-12 h-12 rounded-club bg-destructive/20 border border-destructive/30 flex items-center justify-center">
-                <TrendingDown className="w-6 h-6 text-destructive" />
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="card-club border-0">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm text-naipe-600 mb-1">Mesas jugadas</p>
+                  <p className="text-4xl font-bold text-naipe-400 tabular-nums">{transactions.filter(t => t.amount < 0).length}</p>
+                  <p className="text-xs text-naipe-700 mt-2">participaciones</p>
+                </div>
+                <div className="w-12 h-12 rounded-club bg-celeste/10 border border-celeste/30 flex items-center justify-center">
+                  <Target className="w-6 h-6 text-celeste" />
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Transactions */}
@@ -342,23 +362,30 @@ export default function FichasPage() {
                   const typeInfo = typeLabels[tx.type] || { label: tx.type, color: 'text-naipe-600', bg: 'bg-noche-200' }
                   const isPositive = tx.amount > 0
                   
+                  // Para usuarios normales, los negativos se muestran neutral
+                  const displayLabel = !isPositive && !isAdmin 
+                    ? (tx.type === 'STAKE_LOCK' ? 'Mesa jugada' : 'Participación')
+                    : typeInfo.label
+                  
                   return (
                     <div 
                       key={tx.id}
                       className="flex items-center gap-4 p-4 rounded-club bg-noche-200 border border-paño/10 hover:border-paño/30 transition-all duration-200 group"
                     >
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isPositive ? 'bg-paño/20' : 'bg-destructive/20'}`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                        isPositive ? 'bg-paño/20' : (isAdmin ? 'bg-destructive/20' : 'bg-noche-300')
+                      }`}>
                         {isPositive ? (
                           <ArrowDownLeft className="w-5 h-5 text-paño-50" />
                         ) : (
-                          <ArrowUpRight className="w-5 h-5 text-destructive" />
+                          <ArrowUpRight className={`w-5 h-5 ${isAdmin ? 'text-destructive' : 'text-naipe-600'}`} />
                         )}
                       </div>
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <Badge className={`${typeInfo.bg} ${typeInfo.color} border-none text-xs`}>
-                            {typeInfo.label}
+                          <Badge className={`${isPositive || isAdmin ? typeInfo.bg : 'bg-noche-300'} ${isPositive || isAdmin ? typeInfo.color : 'text-naipe-500'} border-none text-xs`}>
+                            {displayLabel}
                           </Badge>
                           {tx.room && (
                             <span className="text-xs text-naipe-700 font-mono">
@@ -366,7 +393,7 @@ export default function FichasPage() {
                             </span>
                           )}
                         </div>
-                        {tx.note && (
+                        {tx.note && isAdmin && (
                           <p className="text-sm text-naipe-400 truncate">{tx.note}</p>
                         )}
                         <div className="flex items-center gap-1 text-xs text-naipe-700 mt-1">
@@ -381,9 +408,20 @@ export default function FichasPage() {
                         </div>
                       </div>
                       
-                      <div className={`text-xl font-bold tabular-nums ${isPositive ? 'text-paño-50' : 'text-destructive'}`}>
-                        {isPositive ? '+' : ''}{tx.amount}
-                      </div>
+                      {/* Monto: admin ve todo, usuario normal no ve negativos explícitos */}
+                      {isPositive ? (
+                        <div className="text-xl font-bold tabular-nums text-paño-50">
+                          +{tx.amount}
+                        </div>
+                      ) : isAdmin ? (
+                        <div className="text-xl font-bold tabular-nums text-destructive">
+                          {tx.amount}
+                        </div>
+                      ) : (
+                        <div className="text-sm text-naipe-600">
+                          —
+                        </div>
+                      )}
                     </div>
                   )
                 })}
