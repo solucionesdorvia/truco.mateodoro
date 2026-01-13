@@ -172,30 +172,54 @@ export default function HomePage() {
         
       </section>
 
-      {/* Propuesta de valor - Lista simple */}
+      {/* Propuesta de valor - Lista clickeable */}
       <section className="py-12 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-noche to-noche-100" />
         
         <div className="relative container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
               {[
-                { icon: Swords, text: 'Jugar', sub: 'Mesas abiertas 24/7' },
-                { icon: Trophy, text: 'Liga semanal', sub: 'Premios reales' },
-                { icon: Coins, text: 'Fichas', sub: 'Sistema de créditos' },
-                { icon: Users, text: 'Comunidad', sub: 'Grupos activos' },
-                { icon: Target, text: 'Pozos x equipo', sub: 'Cada uno aporta' },
-                { icon: Shield, text: 'Anti trampa', sub: 'Validación server' },
+                { icon: Swords, text: 'Jugar', sub: 'Mesas 24/7', href: '/jugar' },
+                { icon: Trophy, text: 'Liga', sub: 'Premios reales', href: '/rankings' },
+                { icon: Coins, text: 'Fichas', sub: 'Tus créditos', href: '/fichas' },
+                { icon: Users, text: 'Comunidad', sub: 'Grupos activos', href: 'https://wa.me/5491112345678', external: true },
+                { icon: Target, text: 'Pozos', sub: 'Por equipo', href: '/jugar?stake=info' },
+                { icon: Shield, text: 'Fair play', sub: 'Sin trampas', href: '/soporte#faq' },
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 sm:p-4 rounded-club bg-noche-100/50 border border-paño/10">
-                  <div className="w-10 h-10 rounded-club bg-paño/10 border border-paño/20 flex items-center justify-center shrink-0">
-                    <item.icon className="w-5 h-5 text-paño-50" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-naipe text-sm">{item.text}</p>
-                    <p className="text-xs text-naipe-700 truncate">{item.sub}</p>
-                  </div>
-                </div>
+                item.external ? (
+                  <a 
+                    key={i}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 sm:p-4 rounded-club bg-noche-100/50 border border-paño/10 hover:border-paño/40 hover:bg-paño/5 active:scale-[0.98] transition-all cursor-pointer group"
+                  >
+                    <div className="w-10 h-10 rounded-club bg-paño/10 border border-paño/20 flex items-center justify-center shrink-0 group-hover:bg-paño/20 transition-colors">
+                      <item.icon className="w-5 h-5 text-paño-50" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-naipe text-sm group-hover:text-paño-50 transition-colors">{item.text}</p>
+                      <p className="text-xs text-naipe-700">{item.sub}</p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-naipe-700 group-hover:text-paño-50 group-hover:translate-x-0.5 transition-all shrink-0" />
+                  </a>
+                ) : (
+                  <Link 
+                    key={i}
+                    href={item.href}
+                    className="flex items-center gap-3 p-3 sm:p-4 rounded-club bg-noche-100/50 border border-paño/10 hover:border-paño/40 hover:bg-paño/5 active:scale-[0.98] transition-all cursor-pointer group"
+                  >
+                    <div className="w-10 h-10 rounded-club bg-paño/10 border border-paño/20 flex items-center justify-center shrink-0 group-hover:bg-paño/20 transition-colors">
+                      <item.icon className="w-5 h-5 text-paño-50" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-naipe text-sm group-hover:text-paño-50 transition-colors">{item.text}</p>
+                      <p className="text-xs text-naipe-700">{item.sub}</p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-naipe-700 group-hover:text-paño-50 group-hover:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
+                )
               ))}
             </div>
           </div>

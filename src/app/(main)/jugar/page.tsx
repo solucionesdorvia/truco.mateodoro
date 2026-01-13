@@ -251,10 +251,20 @@ export default function JugarPage() {
       return <Badge className="bg-paño/20 text-paño-50 border-paño/30">Gratis</Badge>
     }
     if (room.stakeMode === 'ENTRY_FEE') {
-      return <Badge className="bg-oro/20 text-oro border-oro/30">Entrada: {room.entryFeeCredits}</Badge>
+      return (
+        <Badge className="bg-oro/20 text-oro border-oro/30">
+          <Coins className="w-3 h-3 mr-1" />
+          {room.entryFeeCredits}
+        </Badge>
+      )
     }
     if (room.stakeMode === 'TEAM_POOL') {
-      return <Badge className="bg-oro/20 text-oro border-oro/30">Pozo: {room.stakeTotalCredits}/equipo</Badge>
+      return (
+        <Badge className="bg-oro/20 text-oro border-oro/30">
+          <Coins className="w-3 h-3 mr-1" />
+          {room.stakeTotalCredits}/eq
+        </Badge>
+      )
     }
     return null
   }
@@ -442,25 +452,28 @@ export default function JugarPage() {
                             </div>
                           </div>
                           
-                          <div className="flex flex-col gap-2">
+                          {/* Botones compactos A/B */}
+                          <div className="flex gap-1.5">
                             {room.teamACount < room.teamASlots && (
                               <Button 
-                                size="sm"
-                                className="bg-equipoA hover:bg-equipoA/80 text-white rounded-club"
+                                size="icon"
+                                className="bg-equipoA hover:bg-equipoA/80 text-white rounded-club w-10 h-10 font-bold text-lg"
                                 onClick={() => handleJoinGame(room.codeTeamA)}
                                 disabled={isJoining}
+                                title="Unirse al Equipo A"
                               >
-                                Equipo A
+                                A
                               </Button>
                             )}
                             {room.teamBCount < room.teamBSlots && (
                               <Button 
-                                size="sm"
-                                className="bg-equipoB hover:bg-equipoB/80 text-white rounded-club"
+                                size="icon"
+                                className="bg-equipoB hover:bg-equipoB/80 text-white rounded-club w-10 h-10 font-bold text-lg"
                                 onClick={() => handleJoinGame(room.codeTeamB)}
                                 disabled={isJoining}
+                                title="Unirse al Equipo B"
                               >
-                                Equipo B
+                                B
                               </Button>
                             )}
                           </div>
