@@ -608,11 +608,11 @@ export default function JugarPage() {
               <div className="space-y-2">
                 <Label className="text-naipe-300 text-sm">Código de partida</Label>
                 <Input
-                  placeholder="ABC123"
+                  placeholder="ABCD1234"
                   value={joinCode}
                   onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                  className="bg-noche-200 border-paño/30 text-center text-3xl font-mono font-bold tracking-[0.3em] uppercase text-naipe h-16"
-                  maxLength={6}
+                  className="bg-noche-200 border-paño/30 text-center text-2xl font-mono font-bold tracking-[0.2em] uppercase text-naipe h-16"
+                  maxLength={8}
                 />
               </div>
               
