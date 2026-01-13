@@ -288,21 +288,21 @@ export default function TablePage() {
           
           {/* Baza indicators */}
           <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-            {[0, 1, 2].map((bazaIdx) => {
-              const baza = round?.bazas[bazaIdx]
-              const winner = baza?.winner
-              return (
-                <div 
-                  key={bazaIdx}
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    winner === 'A' ? 'bg-equipoA' :
-                    winner === 'B' ? 'bg-equipoB' :
-                    winner === 'DRAW' ? 'bg-naipe-600' :
-                    'bg-noche-200'
-                  }`}
-                />
-              )
-            })}
+                  {[0, 1, 2].map((bazaIdx) => {
+                    const baza = round?.bazas[bazaIdx]
+                    const winner = baza?.winner
+                    return (
+                      <div 
+                        key={bazaIdx}
+                        className={`w-3 h-3 rounded-full transition-all ${
+                          winner === 'A' ? 'bg-equipoA' :
+                          winner === 'B' ? 'bg-equipoB' :
+                          winner === 'tie' ? 'bg-naipe-600' :
+                          'bg-noche-200'
+                        }`}
+                      />
+                    )
+                  })}
           </div>
         </div>
       </div>
