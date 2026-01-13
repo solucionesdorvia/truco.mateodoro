@@ -50,7 +50,8 @@ export interface RoomState {
   }
   players: Array<{
     id: string
-    oderId: string
+    oderId?: string
+    userId: string
     team: 'A' | 'B'
     seatIndex: number
     isConnected: boolean
@@ -62,9 +63,11 @@ export interface RoomState {
   }>
   stakeContributions: Array<{
     id: string
-    oderId: string
+    oderId?: string
+    userId: string
     team: 'A' | 'B'
     amountCredits: number
+    isLocked: boolean
     user: {
       id: string
       username: string

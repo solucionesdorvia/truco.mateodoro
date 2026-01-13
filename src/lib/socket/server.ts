@@ -82,11 +82,20 @@ export function initSocketServer(httpServer: HttpServer) {
         // Join socket room
         socket.join(roomId)
 
-        console.log(`[Socket.IO] User ${player.user.username} joined room ${roomId}`)
+        console.log(`[Socket.IO] User ${player.user.username} joined room ${roomId}, status: ${player.room.status}`)
 
         // Send current room state
         const roomState = await getRoomState(roomId)
         socket.emit('room:state', roomState)
+
+        // If the game is already in progress, send the game state too
+        if (player.room.status === 'PLAYING') {
+          const gameState = await getOrLoadGameState(roomId)
+          if (gameState) {
+            socket.emit('game:state', getPlayerView(gameState, oderId))
+            console.log(`[Socket.IO] Sent game state to reconnecting user ${player.user.username}`)
+          }
+        }
 
         // Notify others
         socket.to(roomId).emit('player:joined', {

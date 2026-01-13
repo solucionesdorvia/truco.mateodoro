@@ -69,7 +69,7 @@ export default function LobbyPage() {
         
         // Set initial stake contribution
         const myContribution = data.room.stakeContributions?.find(
-          (s: { oderId: string }) => s.oderId === session.user.id
+          (s: { oderId?: string; userId?: string }) => (s.userId || s.oderId) === session.user.id
         )
         if (myContribution) {
           setMyStake(myContribution.amountCredits)
@@ -92,7 +92,7 @@ export default function LobbyPage() {
     socket.on('room:state', (state: RoomState) => {
       setRoomState(state)
       const myContribution = state.stakeContributions?.find(
-        (s: { oderId: string }) => s.oderId === session.user.id
+        (s: { oderId?: string; userId?: string }) => (s.userId || s.oderId) === session.user.id
       )
       if (myContribution) {
         setMyStake(myContribution.amountCredits)
@@ -311,7 +311,7 @@ export default function LobbyPage() {
                 {Array.from({ length: playersPerTeam }).map((_, i) => {
                   const player = teamA.find(p => p.seatIndex === i)
                   const contribution = roomState.stakeContributions?.find(
-                    s => s.oderId === player?.user.id
+                    s => s.userId === player?.user.id
                   )
                   return (
                     <div
@@ -386,7 +386,7 @@ export default function LobbyPage() {
                 {Array.from({ length: playersPerTeam }).map((_, i) => {
                   const player = teamB.find(p => p.seatIndex === i)
                   const contribution = roomState.stakeContributions?.find(
-                    s => s.oderId === player?.user.id
+                    s => s.userId === player?.user.id
                   )
                   return (
                     <div
