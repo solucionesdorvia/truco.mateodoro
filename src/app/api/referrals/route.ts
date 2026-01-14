@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { nanoid } from 'nanoid'
 
@@ -15,7 +14,7 @@ const REFERRAL_CONFIG = {
 // GET - Obtener datos de referidos del usuario
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
@@ -96,7 +95,7 @@ export async function GET() {
 // POST - Regenerar código de referido
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
