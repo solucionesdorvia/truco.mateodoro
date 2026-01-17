@@ -6,7 +6,7 @@ import { TrucoCardImage } from '@/components/cards/TrucoCardImage'
 interface HandCard {
   id: string
   number: number
-  suit: 'espada' | 'basto' | 'oro' | 'copa'
+  suit: string
 }
 
 interface PlayerHandProps {
@@ -33,6 +33,10 @@ export function PlayerHand({
   doubleTapMs = 600,
 }: PlayerHandProps) {
   const lastTapRef = useRef<{ cardId: string | null; ts: number }>({ cardId: null, ts: 0 })
+  const normalizeSuit = (suit: string): 'espada' | 'basto' | 'oro' | 'copa' => {
+    if (suit === 'espada' || suit === 'basto' || suit === 'oro' || suit === 'copa') return suit
+    return 'espada'
+  }
 
   const handleTap = useCallback((cardId: string) => {
     if (!canPlay) return
@@ -65,7 +69,7 @@ export function PlayerHand({
         {cards.map(card => (
           <TrucoCardImage
             key={card.id}
-            suit={card.suit}
+            suit={normalizeSuit(card.suit)}
             rank={card.number}
             size={size}
             selected={selectedCardId === card.id}
