@@ -78,7 +78,7 @@ export function calculateEnvidoValue(cards: Card[]): number {
   }
 
   let maxValue = 0
-  for (const [, suitCards] of bySuit) {
+  for (const [, suitCards] of Array.from(bySuit.entries())) {
     if (suitCards.length >= 2) {
       const values = suitCards
         .map(card => ENVIDO_VALUES[card.number] ?? 0)
