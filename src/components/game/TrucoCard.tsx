@@ -11,6 +11,7 @@ interface TrucoCardProps {
   onClick?: () => void
   size?: 'sm' | 'md' | 'lg'
   className?: string
+  useImage?: boolean
 }
 
 const suitColors: Record<string, string> = {
@@ -73,6 +74,7 @@ export function TrucoCard({
   onClick,
   size = 'md',
   className,
+  useImage = true,
 }: TrucoCardProps) {
   if (isHidden) {
     return (
@@ -107,13 +109,23 @@ export function TrucoCard({
         className
       )}
     >
+      {useImage && number > 0 && (
+        <img
+          src={`/cards/${suit}/${number}-${suit}.jpg`}
+          alt={`${number} ${suit}`}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      )}
+      {useImage && (
+        <div className="absolute inset-0 bg-black/5 pointer-events-none" />
+      )}
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-transparent via-stone-400 to-transparent" />
       </div>
 
       {/* Top left number and suit */}
-      <div className={cn('absolute top-1 left-1.5 flex flex-col items-center', suitColors[suit])}>
+      <div className={cn('absolute top-1 left-1.5 flex flex-col items-center', suitColors[suit], useImage && 'text-black')}>
         <span className={cn(
           'font-bold leading-none',
           size === 'sm' ? 'text-xs' : size === 'md' ? 'text-lg' : 'text-2xl'
@@ -130,7 +142,8 @@ export function TrucoCard({
       {/* Center suit - large */}
       <div className={cn(
         'absolute inset-0 flex items-center justify-center',
-        suitColors[suit]
+        suitColors[suit],
+        useImage && 'text-black/70'
       )}>
         <div className={cn(
           size === 'sm' ? 'w-6 h-6' : size === 'md' ? 'w-12 h-12' : 'w-16 h-16'
@@ -140,7 +153,7 @@ export function TrucoCard({
       </div>
 
       {/* Bottom right number and suit (inverted) */}
-      <div className={cn('absolute bottom-1 right-1.5 flex flex-col items-center rotate-180', suitColors[suit])}>
+      <div className={cn('absolute bottom-1 right-1.5 flex flex-col items-center rotate-180', suitColors[suit], useImage && 'text-black')}>
         <span className={cn(
           'font-bold leading-none',
           size === 'sm' ? 'text-xs' : size === 'md' ? 'text-lg' : 'text-2xl'
