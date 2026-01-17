@@ -400,8 +400,12 @@ export function applyAction(match: Match, action: MatchAction): Match {
     case 'CALL_TRUCO': {
       const hand = match.hand
       if (!hand || match.status !== 'PLAYING') throw new Error('No hay mano activa')
-      if (match.pendingCall) throw new Error('Ya hay un canto pendiente')
-      if (hand.turnPlayerId !== action.playerId) throw new Error('Solo podés cantar en tu turno')
+      const isCounterCall =
+        match.pendingCall?.type === 'TRUCO' && match.pendingCall.toPlayerId === action.playerId
+      if (match.pendingCall && !isCounterCall) throw new Error('Ya hay un canto pendiente')
+      if (!isCounterCall && hand.turnPlayerId !== action.playerId) {
+        throw new Error('Solo podés cantar en tu turno')
+      }
 
       const expectedCall = nextTrucoCall(match.truco.level)
       const nextCall = action.call ?? expectedCall

@@ -4,11 +4,14 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
-import { Crown, MessageSquare, Volume2, VolumeX, Home, Flag } from 'lucide-react'
+import { Volume2, VolumeX, Home, Flag } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { TrucoCard } from '@/components/game/TrucoCard'
+import { TrucoCardImage } from '@/components/cards/TrucoCardImage'
+import { PlayerHand } from '@/components/match/PlayerHand'
+import { PendingCallPanel } from '@/components/match/PendingCallPanel'
+import { HistoryDrawer } from '@/components/match/HistoryDrawer'
 import { connectSocket, getSocket, type GameStateView } from '@/lib/socket/client'
 import {
   Dialog,
@@ -18,15 +21,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
 
 const TRUCO_LEVELS = ['', 'TRUCO', 'RETRUCO', 'VALE 4']
-const ENVIDO_CALLS: Record<string, string> = {
-  ENVIDO: 'ENVIDO',
-  REAL_ENVIDO: 'REAL ENVIDO',
-  FALTA_ENVIDO: 'FALTA ENVIDO',
-  ENVIDO_ENVIDO: 'ENVIDO ENVIDO',
-}
+ 
 
 export default function TablePage() {
   const params = useParams()
@@ -81,12 +78,12 @@ export default function TablePage() {
     }
   }, [roomId, session, status, router])
 
-  const handlePlayCard = useCallback(() => {
-    if (!selectedCard || !isMyTurn) return
+  const handlePlayCard = useCallback((cardId: string) => {
+    if (!isMyTurn) return
     const socket = getSocket()
-    socket.emit('game:playCard', { roomId, cardId: selectedCard })
+    socket.emit('game:playCard', { roomId, cardId })
     setSelectedCard(null)
-  }, [roomId, selectedCard, isMyTurn])
+  }, [roomId, isMyTurn])
 
   const handleTruco = useCallback(() => {
     const socket = getSocket()
@@ -188,6 +185,7 @@ export default function TablePage() {
   const opponents = gameState.players.filter(p => p.team !== myPlayer.team)
   const teammates = gameState.players.filter(p => p.team === myPlayer.team && p.playerId !== myPlayer.playerId)
   const playersById = new Map(gameState.players.map(player => [player.playerId, player]))
+  const canPlayCard = Boolean(isMyTurn && hand?.canPlayCard && !gameState.pendingCall)
 
   // Can call envido?
   const hasAnyFlor = gameState.settings.florEnabled && gameState.players.some(p => p.hasFlor)
@@ -218,6 +216,30 @@ export default function TablePage() {
     return false
   }
 
+  const canRaiseTruco = Boolean(
+    gameState.pendingCall?.type === 'TRUCO' &&
+      (gameState.pendingCall.subtype === 'TRUCO' || gameState.pendingCall.subtype === 'RETRUCO')
+  )
+
+  const handlePendingAccept = () => {
+    if (!gameState.pendingCall) return
+    if (gameState.pendingCall.type === 'TRUCO') handleRespondTruco('accept')
+    if (gameState.pendingCall.type === 'ENVIDO') handleRespondEnvido('accept')
+    if (gameState.pendingCall.type === 'FLOR') handleRespondFlor('accept')
+  }
+
+  const handlePendingReject = () => {
+    if (!gameState.pendingCall) return
+    if (gameState.pendingCall.type === 'TRUCO') handleRespondTruco('reject')
+    if (gameState.pendingCall.type === 'ENVIDO') handleRespondEnvido('reject')
+    if (gameState.pendingCall.type === 'FLOR') handleRespondFlor('reject')
+  }
+
+  const handlePendingRaiseTruco = () => {
+    if (!canRaiseTruco) return
+    handleTruco()
+  }
+
   return (
     <div className="min-h-screen mesa-pano relative overflow-hidden">
       {/* Ambient glow */}
@@ -245,6 +267,11 @@ export default function TablePage() {
         </div>
         
         <div className="flex items-center gap-2">
+          <HistoryDrawer
+            log={gameState.log}
+            players={gameState.players}
+            formatEntry={formatLogEntry}
+          />
           <Button
             size="icon"
             variant="ghost"
@@ -289,11 +316,11 @@ export default function TablePage() {
             </Badge>
             <div className="flex gap-1 justify-center">
               {opponent.handCards.map((card, i) => (
-                <TrucoCard
+                <TrucoCardImage
                   key={i}
-                  number={card.number}
+                  rank={card.number || 1}
                   suit={card.suit as 'espada' | 'basto' | 'oro' | 'copa'}
-                  isHidden={card.id === 'hidden'}
+                  faceDown={card.id === 'hidden'}
                   size="sm"
                 />
               ))}
@@ -314,9 +341,9 @@ export default function TablePage() {
                 {hand?.tricks.map((trick, i) => {
                   const play = trick.plays.find(p => playersById.get(p.playerId)?.team === 'A')
                   return play?.card ? (
-                    <TrucoCard
+                    <TrucoCardImage
                       key={i}
-                      number={play.card.number}
+                      rank={play.card.number}
                       suit={play.card.suit as 'espada' | 'basto' | 'oro' | 'copa'}
                       size="md"
                     />
@@ -335,9 +362,9 @@ export default function TablePage() {
                 {hand?.tricks.map((trick, i) => {
                   const play = trick.plays.find(p => playersById.get(p.playerId)?.team === 'B')
                   return play?.card ? (
-                    <TrucoCard
+                    <TrucoCardImage
                       key={i}
-                      number={play.card.number}
+                      rank={play.card.number}
                       suit={play.card.suit as 'espada' | 'basto' | 'oro' | 'copa'}
                       size="md"
                     />
@@ -375,11 +402,11 @@ export default function TablePage() {
           <div key={teammate.playerId} className="text-center">
               <div className="flex gap-1 justify-center mb-2">
                 {teammate.handCards.map((card, i) => (
-                  <TrucoCard
+                  <TrucoCardImage
                     key={i}
-                    number={card.number}
+                    rank={card.number || 1}
                     suit={card.suit as 'espada' | 'basto' | 'oro' | 'copa'}
-                    isHidden={card.id === 'hidden'}
+                    faceDown={card.id === 'hidden'}
                     size="sm"
                   />
                 ))}
@@ -393,36 +420,32 @@ export default function TablePage() {
       )}
 
       {/* My hand */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
-        <div className="flex gap-3 justify-center mb-4">
-          {myPlayer.handCards.map((card) => (
-            <TrucoCard
-              key={card.id}
-              number={card.number}
-              suit={card.suit as 'espada' | 'basto' | 'oro' | 'copa'}
-              isSelected={selectedCard === card.id}
-              isPlayable={isMyTurn && hand?.canPlayCard}
-              onClick={() => isMyTurn && hand?.canPlayCard && setSelectedCard(card.id)}
-              size="lg"
-            />
-          ))}
-        </div>
-        
-        {/* Play button */}
-        {selectedCard && isMyTurn && hand?.canPlayCard && (
-          <div className="text-center mb-3">
-            <Button onClick={handlePlayCard} className="btn-pano px-10 animate-scale-in">
-              Jugar carta
-            </Button>
-          </div>
-        )}
-        
-        <div className="text-center">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 w-full px-4">
+        <PlayerHand
+          cards={myPlayer.handCards}
+          selectedCardId={selectedCard}
+          canPlay={canPlayCard}
+          onSelect={setSelectedCard}
+          onPlay={handlePlayCard}
+          size="lg"
+        />
+        <div className="text-center mt-3">
           <Badge className={`${myPlayer.team === 'A' ? 'bg-equipoA-bg text-equipoA border-equipoA-border' : 'bg-equipoB-bg text-equipoB border-equipoB-border'} px-4`}>
             {myPlayer.name}
             {myPlayer.envidoValue > 0 && ` • ${myPlayer.envidoValue} tantos`}
           </Badge>
         </div>
+        <PendingCallPanel
+          pendingCall={gameState.pendingCall}
+          players={gameState.players}
+          currentPlayerId={myPlayer.playerId}
+          canRaiseTruco={canRaiseTruco}
+          canRaiseEnvido={canRaiseEnvido}
+          onAccept={handlePendingAccept}
+          onReject={handlePendingReject}
+          onRaiseTruco={handlePendingRaiseTruco}
+          onRaiseEnvido={handleEnvido}
+        />
       </div>
 
       {/* Fold button */}
@@ -438,21 +461,7 @@ export default function TablePage() {
         </Button>
       </div>
 
-      {/* Match log */}
-      <div className="absolute top-32 right-4 z-10 w-56">
-        <div className="bg-noche/80 border border-paño/30 rounded-club p-2">
-          <p className="text-[10px] text-naipe-500 uppercase tracking-wide mb-2">Historial</p>
-          <ScrollArea className="h-40">
-            <div className="space-y-1">
-              {gameState.log.slice(-12).reverse().map(entry => (
-                <div key={entry.id} className="text-xs text-naipe-300">
-                  {formatLogEntry(entry)}
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
-      </div>
+      {/* History drawer is in top bar */}
 
       {/* Canto buttons */}
       <div className="absolute bottom-4 right-4 z-10 flex flex-col gap-2">
@@ -460,6 +469,7 @@ export default function TablePage() {
           <Button 
             onClick={handleTruco} 
             className="bg-oro hover:bg-oro-dark text-noche font-bold rounded-club shadow-glow-oro"
+            disabled={Boolean(gameState.pendingCall)}
           >
             {gameState.truco.level === 0 ? 'TRUCO' : 
              gameState.truco.level === 1 ? 'RETRUCO' : 'VALE 4'}
@@ -472,6 +482,7 @@ export default function TablePage() {
               onClick={() => handleEnvido('ENVIDO')} 
               size="sm" 
               className="bg-celeste hover:bg-celeste-dark text-noche font-bold rounded-club"
+              disabled={Boolean(gameState.pendingCall)}
             >
               Envido
             </Button>
@@ -479,6 +490,7 @@ export default function TablePage() {
               onClick={() => handleEnvido('REAL_ENVIDO')} 
               size="sm" 
               className="bg-celeste-dark hover:bg-celeste text-naipe font-bold rounded-club"
+              disabled={Boolean(gameState.pendingCall)}
             >
               Real Envido
             </Button>
@@ -486,6 +498,7 @@ export default function TablePage() {
               onClick={() => handleEnvido('FALTA_ENVIDO')} 
               size="sm" 
               className="bg-noche hover:bg-noche-100 text-celeste border border-celeste/30 font-bold rounded-club"
+              disabled={Boolean(gameState.pendingCall)}
             >
               Falta Envido
             </Button>
@@ -496,131 +509,14 @@ export default function TablePage() {
           <Button 
             onClick={handleFlor} 
             className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold rounded-club"
+            disabled={Boolean(gameState.pendingCall)}
           >
             🌸 FLOR
           </Button>
         )}
       </div>
 
-      {/* Response dialogs */}
-      {waitingForMe && gameState.pendingCall?.type === 'TRUCO' && (
-        <Dialog open={true}>
-          <DialogContent className="bg-noche-100 border-oro/30 max-w-sm">
-            <DialogHeader>
-              <DialogTitle className="text-oro text-2xl text-center font-bold">
-                ¡{TRUCO_LEVELS[gameState.truco.level + 1]}!
-              </DialogTitle>
-              <DialogDescription className="text-naipe-400 text-center">
-                ¿Querés o no querés?
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="flex gap-3 sm:justify-center">
-              <Button 
-                onClick={() => handleRespondTruco('reject')} 
-                variant="outline"
-                className="border-destructive/30 text-destructive hover:bg-destructive/10 rounded-club flex-1"
-              >
-                No quiero
-              </Button>
-              <Button 
-                onClick={() => handleRespondTruco('accept')} 
-                className="btn-oro flex-1"
-              >
-                ¡Quiero!
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {waitingForMe && gameState.pendingCall?.type === 'ENVIDO' && (
-        <Dialog open={true}>
-          <DialogContent className="bg-noche-100 border-celeste/30 max-w-sm">
-            <DialogHeader>
-              <DialogTitle className="text-celeste text-2xl text-center font-bold">
-                ¡{ENVIDO_CALLS[gameState.pendingCall?.subtype || 'ENVIDO'] || 'ENVIDO'}!
-              </DialogTitle>
-              <DialogDescription className="text-naipe-400 text-center">
-                Tenés <span className="text-naipe font-bold">{myPlayer.envidoValue} tantos</span>. ¿Querés?
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex gap-2 justify-center">
-              <Button
-                onClick={() => handleEnvido('ENVIDO')}
-                size="sm"
-                variant="outline"
-                className="border-celeste/30 text-celeste hover:bg-celeste/10 rounded-club"
-                disabled={!canRaiseEnvido('ENVIDO')}
-              >
-                Envido
-              </Button>
-              <Button
-                onClick={() => handleEnvido('REAL_ENVIDO')}
-                size="sm"
-                variant="outline"
-                className="border-celeste/30 text-celeste hover:bg-celeste/10 rounded-club"
-                disabled={!canRaiseEnvido('REAL_ENVIDO')}
-              >
-                Real
-              </Button>
-              <Button
-                onClick={() => handleEnvido('FALTA_ENVIDO')}
-                size="sm"
-                variant="outline"
-                className="border-celeste/30 text-celeste hover:bg-celeste/10 rounded-club"
-                disabled={!canRaiseEnvido('FALTA_ENVIDO')}
-              >
-                Falta
-              </Button>
-            </div>
-            <DialogFooter className="flex gap-3 sm:justify-center">
-              <Button 
-                onClick={() => handleRespondEnvido('reject')} 
-                variant="outline"
-                className="border-destructive/30 text-destructive hover:bg-destructive/10 rounded-club flex-1"
-              >
-                No quiero
-              </Button>
-              <Button 
-                onClick={() => handleRespondEnvido('accept')} 
-                className="bg-celeste hover:bg-celeste-dark text-noche font-bold rounded-club flex-1"
-              >
-                ¡Quiero!
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {waitingForMe && gameState.pendingCall?.type === 'FLOR' && (
-        <Dialog open={true}>
-          <DialogContent className="bg-noche-100 border-rose-300/30 max-w-sm">
-            <DialogHeader>
-              <DialogTitle className="text-rose-400 text-2xl text-center font-bold">
-                ¡FLOR!
-              </DialogTitle>
-              <DialogDescription className="text-naipe-400 text-center">
-                ¿Querés o no querés?
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="flex gap-3 sm:justify-center">
-              <Button 
-                onClick={() => handleRespondFlor('reject')} 
-                variant="outline"
-                className="border-destructive/30 text-destructive hover:bg-destructive/10 rounded-club flex-1"
-              >
-                No quiero
-              </Button>
-              <Button 
-                onClick={() => handleRespondFlor('accept')} 
-                className="bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-club flex-1"
-              >
-                ¡Quiero!
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
+      {/* Pending call panel renders below hand */}
 
       {/* Game result dialog */}
       <Dialog open={showResult} onOpenChange={setShowResult}>
