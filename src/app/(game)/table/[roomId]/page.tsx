@@ -283,7 +283,7 @@ export default function TablePage() {
       {/* Opponents (top) */}
       <div className="absolute top-36 left-1/2 -translate-x-1/2 flex gap-12">
         {opponents.map((opponent) => (
-          <div key={opponent.oderId} className="text-center">
+          <div key={opponent.playerId} className="text-center">
             <Badge className={`mb-2 ${opponent.team === 'A' ? 'bg-equipoA-bg text-equipoA border-equipoA-border' : 'bg-equipoB-bg text-equipoB border-equipoB-border'}`}>
               {opponent.name}
             </Badge>
@@ -371,8 +371,8 @@ export default function TablePage() {
       {/* Teammates (middle) */}
       {teammates.length > 0 && (
         <div className="absolute bottom-48 left-1/2 -translate-x-1/2 flex gap-12">
-          {teammates.map((teammate) => (
-            <div key={teammate.oderId} className="text-center">
+        {teammates.map((teammate) => (
+          <div key={teammate.playerId} className="text-center">
               <div className="flex gap-1 justify-center mb-2">
                 {teammate.handCards.map((card, i) => (
                   <TrucoCard
