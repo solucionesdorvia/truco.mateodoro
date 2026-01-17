@@ -109,6 +109,12 @@ export interface GameStateView {
     isConnected: boolean
   }>
   manoIndex: number
+  currentTrickIndex: 0 | 1 | 2
+  tableTricks: Array<{
+    p1Card: { number: number; suit: string; id: string } | null
+    p2Card: { number: number; suit: string; id: string } | null
+    winner: 'P1' | 'P2' | 'TIE' | null
+  }>
   hand: {
     state: 'TRICK_1' | 'TRICK_2' | 'TRICK_3'
     manoPlayerId: string

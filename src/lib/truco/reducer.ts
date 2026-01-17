@@ -52,6 +52,14 @@ function getPlayer(match: Match, playerId: string): PlayerState {
   return player
 }
 
+function getPlayerIndex(match: Match, playerId: string): number {
+  const index = match.players.findIndex(p => p.playerId === playerId)
+  if (index < 0) {
+    throw new Error('Jugador no encontrado')
+  }
+  return index
+}
+
 function getOpponentId(match: Match, playerId: string): string {
   const opponent = match.players.find(p => p.playerId !== playerId)
   if (!opponent) {
@@ -260,6 +268,12 @@ export function createMatch(params: CreateMatchParams): Match {
     })),
     manoIndex: 0,
     hand: null,
+    currentTrickIndex: 0,
+    tableTricks: [
+      { p1Card: null, p2Card: null, winner: null },
+      { p1Card: null, p2Card: null, winner: null },
+      { p1Card: null, p2Card: null, winner: null },
+    ],
     score: {
       teamA: 0,
       teamB: 0,
@@ -327,6 +341,13 @@ export function dealHand(match: Match): Match {
     canPlayCard: true,
   }
 
+  match.currentTrickIndex = 0
+  match.tableTricks = [
+    { p1Card: null, p2Card: null, winner: null },
+    { p1Card: null, p2Card: null, winner: null },
+    { p1Card: null, p2Card: null, winner: null },
+  ]
+
   match.status = 'PLAYING'
   match.score.handValue = 1
   match.truco = { level: 0, accepted: false, lastCalledBy: null }
@@ -367,10 +388,25 @@ export function applyAction(match: Match, action: MatchAction): Match {
       const trick = hand.tricks[hand.currentTrickIndex]
       trick.plays.push({ playerId: action.playerId, card })
 
+      const playerIndex = getPlayerIndex(match, action.playerId)
+      const tableTrick = match.tableTricks[match.currentTrickIndex]
+      if (playerIndex === 0) {
+        tableTrick.p1Card = card
+      } else if (playerIndex === 1) {
+        tableTrick.p2Card = card
+      }
+
       match.log.push(createLogEntry('PLAY_CARD', action.playerId, { cardId: card.id }))
 
       if (trick.plays.length === 2) {
         resolveTrickWinner(match, hand.currentTrickIndex)
+
+        if (trick.winnerTeam === 'tie') {
+          tableTrick.winner = 'TIE'
+        } else if (trick.winnerTeam) {
+          const p1Team = match.players[0]?.team
+          tableTrick.winner = trick.winnerTeam === p1Team ? 'P1' : 'P2'
+        }
         const winnerTeam = determineHandWinner(match)
 
         if (winnerTeam) {
@@ -382,6 +418,7 @@ export function applyAction(match: Match, action: MatchAction): Match {
         if (hand.currentTrickIndex < 2) {
           hand.currentTrickIndex += 1
           hand.state = hand.currentTrickIndex === 1 ? 'TRICK_2' : 'TRICK_3'
+          match.currentTrickIndex = hand.currentTrickIndex as 0 | 1 | 2
           const lastTrick = hand.tricks[hand.currentTrickIndex - 1]
           if (lastTrick.winnerTeam === 'tie') {
             hand.turnPlayerId = hand.manoPlayerId

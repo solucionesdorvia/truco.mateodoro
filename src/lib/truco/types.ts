@@ -112,12 +112,20 @@ export interface MatchLogEvent {
   timestamp: number
 }
 
+export interface TableTrick {
+  p1Card: Card | null
+  p2Card: Card | null
+  winner: 'P1' | 'P2' | 'TIE' | null
+}
+
 export interface Match {
   id: string
   status: MatchState
   players: PlayerState[]
   manoIndex: number
   hand: HandStateData | null
+  currentTrickIndex: 0 | 1 | 2
+  tableTricks: [TableTrick, TableTrick, TableTrick]
   score: MatchScore
   settings: MatchSettings
   truco: TrucoState

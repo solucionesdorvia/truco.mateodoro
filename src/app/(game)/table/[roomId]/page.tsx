@@ -12,6 +12,7 @@ import { TrucoCardImage } from '@/components/cards/TrucoCardImage'
 import { PlayerHand } from '@/components/match/PlayerHand'
 import { PendingCallPanel } from '@/components/match/PendingCallPanel'
 import { HistoryDrawer } from '@/components/match/HistoryDrawer'
+import { TableTricksGrid } from '@/components/match/TableTricksGrid'
 import { connectSocket, getSocket, type GameStateView } from '@/lib/socket/client'
 import {
   Dialog,
@@ -184,7 +185,8 @@ export default function TablePage() {
   const hand = gameState.hand
   const opponents = gameState.players.filter(p => p.team !== myPlayer.team)
   const teammates = gameState.players.filter(p => p.team === myPlayer.team && p.playerId !== myPlayer.playerId)
-  const playersById = new Map(gameState.players.map(player => [player.playerId, player]))
+  const p1Id = gameState.players[0]?.playerId ?? ''
+  const p2Id = gameState.players[1]?.playerId ?? ''
   const canPlayCard = Boolean(isMyTurn && hand?.canPlayCard && !gameState.pendingCall)
 
   // Can call envido?
@@ -331,67 +333,13 @@ export default function TablePage() {
 
       {/* Center table area */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-        {/* Mesa central */}
-        <div className="relative w-[500px] h-[280px] rounded-[100px] bg-paño-400/20 border-4 border-paño-600/30 flex items-center justify-center">
-          <div className="flex gap-16 items-center">
-            {/* Team A played cards */}
-            <div className="text-center">
-              <p className="text-equipoA text-xs font-semibold mb-2 uppercase tracking-wide">Equipo A</p>
-              <div className="flex gap-2">
-                {hand?.tricks.map((trick, i) => {
-                  const play = trick.plays.find(p => playersById.get(p.playerId)?.team === 'A')
-                  return play?.card ? (
-                    <TrucoCardImage
-                      key={i}
-                      rank={play.card.number}
-                      suit={play.card.suit as 'espada' | 'basto' | 'oro' | 'copa'}
-                      size="md"
-                    />
-                  ) : null
-                })}
-              </div>
-            </div>
-            
-            {/* VS divider */}
-            <div className="text-3xl text-naipe-700/50 font-bold">VS</div>
-            
-            {/* Team B played cards */}
-            <div className="text-center">
-              <p className="text-equipoB text-xs font-semibold mb-2 uppercase tracking-wide">Equipo B</p>
-              <div className="flex gap-2">
-                {hand?.tricks.map((trick, i) => {
-                  const play = trick.plays.find(p => playersById.get(p.playerId)?.team === 'B')
-                  return play?.card ? (
-                    <TrucoCardImage
-                      key={i}
-                      rank={play.card.number}
-                      suit={play.card.suit as 'espada' | 'basto' | 'oro' | 'copa'}
-                      size="md"
-                    />
-                  ) : null
-                })}
-              </div>
-            </div>
-          </div>
-          
-          {/* Baza indicators */}
-          <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-                  {[0, 1, 2].map((bazaIdx) => {
-                    const trick = hand?.tricks[bazaIdx]
-                    const winner = trick?.winnerTeam
-                    return (
-                      <div 
-                        key={bazaIdx}
-                        className={`w-3 h-3 rounded-full transition-all ${
-                          winner === 'A' ? 'bg-equipoA' :
-                          winner === 'B' ? 'bg-equipoB' :
-                          winner === 'tie' ? 'bg-naipe-600' :
-                          'bg-noche-200'
-                        }`}
-                      />
-                    )
-                  })}
-          </div>
+        <div className="relative w-[360px] sm:w-[520px] h-[260px] rounded-[100px] bg-paño-400/20 border-4 border-paño-600/30 flex items-center justify-center">
+          <TableTricksGrid
+            tableTricks={gameState.tableTricks}
+            currentTrickIndex={gameState.currentTrickIndex}
+            playerPerspective={{ p1Id, p2Id }}
+            myPlayerId={myPlayer.playerId}
+          />
         </div>
       </div>
 
