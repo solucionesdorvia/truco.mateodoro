@@ -1,3 +1,6 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
 
 type CardSuit = 'espada' | 'basto' | 'oro' | 'copa'
@@ -34,7 +37,36 @@ export function TrucoCardImage({
   onClick,
   onPointerDown,
 }: TrucoCardImageProps) {
-  const src = faceDown ? backSrc : `/cards/${suit}/${rank}.png`
+  const [ext, setExt] = useState<'png' | 'webp' | 'placeholder'>('png')
+  const [backError, setBackError] = useState(false)
+
+  useEffect(() => {
+    setExt('png')
+  }, [suit, rank, faceDown])
+
+  useEffect(() => {
+    setBackError(false)
+  }, [backSrc, faceDown])
+
+  const src = faceDown ? backSrc : `/cards/${suit}/${rank}.${ext === 'webp' ? 'webp' : 'png'}`
+  const showPlaceholder = ext === 'placeholder' || backError
+
+  const handleError = () => {
+    if (faceDown) {
+      console.warn(`[TrucoCardImage] Back image failed: ${backSrc}`)
+      setBackError(true)
+      return
+    }
+
+    console.warn(`[TrucoCardImage] Failed to load ${suit}/${rank} from ${src}`)
+    if (ext === 'png') {
+      setExt('webp')
+      return
+    }
+    if (ext === 'webp') {
+      setExt('placeholder')
+    }
+  }
 
   return (
     <button
@@ -50,12 +82,19 @@ export function TrucoCardImage({
         className
       )}
     >
-      <img
-        src={src}
-        alt={faceDown ? 'Carta boca abajo' : `${rank} de ${suit}`}
-        className="h-full w-full rounded-xl object-cover"
-        draggable={false}
-      />
+      {showPlaceholder ? (
+        <div className="h-full w-full rounded-xl bg-noche-100 border border-paño/40 flex items-center justify-center text-naipe-500 text-xs">
+          Carta
+        </div>
+      ) : (
+        <img
+          src={src}
+          alt={faceDown ? 'Carta boca abajo' : `${rank} de ${suit}`}
+          className="h-full w-full rounded-xl object-cover"
+          draggable={false}
+          onError={handleError}
+        />
+      )}
     </button>
   )
 }
