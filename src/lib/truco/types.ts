@@ -1,180 +1,139 @@
-// Spanish deck suits
 export type Suit = 'espada' | 'basto' | 'oro' | 'copa'
+export type Team = 'A' | 'B'
 
-// Card representation
 export interface Card {
-  number: number // 1-12 (excluding 8, 9)
+  id: string
   suit: Suit
-  id: string // unique identifier: "1-espada", "3-oro", etc.
+  number: number
 }
 
-// Truco calls hierarchy
-export type TrucoCall = 'truco' | 'retruco' | 'vale_cuatro'
+export type MatchState =
+  | 'WAITING_PLAYERS'
+  | 'READY'
+  | 'DEALING'
+  | 'PLAYING'
+  | 'HAND_END'
+  | 'MATCH_END'
 
-// Envido calls
-export type EnvidoCall = 'envido' | 'real_envido' | 'falta_envido' | 'envido_envido'
+export type HandState = 'TRICK_1' | 'TRICK_2' | 'TRICK_3'
 
-// Flor calls
-export type FlorCall = 'flor' | 'contra_flor' | 'contra_flor_al_resto'
+export type TrucoCall = 'TRUCO' | 'RETRUCO' | 'VALE_4'
+export type EnvidoCall = 'ENVIDO' | 'REAL_ENVIDO' | 'FALTA_ENVIDO' | 'ENVIDO_ENVIDO'
+export type FlorCall = 'FLOR'
 
-// All possible chants/calls
-export type Chant = TrucoCall | EnvidoCall | FlorCall
+export type CallType = 'TRUCO' | 'ENVIDO' | 'FLOR'
+export type CallResponse = 'QUIERO' | 'NO_QUIERO'
 
-// Response to a chant
-export type ChantResponse = 'accept' | 'reject'
-
-// Player in game state
-export interface GamePlayer {
-  oderId: string
-  odername: string
-  team: 'A' | 'B'
+export interface PlayerState {
+  playerId: string
+  name: string
+  team: Team
   seatIndex: number
-  cards: Card[]
+  handCards: Card[]
+  playedCards: Card[]
   hasFlor: boolean
-  envidoPoints: number
+  envidoValue: number
   isConnected: boolean
 }
 
-// Single baza (trick) result
-export interface Baza {
-  cardA: Card | null // Best card played by team A
-  cardB: Card | null // Best card played by team B
-  playerCardA: string | null // User ID who played the card
-  playerCardB: string | null
-  winner: 'A' | 'B' | 'tie' | null
+export interface TrickPlay {
+  playerId: string
+  card: Card
 }
 
-// Round state (one hand)
-export interface RoundState {
-  roundNumber: number
-  handPlayer: string // User ID of "mano" player
-  bazas: Baza[]
-  currentBazaIndex: number
-  playedCardsThisBaza: Map<string, Card> // playerId -> card
-  trucoState: {
-    level: number // 0=none, 1=truco, 2=retruco, 3=vale_cuatro
-    pendingCall: TrucoCall | null
-    calledBy: string | null // User ID
-    accepted: boolean
-  }
-  envidoState: {
-    called: boolean
-    calls: EnvidoCall[]
-    pendingCall: EnvidoCall | null
-    calledBy: string | null
-    accepted: boolean
-    resolved: boolean
-    points: number // Total points at stake
-    winnerId: string | null
-    winnerTeam: 'A' | 'B' | null
-    responses: Map<string, number> // playerId -> envido points declared
-  }
-  florState: {
-    enabled: boolean
-    called: boolean
-    calls: FlorCall[]
-    pendingCall: FlorCall | null
-    calledBy: string | null
-    accepted: boolean
-    resolved: boolean
-    points: number
-    winnerId: string | null
-    winnerTeam: 'A' | 'B' | null
-    playersWithFlor: string[] // User IDs
-    declared: Map<string, boolean> // playerId -> has declared
-  }
-  mazoState: {
-    teamWentToMazo: 'A' | 'B' | null
-    playerId: string | null
-  }
-  currentTurn: string // User ID whose turn it is
-  canPlayCard: boolean
-  waitingForResponse: string | null // User ID who must respond to a chant
+export interface Trick {
+  index: number
+  plays: TrickPlay[]
+  winnerTeam: Team | 'tie' | null
 }
 
-// Full game state
-export interface GameState {
-  roomId: string
-  players: GamePlayer[]
-  scoreA: number
-  scoreB: number
-  targetScore: number
+export interface PendingCall {
+  type: CallType
+  subtype: TrucoCall | EnvidoCall | FlorCall
+  fromPlayerId: string
+  toPlayerId: string
+  currentValue: number
+  chainState: {
+    envidoCalls?: EnvidoCall[]
+    trucoLevel?: number
+  }
+  allowedResponses: CallResponse[]
+}
+
+export interface MatchSettings {
+  targetScore: 15 | 30
   florEnabled: boolean
-  currentRound: RoundState | null
-  deck: Card[]
-  winner: 'A' | 'B' | null
+  florBlocksEnvido: boolean
+}
+
+export interface MatchScore {
+  teamA: number
+  teamB: number
+  target: number
+  handValue: number
+}
+
+export interface EnvidoState {
+  called: boolean
+  calls: EnvidoCall[]
+  resolved: boolean
+  points: number
+  winnerTeam: Team | null
+}
+
+export interface FlorState {
+  enabled: boolean
+  called: boolean
+  resolved: boolean
+  points: number
+  winnerTeam: Team | null
+}
+
+export interface TrucoState {
+  level: number
+  accepted: boolean
+  lastCalledBy: string | null
+}
+
+export interface HandStateData {
+  state: HandState
+  manoPlayerId: string
+  currentTrickIndex: number
+  tricks: Trick[]
+  turnPlayerId: string
+  canPlayCard: boolean
+}
+
+export interface MatchLogEvent {
+  id: string
+  type: string
+  playerId: string
+  data: Record<string, unknown>
+  timestamp: number
+}
+
+export interface Match {
+  id: string
+  status: MatchState
+  players: PlayerState[]
+  manoIndex: number
+  hand: HandStateData | null
+  score: MatchScore
+  settings: MatchSettings
+  truco: TrucoState
+  envido: EnvidoState
+  flor: FlorState
+  pendingCall: PendingCall | null
+  log: MatchLogEvent[]
+  winnerTeam: Team | null
   isFinished: boolean
-  lastAction: {
-    type: string
-    playerId: string
-    data: unknown
-    timestamp: number
-  } | null
 }
 
-// Card hierarchy value (lower = better)
-export const CARD_HIERARCHY: Record<string, number> = {
-  '1-espada': 1,  // Ancho de espadas - BEST
-  '1-basto': 2,   // Ancho de bastos
-  '7-espada': 3,  // Siete de espadas
-  '7-oro': 4,     // Siete de oro
-  '3-espada': 5,
-  '3-basto': 5,
-  '3-oro': 5,
-  '3-copa': 5,
-  '2-espada': 6,
-  '2-basto': 6,
-  '2-oro': 6,
-  '2-copa': 6,
-  '1-oro': 7,     // Ancho falso
-  '1-copa': 7,
-  '12-espada': 8,
-  '12-basto': 8,
-  '12-oro': 8,
-  '12-copa': 8,
-  '11-espada': 9,
-  '11-basto': 9,
-  '11-oro': 9,
-  '11-copa': 9,
-  '10-espada': 10,
-  '10-basto': 10,
-  '10-oro': 10,
-  '10-copa': 10,
-  '7-copa': 11,
-  '7-basto': 11,
-  '6-espada': 12,
-  '6-basto': 12,
-  '6-oro': 12,
-  '6-copa': 12,
-  '5-espada': 13,
-  '5-basto': 13,
-  '5-oro': 13,
-  '5-copa': 13,
-  '4-espada': 14,
-  '4-basto': 14,
-  '4-oro': 14,
-  '4-copa': 14,
-}
-
-// Envido point values for cards
-export const ENVIDO_VALUES: Record<number, number> = {
-  1: 1,
-  2: 2,
-  3: 3,
-  4: 4,
-  5: 5,
-  6: 6,
-  7: 7,
-  10: 0, // Figures count as 0
-  11: 0,
-  12: 0,
-}
-
-// Points awarded for different truco levels
-export const TRUCO_POINTS: Record<number, number> = {
-  0: 1,  // No truco called
-  1: 2,  // Truco
-  2: 3,  // Retruco
-  3: 4,  // Vale Cuatro
-}
-
+export type MatchAction =
+  | { type: 'DEAL_HAND' }
+  | { type: 'PLAY_CARD'; playerId: string; cardId: string }
+  | { type: 'CALL_ENVIDO'; playerId: string; call: EnvidoCall }
+  | { type: 'CALL_TRUCO'; playerId: string; call?: TrucoCall }
+  | { type: 'CALL_FLOR'; playerId: string; call?: FlorCall }
+  | { type: 'RESPOND_CALL'; playerId: string; response: CallResponse }
+  | { type: 'FOLD_TO_MAZO'; playerId: string }

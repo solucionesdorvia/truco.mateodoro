@@ -1,5 +1,5 @@
 export * from './types'
 export * from './deck'
-export * from './envido'
-export * from './engine'
+export * from './rules'
+export * from './reducer'
 

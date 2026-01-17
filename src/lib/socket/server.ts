@@ -2,28 +2,28 @@ import { Server as HttpServer } from 'http'
 import { Server as SocketServer, Socket } from 'socket.io'
 import prisma from '@/lib/prisma'
 import {
-  initializeGame,
-  startNewRound,
-  playCard,
-  callTruco,
-  respondTruco,
-  callEnvido,
-  respondEnvido,
-  callFlor,
-  goToMazo,
+  applyAction,
+  createMatch,
+  dealHand,
+  deserializeMatch,
   getPlayerView,
-  serializeGameState,
-  deserializeGameState,
-  GameState,
+  Match,
+  serializeMatch,
 } from '@/lib/truco'
 import { finishGame } from '@/lib/services/room'
 
 // Store active game states in memory (backed by DB)
-const gameStates = new Map<string, GameState>()
+const gameStates = new Map<string, Match>()
 
 // Socket to user mapping
 const socketToUser = new Map<string, { oderId: string; roomId: string }>()
 const userToSocket = new Map<string, string>()
+
+function logMatchEvent(roomId: string, match: Match) {
+  const event = match.log[match.log.length - 1]
+  if (!event) return
+  console.log(`[Truco] room=${roomId} event=${event.type} player=${event.playerId}`)
+}
 
 export function initSocketServer(httpServer: HttpServer) {
   const io = new SocketServer(httpServer, {
@@ -159,29 +159,29 @@ export function initSocketServer(httpServer: HttpServer) {
 
         // Initialize game state
         const players = room.players.map(p => ({
-          oderId: p.userId,
-          username: p.user.username,
+          playerId: p.userId,
+          name: p.user.username,
           team: p.team as 'A' | 'B',
           seatIndex: p.seatIndex,
         }))
 
-        let gameState = initializeGame(
-          roomId,
+        let gameState = createMatch({
+          id: roomId,
           players,
-          room.targetScore,
-          room.florEnabled
-        )
+          targetScore: room.targetScore as 15 | 30,
+          florEnabled: room.florEnabled,
+        })
 
-        // Start first round
-        gameState = startNewRound(gameState)
+        gameState = dealHand(gameState)
 
         // Store state
         gameStates.set(roomId, gameState)
+        logMatchEvent(roomId, gameState)
 
         // Save to DB
         await prisma.gameRoom.update({
           where: { id: roomId },
-          data: { gameState: serializeGameState(gameState) },
+          data: { gameState: serializeMatch(gameState) },
         })
 
         console.log(`[Socket.IO] Game started in room ${roomId}`)
@@ -218,7 +218,7 @@ export function initSocketServer(httpServer: HttpServer) {
             select: { gameState: true },
           })
           if (room?.gameState) {
-            gameState = deserializeGameState(room.gameState as string)
+            gameState = deserializeMatch(room.gameState as string)
             gameStates.set(roomId, gameState)
           }
         }
@@ -229,25 +229,29 @@ export function initSocketServer(httpServer: HttpServer) {
         }
 
         // Play the card
-        gameState = playCard(gameState, oderId, cardId)
+        gameState = applyAction(gameState, {
+          type: 'PLAY_CARD',
+          playerId: oderId,
+          cardId,
+        })
         gameStates.set(roomId, gameState)
+        logMatchEvent(roomId, gameState)
 
         // Save to DB
         await prisma.gameRoom.update({
           where: { id: roomId },
-          data: { gameState: serializeGameState(gameState) },
+          data: { gameState: serializeMatch(gameState) },
         })
 
         // Check if game is finished
-        if (gameState.isFinished && gameState.winner) {
-          await handleGameEnd(roomId, gameState.winner, io)
-        } else if (!gameState.currentRound?.canPlayCard && gameState.lastAction?.type === 'respondTruco') {
-          // Round ended due to truco rejection, start new round
-          gameState = startNewRound(gameState)
+        if (gameState.isFinished && gameState.winnerTeam) {
+          await handleGameEnd(roomId, gameState.winnerTeam, io)
+        } else if (gameState.status === 'HAND_END') {
+          gameState = applyAction(gameState, { type: 'DEAL_HAND' })
           gameStates.set(roomId, gameState)
           await prisma.gameRoom.update({
             where: { id: roomId },
-            data: { gameState: serializeGameState(gameState) },
+            data: { gameState: serializeMatch(gameState) },
           })
         }
 
@@ -274,8 +278,9 @@ export function initSocketServer(httpServer: HttpServer) {
           return
         }
 
-        gameState = callTruco(gameState, oderId)
+        gameState = applyAction(gameState, { type: 'CALL_TRUCO', playerId: oderId })
         gameStates.set(roomId, gameState)
+        logMatchEvent(roomId, gameState)
 
         await saveGameState(roomId, gameState)
         await broadcastGameState(roomId, gameState, io)
@@ -297,16 +302,21 @@ export function initSocketServer(httpServer: HttpServer) {
         let gameState = await getOrLoadGameState(roomId)
         if (!gameState) return
 
-        gameState = respondTruco(gameState, oderId, response)
+        const responseMapped = response === 'accept' ? 'QUIERO' : 'NO_QUIERO'
+        gameState = applyAction(gameState, {
+          type: 'RESPOND_CALL',
+          playerId: oderId,
+          response: responseMapped,
+        })
         gameStates.set(roomId, gameState)
+        logMatchEvent(roomId, gameState)
 
         await saveGameState(roomId, gameState)
 
-        if (gameState.isFinished && gameState.winner) {
-          await handleGameEnd(roomId, gameState.winner, io)
-        } else if (response === 'reject') {
-          // Start new round after rejection
-          gameState = startNewRound(gameState)
+        if (gameState.isFinished && gameState.winnerTeam) {
+          await handleGameEnd(roomId, gameState.winnerTeam, io)
+        } else if (gameState.status === 'HAND_END') {
+          gameState = applyAction(gameState, { type: 'DEAL_HAND' })
           gameStates.set(roomId, gameState)
           await saveGameState(roomId, gameState)
         }
@@ -330,8 +340,14 @@ export function initSocketServer(httpServer: HttpServer) {
         let gameState = await getOrLoadGameState(roomId)
         if (!gameState) return
 
-        gameState = callEnvido(gameState, oderId, call as 'envido' | 'real_envido' | 'falta_envido' | 'envido_envido')
+        const normalizedCall = call.toUpperCase()
+        gameState = applyAction(gameState, {
+          type: 'CALL_ENVIDO',
+          playerId: oderId,
+          call: normalizedCall as 'ENVIDO' | 'REAL_ENVIDO' | 'FALTA_ENVIDO' | 'ENVIDO_ENVIDO',
+        })
         gameStates.set(roomId, gameState)
+        logMatchEvent(roomId, gameState)
 
         await saveGameState(roomId, gameState)
         await broadcastGameState(roomId, gameState, io)
@@ -353,13 +369,48 @@ export function initSocketServer(httpServer: HttpServer) {
         let gameState = await getOrLoadGameState(roomId)
         if (!gameState) return
 
-        gameState = respondEnvido(gameState, oderId, response)
+        const responseMapped = response === 'accept' ? 'QUIERO' : 'NO_QUIERO'
+        gameState = applyAction(gameState, {
+          type: 'RESPOND_CALL',
+          playerId: oderId,
+          response: responseMapped,
+        })
         gameStates.set(roomId, gameState)
+        logMatchEvent(roomId, gameState)
 
         await saveGameState(roomId, gameState)
         await broadcastGameState(roomId, gameState, io)
       } catch (error) {
         console.error('[Socket.IO] game:respondEnvido error:', error)
+        socket.emit('error', { message: error instanceof Error ? error.message : 'Error' })
+      }
+    })
+
+    // Respond to flor
+    socket.on('game:respondFlor', async (data: { roomId: string; response: 'accept' | 'reject' }) => {
+      try {
+        const userInfo = socketToUser.get(socket.id)
+        if (!userInfo) return
+
+        const { roomId, response } = data
+        const { oderId } = userInfo
+
+        let gameState = await getOrLoadGameState(roomId)
+        if (!gameState) return
+
+        const responseMapped = response === 'accept' ? 'QUIERO' : 'NO_QUIERO'
+        gameState = applyAction(gameState, {
+          type: 'RESPOND_CALL',
+          playerId: oderId,
+          response: responseMapped,
+        })
+        gameStates.set(roomId, gameState)
+        logMatchEvent(roomId, gameState)
+
+        await saveGameState(roomId, gameState)
+        await broadcastGameState(roomId, gameState, io)
+      } catch (error) {
+        console.error('[Socket.IO] game:respondFlor error:', error)
         socket.emit('error', { message: error instanceof Error ? error.message : 'Error' })
       }
     })
@@ -376,8 +427,9 @@ export function initSocketServer(httpServer: HttpServer) {
         let gameState = await getOrLoadGameState(roomId)
         if (!gameState) return
 
-        gameState = callFlor(gameState, oderId)
+        gameState = applyAction(gameState, { type: 'CALL_FLOR', playerId: oderId })
         gameStates.set(roomId, gameState)
+        logMatchEvent(roomId, gameState)
 
         await saveGameState(roomId, gameState)
         await broadcastGameState(roomId, gameState, io)
@@ -399,16 +451,15 @@ export function initSocketServer(httpServer: HttpServer) {
         let gameState = await getOrLoadGameState(roomId)
         if (!gameState) return
 
-        gameState = goToMazo(gameState, oderId)
+        gameState = applyAction(gameState, { type: 'FOLD_TO_MAZO', playerId: oderId })
         gameStates.set(roomId, gameState)
 
         await saveGameState(roomId, gameState)
 
-        if (gameState.isFinished && gameState.winner) {
-          await handleGameEnd(roomId, gameState.winner, io)
-        } else {
-          // Start new round
-          gameState = startNewRound(gameState)
+        if (gameState.isFinished && gameState.winnerTeam) {
+          await handleGameEnd(roomId, gameState.winnerTeam, io)
+        } else if (gameState.status === 'HAND_END') {
+          gameState = applyAction(gameState, { type: 'DEAL_HAND' })
           gameStates.set(roomId, gameState)
           await saveGameState(roomId, gameState)
         }
@@ -522,7 +573,7 @@ async function getRoomState(roomId: string) {
   return room
 }
 
-async function getOrLoadGameState(roomId: string): Promise<GameState | null> {
+async function getOrLoadGameState(roomId: string): Promise<Match | null> {
   let gameState = gameStates.get(roomId)
   if (!gameState) {
     const room = await prisma.gameRoom.findUnique({
@@ -530,27 +581,51 @@ async function getOrLoadGameState(roomId: string): Promise<GameState | null> {
       select: { gameState: true },
     })
     if (room?.gameState) {
-      gameState = deserializeGameState(room.gameState as string)
+      gameState = deserializeMatch(room.gameState as string)
       gameStates.set(roomId, gameState)
     }
   }
   return gameState || null
 }
 
-async function saveGameState(roomId: string, gameState: GameState) {
+async function saveGameState(roomId: string, gameState: Match) {
   await prisma.gameRoom.update({
     where: { id: roomId },
-    data: { gameState: serializeGameState(gameState) },
+    data: { gameState: serializeMatch(gameState) },
   })
 }
 
-async function broadcastGameState(roomId: string, gameState: GameState, io: SocketServer) {
+async function broadcastGameState(roomId: string, gameState: Match, io: SocketServer) {
   const room = await prisma.gameRoom.findUnique({
     where: { id: roomId },
     include: { players: true },
   })
 
   if (!room) return
+
+  const lastEvent = gameState.log[gameState.log.length - 1]
+  if (lastEvent) {
+    const callMadeTypes = ['CALL_TRUCO', 'CALL_ENVIDO', 'CALL_FLOR']
+    const callResolvedTypes = [
+      'TRUCO_ACCEPTED',
+      'TRUCO_REJECTED',
+      'ENVIDO_ACCEPTED',
+      'ENVIDO_REJECTED',
+      'FLOR_ACCEPTED',
+      'FLOR_REJECTED',
+    ]
+    if (callMadeTypes.includes(lastEvent.type)) {
+      io.to(roomId).emit('CALL_MADE', { event: lastEvent })
+    }
+    if (callResolvedTypes.includes(lastEvent.type)) {
+      io.to(roomId).emit('CALL_RESOLVED', { event: lastEvent })
+    }
+    if (lastEvent.type === 'HAND_DEALT') {
+      io.to(roomId).emit('HAND_DEALT', { event: lastEvent })
+    }
+  }
+
+  io.to(roomId).emit('MATCH_UPDATED', { matchId: roomId, status: gameState.status })
 
   for (const player of room.players) {
     const playerSocket = userToSocket.get(`${roomId}:${player.userId}`)

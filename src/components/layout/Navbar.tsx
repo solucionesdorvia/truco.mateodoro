@@ -14,8 +14,7 @@ import {
   History,
   Shield,
   Menu,
-  Sparkles,
-  Gift
+  Sparkles
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -158,20 +157,6 @@ export function Navbar() {
                     </Link>
                   )
                 })}
-                {/* Referidos - destacado */}
-                <Link
-                  href="/referidos"
-                  className={cn(
-                    'flex items-center gap-3 px-4 py-3.5 rounded-club text-sm font-medium transition-all duration-200 border border-oro/30 bg-oro/10',
-                    pathname === '/referidos'
-                      ? 'bg-oro/20 text-oro border-oro/50'
-                      : 'text-oro hover:bg-oro/20'
-                  )}
-                >
-                  <Gift className="w-5 h-5" />
-                  Referidos
-                  <span className="ml-auto text-[10px] bg-oro/30 px-2 py-0.5 rounded-full">+50</span>
-                </Link>
               </nav>
             </SheetContent>
           </Sheet>
@@ -220,12 +205,6 @@ export function Navbar() {
                   <Link href="/mis-partidas" className="flex items-center text-naipe-400">
                     <History className="mr-2 h-4 w-4" />
                     Mis Partidas
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer hover:bg-noche-200 focus:bg-noche-200">
-                  <Link href="/referidos" className="flex items-center text-oro">
-                    <Gift className="mr-2 h-4 w-4" />
-                    Referidos
                   </Link>
                 </DropdownMenuItem>
                 {session.user.role === 'ADMIN' && (

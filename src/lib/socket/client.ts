@@ -92,73 +92,85 @@ export interface ChatMessage {
 }
 
 export interface GameStateView {
-  roomId: string
+  id: string
+  status: 'WAITING_PLAYERS' | 'READY' | 'DEALING' | 'PLAYING' | 'HAND_END' | 'MATCH_END'
   players: Array<{
-    oderId: string
-    odername: string
+    playerId: string
+    name: string
     team: 'A' | 'B'
     seatIndex: number
-    cards: Array<{
+    handCards: Array<{
       number: number
       suit: string
       id: string
     }>
     hasFlor: boolean
-    envidoPoints: number
+    envidoValue: number
     isConnected: boolean
   }>
-  scoreA: number
-  scoreB: number
-  targetScore: number
-  florEnabled: boolean
-  currentRound: {
-    roundNumber: number
-    handPlayer: string
-    bazas: Array<{
-      cardA: { number: number; suit: string; id: string } | null
-      cardB: { number: number; suit: string; id: string } | null
-      playerCardA: string | null
-      playerCardB: string | null
-      winner: 'A' | 'B' | 'tie' | null
+  manoIndex: number
+  hand: {
+    state: 'TRICK_1' | 'TRICK_2' | 'TRICK_3'
+    manoPlayerId: string
+    currentTrickIndex: number
+    tricks: Array<{
+      index: number
+      plays: Array<{
+        playerId: string
+        card: { number: number; suit: string; id: string }
+      }>
+      winnerTeam: 'A' | 'B' | 'tie' | null
     }>
-    currentBazaIndex: number
-    trucoState: {
-      level: number
-      pendingCall: string | null
-      calledBy: string | null
-      accepted: boolean
-    }
-    envidoState: {
-      called: boolean
-      calls: string[]
-      pendingCall: string | null
-      calledBy: string | null
-      accepted: boolean
-      resolved: boolean
-      points: number
-      winnerId: string | null
-      winnerTeam: 'A' | 'B' | null
-    }
-    florState: {
-      enabled: boolean
-      called: boolean
-      playersWithFlor: string[]
-      resolved: boolean
-    }
-    mazoState: {
-      teamWentToMazo: 'A' | 'B' | null
-    }
-    currentTurn: string
+    turnPlayerId: string
     canPlayCard: boolean
-    waitingForResponse: string | null
   } | null
-  winner: 'A' | 'B' | null
-  isFinished: boolean
-  lastAction: {
+  score: {
+    teamA: number
+    teamB: number
+    target: number
+    handValue: number
+  }
+  settings: {
+    targetScore: number
+    florEnabled: boolean
+    florBlocksEnvido: boolean
+  }
+  truco: {
+    level: number
+    accepted: boolean
+    lastCalledBy: string | null
+  }
+  envido: {
+    called: boolean
+    calls: string[]
+    resolved: boolean
+    points: number
+    winnerTeam: 'A' | 'B' | null
+  }
+  flor: {
+    enabled: boolean
+    called: boolean
+    resolved: boolean
+    points: number
+    winnerTeam: 'A' | 'B' | null
+  }
+  pendingCall: {
+    type: 'TRUCO' | 'ENVIDO' | 'FLOR'
+    subtype: string
+    fromPlayerId: string
+    toPlayerId: string
+    currentValue: number
+    chainState: Record<string, unknown>
+    allowedResponses: Array<'QUIERO' | 'NO_QUIERO'>
+  } | null
+  log: Array<{
+    id: string
     type: string
     playerId: string
-    data: unknown
+    data: Record<string, unknown>
     timestamp: number
-  } | null
+  }>
+  winnerTeam: 'A' | 'B' | null
+  isFinished: boolean
 }
 
