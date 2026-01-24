@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Manrope:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d4af35",
+                        "background-light": "#f4f3f1",
+                        "background-dark": "#0a0b0c",
+                        "cloth": "#121416",
+                        "success-green": "#3CB371"
+                    },
+                    fontFamily: {
+                        "display": ["Noto Serif", "serif"],
+                        "sans": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(30, 31, 34, 0.85);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(212, 175, 53, 0.15);
+        }
+        .gold-gradient {
+            background: linear-gradient(135deg, #d4af35 0%, #f1d57a 50%, #d4af35 100%);
+        }
+        .cloth-texture {
+            background-color: #0d0f11;
+            background-image: radial-gradient(circle at 50% 50%, #1a1d21 0%, #0a0b0c 100%);
+        }
+        .inner-shadow-input {
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+        }
+        .glow-green {
+            text-shadow: 0 0 10px rgba(60, 179, 113, 0.4);
+        }
+    </style>
+</head>
+<body class="cloth-texture min-h-screen flex items-center justify-center font-sans antialiased text-white overflow-hidden">
+<!-- Main Table Background Decor -->
+<div class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-20">
+<div class="w-[800px] h-[800px] rounded-full border-[1px] border-primary/20 flex items-center justify-center">
+<div class="w-[600px] h-[600px] rounded-full border-[1px] border-primary/10"></div>
+</div>
+</div>
+<!-- Desktop Container for the "Bottom Sheet" Modal -->
+<div class="relative w-full max-w-md mx-4 z-10">
+<!-- Bottom Sheet Mimicry for Desktop -->
+<div class="glass-panel rounded-xl shadow-2xl overflow-hidden border-b-0">
+<!-- Gold Handle (Decorative) -->
+<div class="flex justify-center pt-4 pb-2">
+<div class="w-12 h-1.5 bg-primary/40 rounded-full"></div>
+</div>
+<div class="px-8 pt-6 pb-10 flex flex-col items-center">
+<!-- Header -->
+<div class="text-center mb-8">
+<h1 class="font-display text-primary text-3xl font-bold tracking-tight mb-2">Unirse con Código</h1>
+<p class="text-gray-400 text-sm font-medium px-4">
+                        Ingresá el código de invitación para entrar a la partida.
+                    </p>
+</div>
+<!-- Input Section -->
+<div class="w-full space-y-6">
+<div class="relative">
+<label class="block text-primary/70 text-xs font-bold uppercase tracking-widest mb-2 ml-1">Código de Mesa</label>
+<div class="flex w-full items-stretch group">
+<input class="form-input w-full bg-[#161719] border-primary/20 border rounded-xl h-16 px-6 text-2xl font-display tracking-[0.2em] text-center text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all placeholder:text-white/10 uppercase inner-shadow-input" placeholder="P-772-B" type="text" value="TRUCO-A24"/>
+</div>
+</div>
+<!-- Contextual Help & Validation -->
+<div class="space-y-3 px-1">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary/60 text-[20px]">info</span>
+<p class="text-gray-400 text-sm leading-snug">
+                                Este código puede ser de <span class="text-white">Equipo A</span> o <span class="text-white">Equipo B</span>.
+                            </p>
+</div>
+<!-- Success Validation State -->
+<div class="flex items-center gap-3 bg-success-green/10 border border-success-green/20 rounded-lg p-3 animate-pulse">
+<span class="material-symbols-outlined text-success-green text-[22px]">check_circle</span>
+<p class="text-success-green font-semibold text-sm glow-green">
+                                Código válido: Equipo A
+                            </p>
+</div>
+</div>
+</div>
+<!-- Primary CTA -->
+<div class="w-full mt-10">
+<button class="gold-gradient w-full h-[60px] rounded-lg flex items-center justify-center gap-3 text-[#1a1a1a] font-display font-bold text-lg shadow-[0_4px_20px_rgba(212,175,53,0.3)] hover:shadow-[0_6px_25px_rgba(212,175,53,0.5)] transition-all active:scale-[0.98] group">
+<span>ENTRAR A LA MESA</span>
+<span class="material-symbols-outlined font-bold group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+<!-- Back/Cancel option for Desktop Context -->
+<button class="mt-6 text-gray-500 hover:text-white text-sm font-medium transition-colors">
+                    Cancelar y volver al lobby
+                </button>
+</div>
+</div>
+<!-- Safe Area Decoration for Mobile Feel -->
+<div class="h-6 w-full flex justify-center items-end pb-2 opacity-30">
+<div class="w-32 h-1 bg-white rounded-full"></div>
+</div>
+</div>
+<!-- Background Elements -->
+<div class="absolute bottom-10 left-10 pointer-events-none select-none rotate-12 opacity-40">
+<div class="flex gap-4">
+<!-- Mock Truco Cards (Visual only) -->
+<div class="w-24 h-36 bg-white/5 border border-white/10 rounded-lg backdrop-blur-sm transform -rotate-6"></div>
+<div class="w-24 h-36 bg-white/5 border border-white/10 rounded-lg backdrop-blur-sm"></div>
+<div class="w-24 h-36 bg-white/5 border border-white/10 rounded-lg backdrop-blur-sm transform rotate-6"></div>
+</div>
+</div>
+<div class="absolute top-10 right-10 pointer-events-none select-none opacity-20">
+<span class="font-display text-8xl text-primary/20 italic font-bold">TRUCO</span>
+</div>
+</body></html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Crear Mesa Configuración - Truco Argentino</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00a35f",
+                        "gold": "#D9B242",
+                        "background-light": "#f0f1f5",
+                        "background-dark": "#121416",
+                        "glass-dark": "rgba(36, 39, 45, 0.95)",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "2xl": "2rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>.glass-panel {
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 163, 95, 0.2);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 163, 95, 0.05)
+    }
+.gold-glow {
+    box-shadow: 0 4px 20px rgba(217, 178, 66, 0.3)
+    }
+.bg-cloth {
+    background-color: #0f241b;
+    background-image: radial-gradient(circle at center, #1a3d2e 0%, #0f241b 100%);
+    position: relative
+    }
+.bg-cloth::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.1;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuBF4_a00masZAlEFQa_pI-SoQXWFA0oF426irlCEDuBzwh_Vj0qw3GDB131-ScgdykJwp-D3NjA-OR04czXc3x5mc6f4vharUCBm07DUPKo2fMGnby8cj3S_yAF3V1ByBo6YyAoIVhEv94n_j0uCUBqrM_x3jzmsXDPpet3zHd6Djo42z4zAxQthTpBm5AE_Q_CNl9OEbLFtb26OwMLhZflmbseku9Lu9LXSfj1S3pC3UJMA13lR_73iZRoG6iBYIFVnD8iqqNpf_w);
+    pointer-events: none
+    }
+.handle-bar {
+    width: 40px;
+    height: 4px;
+    background: #D9B242;
+    border-radius: 2px;
+    opacity: 0.6
+    }</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display min-h-screen flex items-center justify-center overflow-hidden bg-cloth">
+<!-- Dimmed Lobby Background Mockup -->
+<div class="fixed inset-0 z-0 flex flex-col pointer-events-none opacity-40">
+<header class="flex items-center justify-between px-10 py-6 border-b border-white/10">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">playing_cards</span>
+</div>
+<h1 class="text-white text-2xl font-bold tracking-tighter uppercase italic">Truco Argentino</h1>
+</div>
+<div class="flex gap-4">
+<div class="bg-black/40 px-4 py-2 rounded-full border border-white/5 flex items-center gap-2">
+<span class="material-symbols-outlined text-gold">payments</span>
+<span class="text-white font-bold">4.500</span>
+</div>
+</div>
+</header>
+<main class="p-10 grid grid-cols-3 gap-6">
+<div class="h-64 rounded-2xl bg-white/5 border border-white/10"></div>
+<div class="h-64 rounded-2xl bg-white/5 border border-white/10"></div>
+<div class="h-64 rounded-2xl bg-white/5 border border-white/10"></div>
+</main>
+</div>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 bg-black/60 z-10 backdrop-blur-sm flex items-end justify-center sm:items-center">
+<!-- Bottom Sheet / Central Modal -->
+<div class="glass-panel glass-dark w-full max-w-[480px] rounded-t-2xl sm:rounded-2xl flex flex-col relative z-20 max-h-[90vh] overflow-y-auto">
+<!-- Handle & Header -->
+<div class="flex flex-col items-center pt-3 pb-2">
+<div class="handle-bar mb-4"></div>
+<div class="w-full px-8 flex justify-between items-center">
+<div>
+<h2 class="text-white text-2xl font-bold tracking-tight">Crear mesa</h2>
+<p class="text-primary text-xs font-medium uppercase tracking-widest">Premium Argentum Lobby</p>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-white/60 hover:text-white transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</div>
+<!-- Content -->
+<div class="px-8 py-4 space-y-6">
+<!-- Privacidad Toggle -->
+<div class="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/5">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">lock</span>
+<span class="text-white font-medium">Mesa Privada</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Modalidad Selector -->
+<section>
+<h3 class="text-white/60 text-xs font-bold uppercase tracking-widest mb-3 ml-1">Modalidad de Juego</h3>
+<div class="flex h-12 w-full items-center justify-center rounded-xl bg-white/5 p-1 border border-white/5">
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 has-[:checked]:bg-primary has-[:checked]:text-white text-white/50 text-sm font-bold transition-all">
+<span>1 v 1</span>
+<input checked="" class="sr-only" name="players" type="radio" value="1v1"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 has-[:checked]:bg-primary has-[:checked]:text-white text-white/50 text-sm font-bold transition-all">
+<span>2 v 2</span>
+<input class="sr-only" name="players" type="radio" value="2v2"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 has-[:checked]:bg-primary has-[:checked]:text-white text-white/50 text-sm font-bold transition-all">
+<span>3 v 3</span>
+<input class="sr-only" name="players" type="radio" value="3v3"/>
+</label>
+</div>
+</section>
+<!-- Points & Flor Grid -->
+<div class="grid grid-cols-2 gap-4">
+<section>
+<h3 class="text-white/60 text-xs font-bold uppercase tracking-widest mb-3 ml-1">Puntos</h3>
+<div class="flex h-11 items-center justify-center rounded-xl bg-white/5 p-1 border border-white/5">
+<label class="flex cursor-pointer h-full grow items-center justify-center rounded-lg has-[:checked]:bg-primary/20 has-[:checked]:text-primary text-white/50 text-sm font-bold border border-transparent has-[:checked]:border-primary/30 transition-all">
+<span>15</span>
+<input checked="" class="sr-only" name="points" type="radio" value="15"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center rounded-lg has-[:checked]:bg-primary/20 has-[:checked]:text-primary text-white/50 text-sm font-bold border border-transparent has-[:checked]:border-primary/30 transition-all">
+<span>30</span>
+<input class="sr-only" name="points" type="radio" value="30"/>
+</label>
+</div>
+</section>
+<section>
+<h3 class="text-white/60 text-xs font-bold uppercase tracking-widest mb-3 ml-1">Reglas</h3>
+<div class="flex items-center justify-between bg-white/5 px-4 h-11 rounded-xl border border-white/5">
+<span class="text-white/80 text-sm font-bold uppercase">Con Flor</span>
+<label class="relative inline-flex items-center cursor-pointer scale-90">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-10 h-5 bg-white/10 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</section>
+</div>
+<!-- Economy Section -->
+<section class="space-y-4">
+<h3 class="text-white/60 text-xs font-bold uppercase tracking-widest mb-3 ml-1">Economía de la Partida</h3>
+<div class="flex h-12 w-full items-center justify-center rounded-xl bg-white/5 p-1 border border-white/5">
+<label class="flex cursor-pointer h-full grow items-center justify-center rounded-lg has-[:checked]:bg-white/10 has-[:checked]:text-white text-white/50 text-sm font-bold transition-all">
+<span>Práctica (Gratis)</span>
+<input class="sr-only" name="mode" type="radio" value="free"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center rounded-lg has-[:checked]:bg-white/10 has-[:checked]:text-white text-white/50 text-sm font-bold transition-all">
+<span>Competitivo</span>
+<input checked="" class="sr-only" name="mode" type="radio" value="paid"/>
+</label>
+</div>
+<!-- Input Monto -->
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="text-gold font-bold text-lg">$</span>
+</div>
+<input class="block w-full pl-10 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white font-bold text-xl focus:ring-primary focus:border-primary transition-all placeholder-white/20" placeholder="Monto de entrada" type="number" value="500"/>
+<div class="mt-2 flex items-center gap-2 px-1">
+<span class="material-symbols-outlined text-gold text-sm">info</span>
+<p class="text-white/40 text-[10px] uppercase font-bold tracking-widest">1 ficha = $1 ARS • Comisión 5%</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer CTA -->
+<div class="p-8 pt-4 pb-10">
+<button class="w-full bg-gold hover:bg-[#eec555] text-black font-black text-lg py-5 rounded-xl uppercase tracking-widest gold-glow flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
+                    Crear mesa
+                    <span class="material-symbols-outlined font-bold">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>

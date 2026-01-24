@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Truco Lobby - Mesas Activas</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00a35f",
+                        "gold": "#D9B242",
+                        "background-light": "#f0f1f5",
+                        "background-dark": "#0a0c0d",
+                        "glass": "rgba(20, 24, 22, 0.8)",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "2rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>.cloth-texture {
+    background-color: #0a0c0d;
+    background-image: radial-gradient(circle at center, rgba(0, 163, 95, 0.15) 0%, transparent 70%), url(https://lh3.googleusercontent.com/aida-public/AB6AXuD7BTlSLXneWFrMAbjlfK-hTuh2J5zp1sJJPsjqloXsCkgnAmWVub8sjFPF_KgJgtDDjeOp76WG6TmC-gcqHdGezB3EZOTPxi0RnB5NpXGMY0IDQwqbt7U-ewsFpRCtux3E83kH_r7ILzj3HSjysugPIDDIBcBEQM0uOJ6JREUKdB5n1xNVwc1KlRMkhI5fr8ATYob_E6YCEJsJRuPdGhHyLUeHw92MIElAnMe21ZTyxVDhKPevtFtJMnnIrbaF1AjfaJbt9Cexadw);
+    background-attachment: fixed
+    }
+.vignette {
+    box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.9)
+    }
+.glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border: 0.5px solid rgba(0, 163, 95, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8)
+    }
+.gold-border {
+    border: 1px solid #D9B242
+    }
+.pulse-gold {
+    box-shadow: 0 0 0 0 rgba(217, 178, 66, 0.7);
+    animation: pulse 2s infinite
+    }
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(217, 178, 66, 0.7);
+        } 70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(217, 178, 66, 0);
+        } 100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(217, 178, 66, 0);
+        }
+    }</style>
+</head>
+<body class="cloth-texture font-display text-white min-h-screen selection:bg-primary/30">
+<div class="vignette min-h-screen flex justify-center">
+<!-- Main Mobile-style Container for Desktop -->
+<div class="relative w-full max-w-[480px] flex flex-col bg-background-dark/40 border-x border-white/5 shadow-2xl">
+<!-- Sticky Top Bar -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-6 py-4 bg-background-dark/80 backdrop-blur-md border-b border-white/10">
+<button class="flex items-center justify-center size-10 rounded-full bg-white/5 hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-white">arrow_back_ios_new</span>
+</button>
+<div class="flex items-center gap-2 bg-primary/20 border border-primary/30 px-3 py-1.5 rounded-full">
+<div class="size-2 rounded-full bg-primary animate-pulse"></div>
+<span class="text-xs font-bold tracking-wider text-primary uppercase">Liga activa · Temporada 1</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1.5 px-2 py-1 bg-black/40 rounded-lg border border-white/5">
+<span class="material-symbols-outlined text-primary text-[16px]">wifi</span>
+<span class="text-[10px] font-bold text-primary">24ms</span>
+</div>
+<div class="size-10 rounded-full gold-border p-0.5">
+<img alt="User Profile Avatar" class="rounded-full w-full h-full object-cover" data-alt="Close up of a luxury poker avatar portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMkuuewoKelzXjrjLgWy50T9MMh-RLpaKJHHdxycD8P4NERyw2ZZ9ZiDLtDbbwy_yNL_GSgdYsjwzyYKvLBpS6gjbcrOVDIgvIK_uI7Y2Cb2Brp-HIh9eCBfRYuNLCBLpgRhhWakq3cXiZiTAiayqVFUPHwEz5_F6wMoI0Bm9oh-xYqQhNszpr2tUWn7FyPlW464yC-XVDOhWRmhqgLlejq8Memv6THDakrBGIAoCnBnAk3cy1sHyfmtkXgD7F13GDKRbYAF-hh8A"/>
+</div>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto px-6 pb-32">
+<!-- Hero Header -->
+<div class="pt-8 pb-6">
+<div class="flex items-center gap-3 mb-1">
+<h1 class="text-4xl font-bold tracking-tight">Jugar</h1>
+<div class="flex items-center gap-1.5 bg-gold/10 px-2.5 py-1 rounded-full border border-gold/20">
+<div class="size-1.5 rounded-full bg-gold pulse-gold"></div>
+<span class="text-[10px] font-black text-gold uppercase tracking-widest">En vivo</span>
+</div>
+</div>
+<p class="text-white/60 text-lg font-light">Mesas activas 24/7</p>
+</div>
+<!-- Quick Actions Segmented Buttons -->
+<div class="flex gap-2 p-1 bg-white/5 rounded-2xl mb-8 border border-white/10">
+<button class="flex-1 py-3 px-2 rounded-xl text-xs font-bold bg-white/5 text-white/70 hover:text-white transition-all uppercase tracking-wider">
+                        Buscar mesa
+                    </button>
+<button class="flex-1 py-3 px-2 rounded-xl text-xs font-bold bg-gold text-black shadow-[0_0_20px_rgba(217,178,66,0.4)] uppercase tracking-wider">
+                        Crear mesa
+                    </button>
+<button class="flex-1 py-3 px-2 rounded-xl text-xs font-bold bg-white/5 text-white/70 hover:text-white transition-all uppercase tracking-wider">
+                        Unirse
+                    </button>
+</div>
+<!-- Filters Row -->
+<div class="flex gap-3 overflow-x-auto pb-4 no-scrollbar mb-4">
+<div class="flex shrink-0 items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2 hover:bg-white/10 cursor-pointer transition-all">
+<span class="text-sm font-medium">Modo: 2v2</span>
+<span class="material-symbols-outlined text-[18px] opacity-60">expand_more</span>
+</div>
+<div class="flex shrink-0 items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2 hover:bg-white/10 cursor-pointer transition-all">
+<span class="text-sm font-medium">Apuesta</span>
+<span class="material-symbols-outlined text-[18px] opacity-60">payments</span>
+</div>
+<div class="flex shrink-0 items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2 hover:bg-white/10 cursor-pointer transition-all">
+<span class="text-sm font-medium">Ordenar</span>
+<span class="material-symbols-outlined text-[18px] opacity-60">filter_list</span>
+</div>
+</div>
+<!-- Table List -->
+<div class="space-y-4">
+<!-- Card 1: 2v2 -->
+<div class="glass-card rounded-2xl p-5 flex flex-col gap-4 group hover:border-primary/60 transition-all duration-300">
+<div class="flex justify-between items-start">
+<div class="flex flex-col gap-1">
+<div class="flex gap-2">
+<span class="bg-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded border border-primary/30 uppercase">2 vs 2</span>
+<span class="bg-white/10 text-white/80 text-[10px] font-bold px-2 py-0.5 rounded border border-white/10 uppercase">30 Puntos</span>
+</div>
+<h3 class="text-lg font-bold mt-2">Mesa de Gardel</h3>
+<p class="text-white/40 text-xs">Creado por <span class="text-white/70 font-medium">TrucoMaster99</span></p>
+</div>
+<div class="text-right">
+<p class="text-gold font-bold text-xl tracking-tighter">$1.500</p>
+<p class="text-[10px] text-white/30 uppercase font-black">Inscripción</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="flex flex-col gap-2">
+<div class="flex -space-x-2">
+<img alt="Player A1" class="size-7 rounded-full border-2 border-[#1a1f1d]" data-alt="Minimalist abstract circular player avatar red" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdcXh_7xoVoDV5kXV2KYuck_yeju15QPRa1StUgXK8AINRHNhdy9hjjKxGtBoy3zN1uY0T0gzTUEHPNFj3Ge7g6Z7V4H7ToW8q-3vHQdcc13xxkGrcW2Pa8JDEfwkCGorDfW6lWHv4TkvsGOAopTpiaEOHLaUV4IaALFkXFZ3O7GPHxC5FQiNXL37DiZbKZINsZR5p65p_404D2Xh53yIfzQ6xh20P7NIFkA1MnE98PWJcUOEsVDujcGhzOARKMz9UyAEHZR970jo"/>
+<div class="size-7 rounded-full border-2 border-dashed border-white/20 bg-white/5 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-white/40">add</span>
+</div>
+</div>
+<button class="w-full py-2 bg-primary/10 border border-primary/40 rounded-lg text-[10px] font-bold uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all">
+                                    Equipo A
+                                </button>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex -space-x-2">
+<img alt="Player B1" class="size-7 rounded-full border-2 border-[#1a1f1d]" data-alt="Minimalist abstract circular player avatar blue" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBV1IOhYcK57oSfnBMhvcTbh3q7HRALTSRUPwbDOHl_Iv5Z4hjdbRysI3f_9zCRfx43V_yTx5YbaZoracQSbvuij7_0JU8VOplj4-bQWYMToDsazhF5wh-L0KUReJuAUX7Dha7SzRvjgXOTgjZFm1wypDW6UaFLrG7AbT3KuksZsyhwqEcbmacSAIdfWn-03WUOhwFO31bYqDSsfXUnbkcUk2vdhp3LVBJZZnR_IG3o-HOpwWTjxUqgTSYFF1zf0S1GcdbIeMvhLdc"/>
+<img alt="Player B2" class="size-7 rounded-full border-2 border-[#1a1f1d]" data-alt="Minimalist abstract circular player avatar green" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1E0-v6EiTdrx9GO12OTfjjHGBkC-bEZiEIR7w-38TSvNnYUaIbzzGj0xuMyMd3XlExef6bb_KT1tbf7GR3mJX3bS83PvNjxX74ZdNoj3QlgXN-DvaezYV_j9NaLaLSS-agB7e6uji5yrDiLFj92XkUPMgLBPEaxi2rB2LzP8audm2NTbXnQumzyp4zPFgc_pWKUWhBJxVyNwxB7QwbOM3X0LRoJFw5cuN4k_Ap6FQTzsemCBbB2YHsy8o8FCjvMqyOmrOM7vKQ-A"/>
+</div>
+<button class="w-full py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold uppercase tracking-widest text-white/30 cursor-not-allowed">
+                                    Lleno
+                                </button>
+</div>
+</div>
+</div>
+<!-- Card 2: 1v1 -->
+<div class="glass-card rounded-2xl p-5 flex flex-col gap-4 border-gold/30">
+<div class="flex justify-between items-start">
+<div class="flex flex-col gap-1">
+<div class="flex gap-2">
+<span class="bg-gold/20 text-gold text-[10px] font-bold px-2 py-0.5 rounded border border-gold/30 uppercase">1 vs 1</span>
+<span class="bg-white/10 text-white/80 text-[10px] font-bold px-2 py-0.5 rounded border border-white/10 uppercase">15 Puntos</span>
+</div>
+<h3 class="text-lg font-bold mt-2">Duelo de Cuchilleros</h3>
+<p class="text-white/40 text-xs">Creado por <span class="text-white/70 font-medium">ElMati_OK</span></p>
+</div>
+<div class="text-right">
+<p class="text-gold font-bold text-xl tracking-tighter">$5.000</p>
+<p class="text-[10px] text-white/30 uppercase font-black">High Stakes</p>
+</div>
+</div>
+<div class="flex items-center justify-between gap-4 pt-2">
+<div class="flex items-center gap-3">
+<div class="relative">
+<img alt="Host Avatar" class="size-12 rounded-full border-2 border-gold/50" data-alt="Profile photo of a high stakes player" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDp3pkoyBvYTYnH7p_mNMfbfaLheNfcthZ21b0QF-rSidKDhb6-qy7Hzgi26rRjB-_3oNDVWpAIe6LmTnO2YBcB6S6Ixpmh9k1doFJj_m6SVEvEKgMKVxpR-rNZsgoAv4Jo7C4_nFApaZzEPw3fcNCUfIJmHatat3LWOXRJulE7Nj8uw43hi9-2uECaPR3ynwlws9WtTVVEflnOJ0sSEAvpXJtIll2byXhq--TBPGqo8EnHvp6zC9I2LxE7d4GuFeKZ-wrfHX-AJ44"/>
+<div class="absolute -bottom-1 -right-1 size-4 bg-primary rounded-full border-2 border-[#0a0c0d]"></div>
+</div>
+<div>
+<p class="text-sm font-bold">ElMati_OK</p>
+<p class="text-[10px] text-white/40">Nivel 42 · Pro</p>
+</div>
+</div>
+<button class="px-8 py-3 bg-gold text-black rounded-xl font-bold text-sm uppercase tracking-tighter hover:scale-105 transition-transform">
+                                Retar ahora
+                            </button>
+</div>
+</div>
+<!-- Card 3: 3v3 -->
+<div class="glass-card rounded-2xl p-5 flex flex-col gap-4 opacity-80">
+<div class="flex justify-between items-start">
+<div class="flex flex-col gap-1">
+<div class="flex gap-2">
+<span class="bg-white/5 text-white/40 text-[10px] font-bold px-2 py-0.5 rounded border border-white/10 uppercase">3 vs 3</span>
+<span class="bg-white/10 text-white/80 text-[10px] font-bold px-2 py-0.5 rounded border border-white/10 uppercase">30 Puntos</span>
+</div>
+<h3 class="text-lg font-bold mt-2">La Gran Estancia</h3>
+<p class="text-white/40 text-xs">Buscando 2 jugadores...</p>
+</div>
+<div class="text-right">
+<p class="text-gold font-bold text-xl tracking-tighter">$750</p>
+<p class="text-[10px] text-white/30 uppercase font-black">Inscripción</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<button class="w-full py-2 bg-primary/20 border border-primary/40 rounded-lg text-[10px] font-bold uppercase tracking-widest text-primary">
+                                Unirse A (2/3)
+                            </button>
+<button class="w-full py-2 bg-primary/20 border border-primary/40 rounded-lg text-[10px] font-bold uppercase tracking-widest text-primary">
+                                Unirse B (1/3)
+                            </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 w-full max-w-[480px] bg-background-dark/90 backdrop-blur-xl border-t border-white/10 px-4 py-3 pb-8 flex justify-between items-center z-50">
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-white/40 group-hover:text-white transition-colors">groups</span>
+<span class="text-[10px] text-white/40 font-medium">Comunidad</span>
+</a>
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-white/40 group-hover:text-white transition-colors">toll</span>
+<span class="text-[10px] text-white/40 font-medium">Fichas</span>
+</a>
+<!-- Active Item -->
+<div class="relative flex flex-col items-center gap-1 -top-4">
+<div class="size-14 rounded-full bg-primary flex items-center justify-center shadow-[0_0_30px_rgba(0,163,95,0.6)] border-4 border-background-dark">
+<span class="material-symbols-outlined text-white text-[28px] fill-current">playing_cards</span>
+</div>
+<span class="text-[10px] text-primary font-black uppercase tracking-widest mt-1">Jugar</span>
+</div>
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-white/40 group-hover:text-white transition-colors">leaderboard</span>
+<span class="text-[10px] text-white/40 font-medium">Rankings</span>
+</a>
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-white/40 group-hover:text-white transition-colors">support_agent</span>
+<span class="text-[10px] text-white/40 font-medium">Soporte</span>
+</a>
+</nav>
+</div>
+</div>
+</body></html>

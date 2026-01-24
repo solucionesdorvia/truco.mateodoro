@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unirse con Código Privado - Truco Argentino Premium</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700;800&amp;family=Noto+Sans:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d99d26",
+                        "background-light": "#fafafa",
+                        "background-dark": "#17191c",
+                    },
+                    fontFamily: {
+                        "display": ["Epilogue", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-modal {
+            background: rgba(23, 25, 28, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-top: 1px solid rgba(217, 157, 38, 0.2);
+        }
+        .keypad-button {
+            background: rgba(255, 255, 255, 0.03);
+            transition: all 0.2s ease;
+        }
+        .keypad-button:active {
+            background: rgba(217, 157, 38, 0.2);
+            transform: scale(0.95);
+        }
+        .digit-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .digit-input:focus {
+            border-color: #d99d26;
+            box-shadow: 0 0 10px rgba(217, 157, 38, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-white overflow-hidden">
+<!-- Background Lobby (Dimmed) -->
+<div class="fixed inset-0 z-0">
+<div class="absolute inset-0 bg-black/60 z-10"></div>
+<div class="w-full h-full bg-cover bg-center grayscale opacity-40" data-alt="Luxury dark wood lounge with ambient lighting" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC9uqq1QBkfOncE1Vagml8ZZ7PoeVFE07vajYDq5k833bL1YCLfT38VvXL_6pgRFArdxhwA-1TPPjXY8_ZE1Yza9whfgvK9h1cfAk7THQGnvGdyxcZdA6poFrOQJMUm4I-cndaOmSNsf_b8ecwj75LpWWFk9NVA6FrTMhTlp91VLcWN5o2SAcNyTf73LlGm8lkAsrLgQJUv9U8EGh8Z86DFALNM5yaYOK8_0lmXE-PTSQyEajQjobKsqjsg4L7ApAo8bfi4TxFLTUg');">
+</div>
+</div>
+<!-- Main Layout Container -->
+<div class="relative z-20 flex flex-col h-screen">
+<!-- Top Bar (Contextual) -->
+<header class="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black/20 backdrop-blur-md">
+<div class="flex items-center gap-3">
+<div class="text-primary">
+<span class="material-symbols-outlined text-3xl">playing_cards</span>
+</div>
+<h2 class="text-lg font-bold tracking-tight">Truco Argentino Premium</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex flex-col items-end">
+<span class="text-xs text-white/60">Saldo</span>
+<span class="text-sm font-bold text-primary">$12.450</span>
+</div>
+<div class="size-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center overflow-hidden">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="User profile picture in circular frame" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3vwMGThy-_aVNKLiFd99i4EWEjKmspRkHKkQftwzCZVgMYI8Tk1jo_uVnx2cBZ-jKcsBDcI9Iwr1mvUwsX7UWPGZY7cvT-CtnzgwzkuASSbMyRJUI4kPNhobXf-CHRRdz7YiOEx2SS0rEB6VCZ1vbcaYG2WYluxLSl5qdL8ATCDyDG6ERz3f5YHoE3mN07IOA6C_FRAJxNdOyfDedNb5BfPkk8gJJksF--vZDvMd3mtSOyfSmtjl90WFWFKqSkMS6b4bnIteGRM4"/>
+</div>
+</div>
+</header>
+<!-- Spacer for content -->
+<main class="flex-1 flex flex-col items-center justify-center p-6 text-center">
+<h3 class="text-white/40 font-medium">Esperando jugadores...</h3>
+</main>
+<!-- Bottom Sheet Modal -->
+<div class="glass-modal w-full max-w-2xl mx-auto rounded-t-[2.5rem] shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-500">
+<!-- Handle -->
+<div class="flex justify-center py-4">
+<div class="w-12 h-1.5 bg-primary rounded-full opacity-60"></div>
+</div>
+<!-- Content Header -->
+<div class="px-8 pb-4 text-center">
+<h1 class="text-2xl md:text-3xl font-extrabold text-white mb-2">Unirse a mesa privada</h1>
+<p class="text-white/60 text-sm md:text-base max-w-sm mx-auto">
+                    Ingresá el código del Equipo A o Equipo B para entrar a la partida.
+                </p>
+</div>
+<!-- 6-Digit Code Input -->
+<div class="flex justify-center gap-2 md:gap-4 px-6 py-6">
+<input class="digit-input w-12 h-16 md:w-14 md:h-20 rounded-xl text-center text-2xl font-bold text-primary focus:outline-none transition-all" maxlength="1" readonly="" type="text" value="4"/>
+<input class="digit-input w-12 h-16 md:w-14 md:h-20 rounded-xl text-center text-2xl font-bold text-primary focus:outline-none transition-all" maxlength="1" readonly="" type="text" value="8"/>
+<input class="digit-input w-12 h-16 md:w-14 md:h-20 rounded-xl text-center text-2xl font-bold text-primary focus:outline-none transition-all" maxlength="1" readonly="" type="text" value="2"/>
+<input class="digit-input w-12 h-16 md:w-14 md:h-20 rounded-xl text-center text-2xl font-bold text-primary focus:outline-none transition-all" maxlength="1" readonly="" type="text" value=""/>
+<input class="digit-input w-12 h-16 md:w-14 md:h-20 rounded-xl text-center text-2xl font-bold text-primary focus:outline-none transition-all" maxlength="1" readonly="" type="text" value=""/>
+<input class="digit-input w-12 h-16 md:w-14 md:h-20 rounded-xl text-center text-2xl font-bold text-primary focus:outline-none transition-all" maxlength="1" readonly="" type="text" value=""/>
+</div>
+<!-- Custom Numeric Keypad -->
+<div class="px-8 pb-6 grid grid-cols-3 gap-3 max-w-md mx-auto w-full">
+<button class="keypad-button h-14 rounded-xl flex items-center justify-center text-xl font-bold">1</button>
+<button class="keypad-button h-14 rounded-xl flex items-center justify-center text-xl font-bold">2</button>
+<button class="keypad-button h-14 rounded-xl flex items-center justify-center text-xl font-bold">3</button>
+<button class="keypad-button h-14 rounded-xl flex items-center justify-center text-xl font-bold">4</button>
+<button class="keypad-button h-14 rounded-xl flex items-center justify-center text-xl font-bold">5</button>
+<button class="keypad-button h-14 rounded-xl flex items-center justify-center text-xl font-bold">6</button>
+<button class="keypad-button h-14 rounded-xl flex items-center justify-center text-xl font-bold">7</button>
+<button class="keypad-button h-14 rounded-xl flex items-center justify-center text-xl font-bold">8</button>
+<button class="keypad-button h-14 rounded-xl flex items-center justify-center text-xl font-bold">9</button>
+<button class="h-14 rounded-xl flex items-center justify-center text-xl font-bold opacity-0 cursor-default">.</button>
+<button class="keypad-button h-14 rounded-xl flex items-center justify-center text-xl font-bold">0</button>
+<button class="keypad-button h-14 rounded-xl flex items-center justify-center text-xl font-bold text-white/50">
+<span class="material-symbols-outlined">backspace</span>
+</button>
+</div>
+<!-- Actions -->
+<div class="px-8 pb-10 flex flex-col gap-4 max-w-md mx-auto w-full">
+<button class="w-full bg-primary hover:bg-primary/90 text-background-dark h-14 rounded-xl font-extrabold text-lg shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2">
+                    Confirmar código
+                    <span class="material-symbols-outlined font-bold">arrow_forward</span>
+</button>
+<button class="w-full text-white/40 hover:text-white/60 h-10 rounded-xl font-bold text-sm transition-colors">
+                    Cancelar y volver
+                </button>
+</div>
+</div>
+</div>
+</body></html>
