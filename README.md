@@ -89,18 +89,7 @@ cd truco-argentino
 npm install
 ```
 
-### 2. Configurar variables de entorno
-
-Copia `env.example` a `.env` y configura:
-
-```env
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/truco_db?schema=public"
-
-# NextAuth
-NEXTAUTH_SECRET="tu-clave-secreta-muy-larga-y-segura"
-NEXTAUTH_URL="http://localhost:3000"
-```
+### 2.
 
 ### 3. Configurar base de datos
 
