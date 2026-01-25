@@ -25,6 +25,7 @@ export async function POST(request: Request) {
       chatEnabled: validated.chatEnabled,
       timerEnabled: validated.timerEnabled,
       timerSeconds: validated.timerSeconds,
+      isPublic: validated.isPublic,
       stakeMode: validated.stakeMode,
       entryFeeCredits: validated.entryFeeCredits,
       stakeTotalCredits: validated.stakeTotalCredits,

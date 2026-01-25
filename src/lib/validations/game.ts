@@ -4,6 +4,12 @@ export const gameModeSchema = z.enum(['ONE_VS_ONE', 'TWO_VS_TWO', 'THREE_VS_THRE
 export const stakeModeSchema = z.enum(['NONE', 'ENTRY_FEE', 'TEAM_POOL'])
 export const payoutModeSchema = z.enum(['PROPORTIONAL', 'SINGLE_RECEIVER'])
 
+const minEntryByMode: Record<z.infer<typeof gameModeSchema>, number> = {
+  ONE_VS_ONE: 2000,
+  TWO_VS_TWO: 5000,
+  THREE_VS_THREE: 9000,
+}
+
 export const createRoomSchema = z.object({
   mode: gameModeSchema,
   targetScore: z.number().refine(val => val === 15 || val === 30, {
@@ -13,6 +19,7 @@ export const createRoomSchema = z.object({
   chatEnabled: z.boolean(),
   timerEnabled: z.boolean(),
   timerSeconds: z.number().min(10).max(120).default(25),
+  isPublic: z.boolean().optional().default(true),
   stakeMode: stakeModeSchema,
   entryFeeCredits: z.number().min(1).optional(),
   stakeTotalCredits: z.number().min(1).optional(),
@@ -24,6 +31,14 @@ export const createRoomSchema = z.object({
   return true
 }, {
   message: 'Se requiere el monto de entrada para el modo ENTRY_FEE',
+  path: ['entryFeeCredits'],
+}).refine((data) => {
+  if (data.stakeMode !== 'ENTRY_FEE' || !data.entryFeeCredits) {
+    return true
+  }
+  return data.entryFeeCredits >= minEntryByMode[data.mode]
+}, {
+  message: 'El monto mínimo depende del modo de juego',
   path: ['entryFeeCredits'],
 }).refine((data) => {
   if (data.stakeMode === 'TEAM_POOL' && !data.stakeTotalCredits) {

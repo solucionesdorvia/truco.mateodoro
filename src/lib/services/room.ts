@@ -10,6 +10,7 @@ interface CreateRoomParams {
   chatEnabled: boolean
   timerEnabled: boolean
   timerSeconds: number
+  isPublic?: boolean
   stakeMode: StakeMode
   entryFeeCredits?: number
   stakeTotalCredits?: number
@@ -48,6 +49,7 @@ export async function createRoom(params: CreateRoomParams) {
     chatEnabled,
     timerEnabled,
     timerSeconds,
+    isPublic = true,
     stakeMode,
     entryFeeCredits,
     stakeTotalCredits,
@@ -93,6 +95,7 @@ export async function createRoom(params: CreateRoomParams) {
       chatEnabled,
       timerEnabled,
       timerSeconds,
+      isPublic,
       status: 'WAITING',
       codeTeamA,
       codeTeamB,

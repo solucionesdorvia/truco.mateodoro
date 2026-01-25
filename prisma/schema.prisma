@@ -57,6 +57,13 @@ enum CreditTransactionType {
   REFERRAL_PURCHASE_BONUS   // Bonus extra por primera compra del referido
 }
 
+enum FriendRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
 // Models
 model User {
   id                 String   @id @default(cuid())
@@ -86,10 +93,29 @@ model User {
   referrals           User[]               @relation("Referrals") // Usuarios que refirió
   referralRecords     Referral[]           @relation("ReferrerRecords") // Registros como referente
   referredRecords     Referral[]           @relation("ReferredRecords") // Registros como referido
+  friendRequestsSent  FriendRequest[]      @relation("FriendRequestsSent")
+  friendRequestsReceived FriendRequest[]   @relation("FriendRequestsReceived")
 
   @@index([email])
   @@index([username])
   @@index([referralCode])
+}
+
+model FriendRequest {
+  id         String               @id @default(cuid())
+  fromUserId String
+  toUserId   String
+  status     FriendRequestStatus  @default(PENDING)
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+
+  fromUser   User @relation("FriendRequestsSent", fields: [fromUserId], references: [id])
+  toUser     User @relation("FriendRequestsReceived", fields: [toUserId], references: [id])
+
+  @@unique([fromUserId, toUserId])
+  @@index([fromUserId])
+  @@index([toUserId])
+  @@index([status])
 }
 
 model GameRoom {
