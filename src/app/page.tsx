@@ -1,462 +1,263 @@
-'use client'
-
 import Link from 'next/link'
-import { useSession } from 'next-auth/react'
-import { 
-  Swords, 
-  Trophy, 
-  Coins, 
-  Shield, 
-  Users,
-  ChevronRight,
-  Flame,
-  Timer,
-  Sparkles,
-  Target
-} from 'lucide-react'
-
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-
-// SVG Palos de cartas españolas
-function EspadaSVG({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 32" className={className} fill="currentColor">
-      <path d="M12 0C12 0 8 6 8 10C8 13 9.5 15 12 15.5C14.5 15 16 13 16 10C16 6 12 0 12 0Z" />
-      <path d="M12 15V30" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round"/>
-      <path d="M9 26H15" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round"/>
-    </svg>
-  )
-}
-
-function BastoSVG({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 32" className={className} fill="currentColor">
-      <ellipse cx="12" cy="4" rx="4" ry="3.5"/>
-      <path d="M10 6C10 6 9 10 9 14C9 18 10 22 10 26" strokeWidth="3" stroke="currentColor" fill="none" strokeLinecap="round"/>
-      <path d="M14 6C14 6 15 10 15 14C15 18 14 22 14 26" strokeWidth="3" stroke="currentColor" fill="none" strokeLinecap="round"/>
-      <path d="M8 26H16" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round"/>
-    </svg>
-  )
-}
-
-function OroSVG({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="currentColor">
-      <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2"/>
-      <circle cx="12" cy="12" r="6" />
-    </svg>
-  )
-}
-
-function CopaSVG({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 28" className={className} fill="currentColor">
-      <path d="M6 0H18V2C18 8 15 12 12 14C9 12 6 8 6 2V0Z" />
-      <path d="M12 14V22" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round"/>
-      <path d="M8 22H16V24H8V22Z" />
-    </svg>
-  )
-}
 
 export default function HomePage() {
-  const { data: session } = useSession()
-
   return (
-    <div className="relative">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden min-h-[90vh] flex items-center">
-        {/* Mesa de paño - Background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-noche via-noche-100 to-noche" />
-        
-        {/* Paño central (efecto mesa) */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] max-w-[1400px] aspect-[16/9]">
-          <div className="absolute inset-0 bg-mesa-radial rounded-[100px] opacity-30" />
-          <div className="absolute inset-[10%] border-2 border-paño/30 rounded-[80px]" />
-        </div>
-        
-        {/* Cartas decorativas floating */}
-        <div className="absolute top-[15%] left-[8%] opacity-20 rotate-[-15deg]">
-          <div className="w-16 h-24 bg-naipe-gradient rounded-lg shadow-naipe flex items-center justify-center">
-            <EspadaSVG className="w-8 h-10 text-noche-400" />
+    <div className="landing-bg font-landing-sans">
+      <header className="sticky top-0 z-50 glass-card border-b border-white/5 px-4 py-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary text-3xl">playing_cards</span>
+            <h2 className="font-landing-display text-lg font-bold tracking-tight text-white uppercase">Truco Club</h2>
           </div>
+          <Link
+            href="/login"
+            className="bg-gold text-background-dark px-5 py-2 rounded-xl font-bold text-xs tracking-wider uppercase min-h-[44px] inline-flex items-center justify-center"
+          >
+            INGRESAR
+          </Link>
         </div>
-        <div className="absolute top-[20%] right-[10%] opacity-15 rotate-[20deg]">
-          <div className="w-14 h-20 bg-naipe-gradient rounded-lg shadow-naipe flex items-center justify-center">
-            <OroSVG className="w-7 h-7 text-oro-dark" />
+      </header>
+
+      <main className="max-w-4xl mx-auto px-5 py-10">
+        <section className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 gold-pill px-4 py-1.5 rounded-full mb-8">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+            </span>
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-primary">Liga activa · Temporada 1</span>
           </div>
-        </div>
-        <div className="absolute bottom-[25%] left-[12%] opacity-10 rotate-[8deg]">
-          <div className="w-12 h-18 bg-naipe-gradient rounded-lg shadow-naipe flex items-center justify-center">
-            <BastoSVG className="w-6 h-8 text-paño-700" />
+          <h1 className="font-landing-display text-4xl md:text-6xl font-black text-primary leading-[1.1] mb-6 uppercase">
+            EL TRUCO COMPETITIVO <br /> DE VERDAD
+          </h1>
+          <p className="text-white/70 text-base md:text-lg max-w-xl mx-auto mb-10 leading-relaxed font-landing-sans">
+            Mesas exclusivas, torneos federales y la comunidad más picante de la Argentina.
+          </p>
+          <div className="flex flex-col gap-4 max-w-sm mx-auto">
+            <Link
+              href="/jugar"
+              className="bg-gold text-background-dark min-h-[56px] px-8 py-4 rounded-2xl font-black text-base hover:scale-[1.02] transition-transform gold-glow uppercase tracking-wider inline-flex items-center justify-center"
+            >
+              Jugar ahora
+            </Link>
+            <Link
+              href="/rankings"
+              className="glass-card min-h-[56px] px-8 py-4 rounded-2xl font-bold text-base border-gold/40 text-primary hover:bg-white/5 transition-all uppercase tracking-wider inline-flex items-center justify-center"
+            >
+              Ver tabla
+            </Link>
           </div>
-        </div>
-        <div className="absolute bottom-[30%] right-[8%] opacity-15 rotate-[-12deg]">
-          <div className="w-14 h-20 bg-naipe-gradient rounded-lg shadow-naipe flex items-center justify-center">
-            <CopaSVG className="w-7 h-9 text-destructive" />
-          </div>
-        </div>
-        
-        {/* Ambient light */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-paño/10 rounded-full blur-[150px]" />
-        
-        <div className="relative container mx-auto px-4 py-16">
-          <div className="max-w-4xl mx-auto text-center">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-paño/20 border border-paño/40 mb-8 animate-fade-in">
-              <Flame className="w-4 h-4 text-oro" />
-              <span className="text-sm text-naipe-400 font-medium">Liga activa • Temporada 1</span>
+        </section>
+
+        <section className="mb-16">
+          <div className="glass-card rounded-3xl p-8 flex flex-col items-center gap-6 border-gold/20 shadow-2xl relative overflow-hidden bg-gradient-to-br from-white/[0.05] to-transparent">
+            <div className="absolute top-0 right-0 p-4 opacity-10">
+              <span className="material-symbols-outlined text-8xl">account_balance_wallet</span>
             </div>
-            
-            {/* Title */}
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 tracking-tight animate-slide-up">
-              <span className="text-naipe block">
-                EL TRUCO COMPETITIVO
-              </span>
-              <span className="text-gradient-oro block mt-2">
-                DE VERDAD
-              </span>
-            </h1>
-            
-            {/* Subtitle */}
-            <p className="text-lg sm:text-xl text-naipe-600 mb-10 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '100ms' }}>
-              Armá mesa, cantá envido y subí en la tabla.
-              <br className="hidden sm:block" />
-              <span className="text-naipe-400">Sistema de pozos por equipo. Sin vueltas.</span>
-            </p>
-            
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: '200ms' }}>
-              <Link href="/jugar">
-                <Button 
-                  size="lg" 
-                  className="btn-pano w-full sm:w-auto text-lg px-10 py-7 group"
-                >
-                  <Swords className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
-                  Jugar ahora
-                </Button>
+            <div className="text-center">
+              <p className="text-white/50 text-[10px] font-bold uppercase tracking-[0.2em] mb-3">Saldo en cuenta</p>
+              <div className="flex items-center justify-center gap-3">
+                <span className="text-6xl font-landing-display font-black text-gold">0</span>
+                <span className="text-xl font-bold text-white/90">Mis Fichas</span>
+              </div>
+            </div>
+            <div className="flex flex-col items-center gap-4 w-full">
+              <Link
+                href="/fichas"
+                className="bg-white/10 border border-white/20 text-white min-h-[44px] px-8 py-2 rounded-full text-sm font-bold hover:bg-white/20 transition-all w-full max-w-[240px] inline-flex items-center justify-center"
+              >
+                Cargar Créditos
               </Link>
-              <Link href="/rankings">
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="w-full sm:w-auto border-naipe-700/50 text-naipe-400 hover:bg-noche-100 hover:text-naipe hover:border-naipe-600 text-lg px-8 py-6"
-                >
-                  <Trophy className="w-5 h-5 mr-2" />
-                  Ver tabla
-                </Button>
+              <Link
+                href="/fichas"
+                className="text-xs text-primary/70 font-bold uppercase tracking-widest hover:text-primary transition-colors underline decoration-primary/30"
+              >
+                Ver movimientos
               </Link>
             </div>
-            
-            {/* Mode buttons - llevan directo a /jugar con filtro */}
-            <div className="flex items-center justify-center gap-3 sm:gap-6 mt-16 animate-fade-in" style={{ animationDelay: '300ms' }}>
-              {[
-                { mode: '1v1', filter: 'ONE_VS_ONE', label: 'Mano a mano' },
-                { mode: '2v2', filter: 'TWO_VS_TWO', label: 'Duplas' },
-                { mode: '3v3', filter: 'THREE_VS_THREE', label: 'Equipos' },
-              ].map((item) => (
-                <Link 
-                  key={item.mode} 
-                  href={`/jugar?mode=${item.filter}`}
-                  className="text-center group"
-                >
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-club bg-noche-100 border-2 border-paño/30 flex items-center justify-center mb-2 group-hover:border-paño group-hover:bg-paño/20 group-active:scale-95 transition-all duration-200 cursor-pointer">
-                    <span className="text-3xl sm:text-4xl font-bold text-naipe group-hover:text-paño-50">{item.mode}</span>
-                  </div>
-                  <p className="text-xs sm:text-sm text-naipe-600 group-hover:text-naipe-400">{item.label}</p>
-                </Link>
-              ))}
+          </div>
+        </section>
+
+        <section className="mb-16">
+          <h2 className="font-landing-display text-2xl font-bold mb-8 text-center uppercase tracking-widest text-white/90">Modos de Juego</h2>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="glass-card aspect-square rounded-2xl flex flex-col items-center justify-center gap-2 p-2 text-center border-gold/10">
+              <span className="material-symbols-outlined text-gold text-3xl">person</span>
+              <span className="text-xs font-black uppercase tracking-tight">1v1</span>
+            </div>
+            <div className="glass-card aspect-square rounded-2xl flex flex-col items-center justify-center gap-2 p-2 text-center border-gold/10">
+              <span className="material-symbols-outlined text-gold text-3xl">group</span>
+              <span className="text-xs font-black uppercase tracking-tight">2v2</span>
+            </div>
+            <div className="glass-card aspect-square rounded-2xl flex flex-col items-center justify-center gap-2 p-2 text-center border-gold/10">
+              <span className="material-symbols-outlined text-gold text-3xl">groups_3</span>
+              <span className="text-xs font-black uppercase tracking-tight">3v3</span>
             </div>
           </div>
-        </div>
-        
-      </section>
+        </section>
 
-      {/* Propuesta de valor - Lista clickeable */}
-      <section className="py-12 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-noche to-noche-100" />
-        
-        <div className="relative container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-              {[
-                { icon: Swords, text: 'Jugar', sub: 'Mesas 24/7', href: '/jugar' },
-                { icon: Trophy, text: 'Liga', sub: 'Premios reales', href: '/rankings' },
-                { icon: Coins, text: 'Fichas', sub: 'Tus créditos', href: '/fichas' },
-                { icon: Users, text: 'Comunidad', sub: 'Grupos activos', href: 'https://wa.me/5491112345678', external: true },
-                { icon: Target, text: 'Pozos', sub: 'Por equipo', href: '/jugar?stake=info' },
-                { icon: Shield, text: 'Fair play', sub: 'Sin trampas', href: '/soporte#faq' },
-              ].map((item, i) => (
-                item.external ? (
-                  <a 
-                    key={i}
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 p-3 sm:p-4 rounded-club bg-noche-100/50 border border-paño/10 hover:border-paño/40 hover:bg-paño/5 active:scale-[0.98] transition-all cursor-pointer group"
-                  >
-                    <div className="w-10 h-10 rounded-club bg-paño/10 border border-paño/20 flex items-center justify-center shrink-0 group-hover:bg-paño/20 transition-colors">
-                      <item.icon className="w-5 h-5 text-paño-50" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-naipe text-sm group-hover:text-paño-50 transition-colors">{item.text}</p>
-                      <p className="text-xs text-naipe-700">{item.sub}</p>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-naipe-700 group-hover:text-paño-50 group-hover:translate-x-0.5 transition-all shrink-0" />
-                  </a>
-                ) : (
-                  <Link 
-                    key={i}
-                    href={item.href}
-                    className="flex items-center gap-3 p-3 sm:p-4 rounded-club bg-noche-100/50 border border-paño/10 hover:border-paño/40 hover:bg-paño/5 active:scale-[0.98] transition-all cursor-pointer group"
-                  >
-                    <div className="w-10 h-10 rounded-club bg-paño/10 border border-paño/20 flex items-center justify-center shrink-0 group-hover:bg-paño/20 transition-colors">
-                      <item.icon className="w-5 h-5 text-paño-50" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-naipe text-sm group-hover:text-paño-50 transition-colors">{item.text}</p>
-                      <p className="text-xs text-naipe-700">{item.sub}</p>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-naipe-700 group-hover:text-paño-50 group-hover:translate-x-0.5 transition-all shrink-0" />
-                  </Link>
-                )
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Quick Actions Section */}
-      <section className="py-20 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-noche-100 via-noche to-noche" />
-        
-        <div className="relative container mx-auto px-4">
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Wallet Preview */}
-            <div className="card-club overflow-hidden">
-              <div className="p-6 border-b border-paño/20">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-naipe flex items-center gap-2">
-                    <Coins className="w-5 h-5 text-oro" />
-                    Mis Fichas
-                  </h3>
-                  {session && (
-                    <span className="chip">
-                      {session.user.creditsBalance ?? 0}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="p-6">
-                {session ? (
-                  <div className="space-y-4">
-                    <div className="p-4 rounded-club bg-noche-200 border border-oro/20">
-                      <p className="text-4xl font-bold text-oro tabular-nums">
-                        {session.user.creditsBalance ?? 0}
-                      </p>
-                      <p className="text-sm text-naipe-700">fichas disponibles</p>
-                    </div>
-                    <Link href="/fichas">
-                      <Button className="w-full bg-oro/10 hover:bg-oro/20 text-oro border border-oro/30 rounded-club">
-                        Ver movimientos
-                        <ChevronRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="text-center py-6">
-                    <p className="text-naipe-700 mb-4">Entrá para ver tus fichas</p>
-                    <Link href="/login">
-                      <Button variant="outline" className="border-paño/30 text-naipe-400 hover:bg-paño/10 rounded-club">
-                        Entrar
-                      </Button>
-                    </Link>
-                  </div>
-                )}
+        <section className="mb-16">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="glass-card p-5 rounded-2xl flex items-start gap-4">
+              <span className="material-symbols-outlined text-gold">schedule</span>
+              <div>
+                <h4 className="font-bold text-white text-xs uppercase mb-1">Mesas 24/7</h4>
+                <p className="text-white/40 text-[10px] leading-tight">Siempre hay partida activa.</p>
               </div>
             </div>
-
-            {/* Weekly Ranking Preview */}
-            <div className="card-club overflow-hidden">
-              <div className="p-6 border-b border-paño/20">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-naipe flex items-center gap-2">
-                    <Trophy className="w-5 h-5 text-celeste" />
-                    Top Semanal
-                  </h3>
-                  <Badge className="bg-paño/20 text-paño-50 border-paño/30">
-                    <Timer className="w-3 h-3 mr-1" />
-                    En vivo
-                  </Badge>
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="space-y-3">
-                  {[
-                    { pos: 1, name: 'ElTrucazo', wins: 47, streak: 8 },
-                    { pos: 2, name: 'ManoNegra', wins: 42, streak: 5 },
-                    { pos: 3, name: 'EnvidoKing', wins: 38, streak: 3 },
-                  ].map((player) => (
-                    <div 
-                      key={player.pos}
-                      className="flex items-center gap-3 p-3 rounded-club bg-noche-200 border border-paño/10 hover:border-paño/30 transition-colors"
-                    >
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                        player.pos === 1 ? 'bg-oro/20 text-oro' :
-                        player.pos === 2 ? 'bg-naipe-600/20 text-naipe-500' :
-                        'bg-oro-muted/20 text-oro-muted'
-                      }`}>
-                        {player.pos}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-naipe text-sm">{player.name}</p>
-                        <p className="text-xs text-naipe-700">{player.wins} victorias</p>
-                      </div>
-                      <div className="flex items-center gap-1 text-xs text-oro">
-                        <Flame className="w-3 h-3" />
-                        {player.streak}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                <Link href="/rankings" className="block mt-4">
-                  <Button variant="ghost" className="w-full text-celeste hover:text-celeste-light hover:bg-celeste/10 rounded-club">
-                    Ver tabla completa
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </Link>
+            <div className="glass-card p-5 rounded-2xl flex items-start gap-4">
+              <span className="material-symbols-outlined text-gold">trophy</span>
+              <div>
+                <h4 className="font-bold text-white text-xs uppercase mb-1">Premios reales</h4>
+                <p className="text-white/40 text-[10px] leading-tight">Cobros instantáneos.</p>
               </div>
             </div>
-
-            {/* Community - Links */}
-            <div className="card-club overflow-hidden">
-              <div className="p-6 border-b border-paño/20">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-naipe flex items-center gap-2">
-                    <Users className="w-5 h-5 text-paño-50" />
-                    Comunidad
-                  </h3>
-                  <div className="w-2 h-2 rounded-full bg-paño animate-pulse" />
-                </div>
+            <div className="glass-card p-5 rounded-2xl flex items-start gap-4">
+              <span className="material-symbols-outlined text-gold">payments</span>
+              <div>
+                <h4 className="font-bold text-white text-xs uppercase mb-1">Tus créditos</h4>
+                <p className="text-white/40 text-[10px] leading-tight">Seguridad garantizada.</p>
               </div>
-              <div className="p-6">
-                <p className="text-naipe-400 text-sm mb-6">
-                  Unite al grupo para armar equipos, enterarte de torneos y coordinar mesas.
-                </p>
-                
-                <div className="space-y-3">
-                  <a 
-                    href="https://wa.me/5491112345678" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 p-4 rounded-club bg-[#25D366]/10 border border-[#25D366]/30 hover:bg-[#25D366]/20 transition-colors group"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-[#25D366]/20 flex items-center justify-center">
-                      <svg className="w-5 h-5 text-[#25D366]" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-[#25D366]">Unirme a WhatsApp</p>
-                      <p className="text-xs text-naipe-700">Grupo oficial</p>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-[#25D366] group-hover:translate-x-1 transition-transform" />
-                  </a>
-                  
-                  <a 
-                    href="https://t.me/trucoargentino" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 p-4 rounded-club bg-[#0088cc]/10 border border-[#0088cc]/30 hover:bg-[#0088cc]/20 transition-colors group"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-[#0088cc]/20 flex items-center justify-center">
-                      <svg className="w-5 h-5 text-[#0088cc]" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-[#0088cc]">Unirme a Telegram</p>
-                      <p className="text-xs text-naipe-700">Canal de torneos</p>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-[#0088cc] group-hover:translate-x-1 transition-transform" />
-                  </a>
-                </div>
+            </div>
+            <div className="glass-card p-5 rounded-2xl flex items-start gap-4">
+              <span className="material-symbols-outlined text-gold">forum</span>
+              <div>
+                <h4 className="font-bold text-white text-xs uppercase mb-1">Grupos activos</h4>
+                <p className="text-white/40 text-[10px] leading-tight">Comunidad vibrante.</p>
+              </div>
+            </div>
+            <div className="glass-card p-5 rounded-2xl flex items-start gap-4">
+              <span className="material-symbols-outlined text-gold">partner_exchange</span>
+              <div>
+                <h4 className="font-bold text-white text-xs uppercase mb-1">Por equipo</h4>
+                <p className="text-white/40 text-[10px] leading-tight">Pozos acumulados.</p>
+              </div>
+            </div>
+            <div className="glass-card p-5 rounded-2xl flex items-start gap-4">
+              <span className="material-symbols-outlined text-gold">verified_user</span>
+              <div>
+                <h4 className="font-bold text-white text-xs uppercase mb-1">Sin trampas</h4>
+                <p className="text-white/40 text-[10px] leading-tight">Sistema anti-fraude.</p>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* CTA Section */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-mesa-radial opacity-20" />
-        
-        <div className="relative container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-oro/10 border border-oro/30 mb-8">
-              <Sparkles className="w-4 h-4 text-oro" />
-              <span className="text-sm text-oro font-medium">Fichas de bienvenida incluidas</span>
-            </div>
-            
-            <h2 className="text-3xl lg:text-5xl font-bold text-naipe mb-6 tracking-tight">
-              CREÁ TU CUENTA
-              <br />
-              <span className="text-gradient-oro">Y ARRANCÁ HOY</span>
-            </h2>
-            <p className="text-naipe-600 mb-10 max-w-xl mx-auto text-lg">
-              En 30 segundos estás adentro. 
-              Empezá gratis o directamente con fichas para el pozo.
-            </p>
-            
-            {session ? (
-              <Link href="/jugar">
-                <Button className="btn-oro text-lg px-12 py-7 group">
-                  <Swords className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
-                  Ir a jugar
-                </Button>
-              </Link>
-            ) : (
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href="/register">
-                  <Button className="btn-oro text-lg px-10 py-6">
-                    Crear cuenta gratis
-                  </Button>
-                </Link>
-                <Link href="/login">
-                  <Button variant="outline" className="border-naipe-700 text-naipe-400 hover:bg-noche-100 px-8 py-6">
-                    Ya tengo cuenta
-                  </Button>
-                </Link>
-              </div>
-            )}
+        <section className="mb-16">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-landing-display text-xl font-bold uppercase italic tracking-wider">Top Semanal</h2>
+            <span className="text-[10px] text-white/40 uppercase font-bold tracking-widest">Live Update</span>
           </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-8 border-t border-paño/20 bg-noche">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-club bg-paño flex items-center justify-center">
-                <EspadaSVG className="w-4 h-5 text-naipe" />
+          <div className="flex flex-col gap-2">
+            <div className="glass-card rounded-xl p-4 flex items-center justify-between border-l-4 border-l-gold">
+              <div className="flex items-center gap-4">
+                <span className="text-gold font-landing-display font-black text-xl w-6">1</span>
+                <div>
+                  <p className="font-bold text-sm">Don_Quijote88</p>
+                  <p className="text-[10px] text-white/40 uppercase">Maestro</p>
+                </div>
               </div>
-              <span className="text-sm text-naipe-700">Truco Argentino © 2026</span>
+              <div className="text-right">
+                <p className="text-gold font-black text-lg">142</p>
+                <p className="text-[8px] text-white/40 uppercase">Wins</p>
+              </div>
             </div>
-            
-            <p className="text-sm text-naipe-800">
-              Hecho por Doro
-            </p>
-            
-            <div className="flex items-center gap-6">
-              <Link href="/soporte" className="text-sm text-naipe-700 hover:text-naipe transition-colors">
-                Soporte
-              </Link>
-              <Link href="/soporte#faq" className="text-sm text-naipe-700 hover:text-naipe transition-colors">
-                FAQ
-              </Link>
+            <div className="glass-card rounded-xl p-4 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <span className="text-white/60 font-landing-display font-black text-xl w-6">2</span>
+                <div>
+                  <p className="font-bold text-sm">PampaCruel</p>
+                  <p className="text-[10px] text-white/40 uppercase">Veterano</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-white font-black text-lg">128</p>
+                <p className="text-[8px] text-white/40 uppercase">Wins</p>
+              </div>
             </div>
+            <div className="glass-card rounded-xl p-4 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <span className="text-orange-400/80 font-landing-display font-black text-xl w-6">3</span>
+                <div>
+                  <p className="font-bold text-sm">ElGaucho_UI</p>
+                  <p className="text-[10px] text-white/40 uppercase">Iniciando</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-white font-black text-lg">115</p>
+                <p className="text-[8px] text-white/40 uppercase">Wins</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-16 flex flex-col gap-4">
+          <a
+            className="glass-card min-h-[64px] rounded-2xl px-6 flex items-center justify-between group border-green-500/20"
+            href="https://wa.me/5491112345678"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-green-500">chat</span>
+              </div>
+              <span className="font-bold text-sm uppercase tracking-wider">Unirme a WhatsApp</span>
+            </div>
+            <span className="material-symbols-outlined text-white/20 group-hover:text-white transition-colors">chevron_right</span>
+          </a>
+          <a
+            className="glass-card min-h-[64px] rounded-2xl px-6 flex items-center justify-between group border-gold/20"
+            href="https://t.me/trucoargentino"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-gold">send</span>
+              </div>
+              <span className="font-bold text-sm uppercase tracking-wider">Canal de Telegram</span>
+            </div>
+            <span className="material-symbols-outlined text-white/20 group-hover:text-white transition-colors">chevron_right</span>
+          </a>
+        </section>
+
+        <section className="mb-20 text-center py-16 px-6 glass-card rounded-3xl border-gold/30 relative overflow-hidden">
+          <div
+            className="absolute inset-0 opacity-10 pointer-events-none"
+            style={{
+              backgroundImage:
+                "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAHlumig5_6K5SyL7-WR3-nzXQb4Z1tINl_PnYialovtga-ymBRiozncr2W95WNQrnevUWhpsirvjMBr09O5i7o3EVrqwrB7svPlHFSHSe6HBepYNvfdp4QDkLwGKnEEmxPvDFRzUxgt4EXaTeN5N-Irsneqn2chdFcdGAI_96MEMYC3MkPteqZWKGSYBpYSD584JKV2bHcwDttrSCRoiuTpx68vL_04j7chbx2SKy863pRClIb996kzmyWPF3SuunbQH5mUMUPfdQ')",
+              backgroundSize: 'cover',
+            }}
+          />
+          <div className="relative z-10">
+            <h2 className="font-landing-display text-3xl font-black text-white uppercase mb-8 leading-tight">CREÁ TU CUENTA Y ARRANCÁ HOY</h2>
+            <Link
+              href="/jugar"
+              className="bg-gold text-background-dark min-h-[60px] px-12 py-5 rounded-2xl font-black text-lg hover:scale-105 transition-transform gold-glow-strong uppercase tracking-widest w-full max-w-xs inline-flex items-center justify-center"
+            >
+              Ir a jugar
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      <footer className="border-t border-white/10 py-12 px-8 text-center">
+        <div className="max-w-4xl mx-auto flex flex-col items-center gap-8">
+          <div className="flex items-center gap-2 text-gold">
+            <span className="material-symbols-outlined text-2xl">playing_cards</span>
+            <span className="font-landing-display font-bold uppercase tracking-widest text-sm">Truco Club Argentino</span>
+          </div>
+          <div className="flex flex-wrap justify-center gap-6 text-[10px] font-black uppercase tracking-[0.2em] text-gold/60">
+            <Link className="hover:text-gold transition-colors" href="/soporte">Soporte</Link>
+            <Link className="hover:text-gold transition-colors" href="/soporte#faq">FAQ</Link>
+            <Link className="hover:text-gold transition-colors" href="/soporte">Privacidad</Link>
+            <Link className="hover:text-gold transition-colors" href="/soporte">Términos</Link>
+          </div>
+          <div className="space-y-2">
+            <p className="text-white/20 text-[10px] uppercase font-bold tracking-widest">© 2026 Todos los derechos reservados.</p>
+            <p className="text-white/10 text-[9px] uppercase font-medium">Hecho por <span className="text-gold/30">Doro</span></p>
           </div>
         </div>
       </footer>

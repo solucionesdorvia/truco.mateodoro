@@ -10,6 +10,7 @@ interface MainLayoutProps {
 
 // Pages where we don't want the standard layout
 const excludedPaths = [
+  '/',
   '/login',
   '/register',
   '/change-password',
