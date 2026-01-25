@@ -13,8 +13,6 @@ const excludedPaths = [
   '/login',
   '/register',
   '/change-password',
-  '/jugar',
-  '/soporte',
   '/game/join',
   '/game/create',
   '/game/join-private',
